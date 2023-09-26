@@ -1,4 +1,4 @@
-qtmlib
+pytket-phir
 ======
 
 .. toctree::
@@ -12,30 +12,30 @@ qtmlib
 Installation
 ------------
 
-To install qtmlib, simply run:
+To install pytket-phir, simply run:
 
 .. code-block:: bash
 
-   pip install qtmlib
+   pip install pytket-phir
 
 Usage
 -----
 
-To use qtmlib, import the main module:
+To use pytket-phir, import the main module:
 
 .. code-block:: python
 
-   from qtmlib import main
+   from pytket-phir import main
 
    main.run()
 
 Utils
 -----
 
-The utils module contains various utility functions that can be used in conjunction with qtmlib. To use the utils module, import it like so:
+The utils module contains various utility functions that can be used in conjunction with pytket-phir. To use the utils module, import it like so:
 
 .. code-block:: python
 
-   from qtmlib import utils
+   from pytket-phir import utils
 
    utils.do_something()

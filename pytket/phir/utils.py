@@ -1,4 +1,4 @@
-"""Utility functions for the qtmlib package."""
+"""Utility functions for the pytket-phir package."""
 
 
 def add_numbers(a: int, b: int) -> int:

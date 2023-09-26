@@ -1,7 +1,8 @@
 black
+build
+lark-parser==0.12.0
+mypy
 pre-commit
-pyright
 pytest
-pytest-lazy-fixture
 sphinx
 wheel

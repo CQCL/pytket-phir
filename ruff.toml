@@ -1,0 +1,49 @@
+target-version = "py310"
+
+line-length = 88
+
+select = [
+  "E",    # pycodestyle Errors
+  "W",    # pycodestyle Warnings
+
+  "A",    # flake8-builtins
+  "B",    # flake8-Bugbear
+  "BLE",  # flake8-blind-except
+  "C4",   # flake8-comprehensions
+  "COM",  # flake8-commas
+  "EM",   # flake8-errmsg
+  "EXE",  # flake8-executable
+  "F",    # pyFlakes
+  "FA",   # flake8-future-annotations
+  "FIX",  # flake8-fixme
+  "FLY",  # flynt
+  "G",    # flake8-logging-format
+  "I",    # isort
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "N",    # pep8-Naming
+  "NPY",  # NumPy-specific
+  "PERF", # Perflint
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "RSE",  # flake8-raise
+  "RUF",  # Ruff-specific
+  "S",    # flake8-bandit (Security)
+  "SIM",  # flake8-simplify
+  "SLF",  # flake8-self
+  "SLOT", # flake8-slots
+  "T10",  # flake8-debugger
+  "T20",  # flake8-print
+  "TD",   # flake8-todos
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  "YTT",  # flake8-2020
+]
+
+ignore = []
+
+[per-file-ignores]
+"__init__.py" = ["F401"]  # module imported but unused
+"tests/*"     = ["S101"]  # Use of `assert` detected

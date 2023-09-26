@@ -1,18 +1,44 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-yaml
+      - id: check-added-large-files
+      # Python-specific
+      - id: check-ast
+      - id: check-docstring-first
+      - id: debug-statements
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.16.14
+    hooks:
+      - id: typos
+
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 23.9.1
     hooks:
       - id: black
 
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.317
-    hooks:
-      - id: pyright
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.278
+    rev: v0.0.291
     hooks:
       - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.5.1'
+    hooks:
+    - id: mypy
+      pass_filenames: false
+      args: [pytket/phir, tests]
+      additional_dependencies: [
+        lark-parser==0.12.0,
+        pytest==7.4.2,
+        types-setuptools==68.2.0.0,
+      ]
 
 # Building docs on precommit seems like this will be slow.
 # - repo: https://github.com/pre-commit/mirrors-sphinx

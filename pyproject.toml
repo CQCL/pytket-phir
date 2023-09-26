@@ -3,31 +3,18 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pytemplate"
+name = "pytket-phir"
 version = "0.0.1"
 description = "A python library"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [{name = "Author", email = "author@email.com" }]
 
 [tool.setuptools.packages.find]
 where = ["."]
 
-[tool.ruff]
-# See https://beta.ruff.rs/docs/rules/
-select = ["E", "F", "B", "RUF", "PT", "UP", "C4", "D"]
-extend-exclude = ["**/*.ipynb"]
-target-version = "py311"
-
 [tool.ruff.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
-
-# See https://microsoft.github.io/pyright/#/getting-started
-[tool.pyright]
-include = ["pytemplate","tests"]
-ignore = ["**/*.ipynb"]
-pythonVersion = "3.11"
-typeCheckingMode = "strict"
 
 [tool.pytest.ini_options]
 pythonpath = [
