@@ -25,7 +25,7 @@ To use pytket-phir, import the main module:
 
 .. code-block:: python
 
-   from pytket-phir import main
+   from pytket.phir import main
 
    main.run()
 
@@ -36,6 +36,6 @@ The utils module contains various utility functions that can be used in conjunct
 
 .. code-block:: python
 
-   from pytket-phir import utils
+   from pytket.phir import utils
 
    utils.do_something()
