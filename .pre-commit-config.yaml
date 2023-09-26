@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.317
+    hooks:
+      - id: pyright
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.278
+    hooks:
+      - id: ruff
+
+# Building docs on precommit seems like this will be slow.
+# - repo: https://github.com/pre-commit/mirrors-sphinx
+#   rev: v4.2.0
+#   hooks:
+#   - id: sphinx
+#     stages: [commit]
+#     language_version: python3.11
