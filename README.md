@@ -1,5 +1,8 @@
 # pytket-phir
 
+PHIR stands for _[PECOS](https://github.com/PECOS-packages/PECOS) High-level Intermediate Representation_.
+See [PHIR specification](https://github.com/CQCL/phir/blob/main/phir_spec_qasm.md) for more.
+
 ## Installation
 
 To install the project, clone the repository and run:
