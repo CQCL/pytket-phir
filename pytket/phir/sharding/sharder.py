@@ -9,8 +9,8 @@
 #
 ##############################################################################
 
-from pytket._tket.unit_id import UnitID
 from pytket.circuit import Circuit, Command, Op, OpType
+from pytket.unit_id import UnitID
 
 from .shard import Shard
 
