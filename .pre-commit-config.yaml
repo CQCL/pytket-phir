@@ -35,6 +35,7 @@ repos:
       pass_filenames: false
       args: [.]
       additional_dependencies: [
-        pytest==7.4.2,
-        types-setuptools==68.2.0.0,
+        pytest,
+        types-setuptools,
+        pytket,
       ]
