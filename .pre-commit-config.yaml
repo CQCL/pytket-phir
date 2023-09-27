@@ -37,5 +37,5 @@ repos:
       additional_dependencies: [
         pytest,
         types-setuptools,
-        pytket,
+        pytket==1.20.1,
       ]

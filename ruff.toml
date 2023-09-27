@@ -42,7 +42,12 @@ select = [
   "YTT",  # flake8-2020
 ]
 
-ignore = []
+ignore = [
+  "T201", # no prints flake-8
+  "FIX002", # Allow todos
+  "TD002", # Allow no author todos
+  "TD003", # allow todos with no issues
+]
 
 [per-file-ignores]
 "__init__.py" = ["F401"]  # module imported but unused

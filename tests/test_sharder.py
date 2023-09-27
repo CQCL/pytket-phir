@@ -9,17 +9,16 @@
 #
 ##############################################################################
 
-from .sample_data import get_qasm_as_circuit, QasmFiles
-from pytket.phir import Sharder 
+from pytket.phir.sharding.sharder import Sharder
+
+from .sample_data import QasmFiles, get_qasm_as_circuit
+
 
 class TestSharder:
-
     def test_ctor(self) -> None:
         sharder = Sharder(get_qasm_as_circuit(QasmFiles.baby))
         assert sharder is not None
 
         output = sharder.shard()
 
-        assert len(output) > 0
-
-        print(output)
+        assert len(output) == 2  # noqa: PLR2004
