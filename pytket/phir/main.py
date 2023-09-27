@@ -19,7 +19,13 @@ from pytket import Circuit
 from sharding.sharder import Sharder
 
 # Load a qasm circuit and parse
-circuit: Circuit = circuit_from_qasm("tests/data/qasm/simple.qasm")
+#    ,=""=,
+#   c , _,{
+#   /\  @ )                 __
+#  /  ^~~^\          <=.,__/ '}=
+# (_/ ,, ,,)          \_ _>_/~
+#  ~\_(/-\)'-,_,_,_,-'(_)-(_) 
+circuit: Circuit = circuit_from_qasm("tests/data/qasm/baby.qasm")
 
 # https://cqcl.github.io/tket/pytket/api/circuit_class.html
 

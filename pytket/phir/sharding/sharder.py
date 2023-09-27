@@ -31,14 +31,21 @@ class Sharder:
         self._shards: list[Shard] = []
 
     def shard(self) -> list[Shard]:
+        """
+        Performs the sharding algorithm on the circuit the Sharder was initialized
+        with, returning the list of Shards needed to schedule
+        """
         print('Sharding begins....')
         # https://cqcl.github.io/tket/pytket/api/circuit.html#pytket.circuit.Command
-        
         for command in self._circuit.get_commands():
             self._process_command(command)
         return self._shards
     
     def _process_command(self, command: Command) -> None:
+        """
+        Handles a given TKET command (operation, bits, etc) according to the type
+        and the extant context within the Sharder
+        """
         print('Processing command: ', command.op, command.op.type, command.args)
         if command.op.type in NOT_IMPLEMENTED_OP_TYPES:
             raise NotImplementedError(f'OpType {command.op.type} not supported!')
@@ -51,16 +58,27 @@ class Sharder:
 
 
     def _build_shard(self, command: Command) -> None:
+        """
+        Creates a Shard object given the extant sharding context and the schedulable
+        Command object passed in, and appends it to the Shard list
+        """
         shard = Shard(command, 
-                      {}, 
+                      self._pending_commands, 
                       [])
-        # TODO: Add sub operations
+        # TODO: Dependencies!
+        self._pending_commands = {}
         self._shards.append(shard)
-        print('Appended shard: ', shard)
+        print('Appended shard:', shard)
 
     def _add_pending_command(self, command: Command) -> None:
-        #if command.
-        pass
+        """
+        Adds a pending sub command to the buffer to be flushed when a schedulable
+        operation creates a Shard.
+        """
+        # TODO NJE: Need to make sure 'args[0]' is the right key to use.
+        if command.args[0] not in self._pending_commands:
+            self._pending_commands[command.args[0]] = []
+        self._pending_commands[command.args[0]].append(command)
 
     def _is_op_schedulable(self, op: Op) -> bool:
         return (
