@@ -9,23 +9,16 @@
 #
 ##############################################################################
 
-"""
-NOTE: Just a placeholder to allow convenient testing of the flows
-"""
+from enum import Enum
 
-from pytket.qasm import circuit_from_qasm
 from pytket import Circuit
+from pytket.qasm import circuit_from_qasm
 
-from sharding.sharder import Sharder
+class QasmFiles(Enum):
+    simple = 1
+    cond_1 = 2
+    bv_n10 = 3
+    baby = 4
 
-# Load a qasm circuit and parse
-circuit: Circuit = circuit_from_qasm("tests/data/qasm/simple.qasm")
-
-# https://cqcl.github.io/tket/pytket/api/circuit_class.html
-
-# Just a little debuggin fun
-print('Input circuit:')
-print(circuit)
-print()
-
-sharding_output = Sharder(circuit).shard()
+def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
+    return circuit_from_qasm(f'tests/data/qasm/{qasm_file.name}.qasm')

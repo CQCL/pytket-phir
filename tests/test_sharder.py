@@ -9,23 +9,17 @@
 #
 ##############################################################################
 
-"""
-NOTE: Just a placeholder to allow convenient testing of the flows
-"""
+from .sample_data import get_qasm_as_circuit, QasmFiles
+from pytket.phir import Sharder 
 
-from pytket.qasm import circuit_from_qasm
-from pytket import Circuit
+class TestSharder:
 
-from sharding.sharder import Sharder
+    def test_ctor(self) -> None:
+        sharder = Sharder(get_qasm_as_circuit(QasmFiles.baby))
+        assert sharder is not None
 
-# Load a qasm circuit and parse
-circuit: Circuit = circuit_from_qasm("tests/data/qasm/simple.qasm")
+        output = sharder.shard()
 
-# https://cqcl.github.io/tket/pytket/api/circuit_class.html
+        assert len(output) > 0
 
-# Just a little debuggin fun
-print('Input circuit:')
-print(circuit)
-print()
-
-sharding_output = Sharder(circuit).shard()
+        print(output)

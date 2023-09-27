@@ -7,3 +7,4 @@ pytest==7.4.2
 ruff==0.0.291
 sphinx==7.2.6
 wheel==0.41.2
+pytket==1.20.1
