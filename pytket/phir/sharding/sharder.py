@@ -51,8 +51,8 @@ class Sharder:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
-        if self.is_op_schedulable(command.op):
-            print(f"Scheduling command: {command}")
+        if self.should_op_create_shard(command.op):
+            print(f"Building shard for command: {command}")
             self._build_shard(command)
         else:
             self._add_pending_command(command)
@@ -79,11 +79,10 @@ class Sharder:
         self._pending_commands[command.args[0]].append(command)
 
     @staticmethod
-    def is_op_schedulable(op: Op) -> bool:
+    def should_op_create_shard(op: Op) -> bool:
         """
-        Returns `True` if the operation is one that should be scheduled, that is,
-        that will have a shard created for it. This includes non-gate operations
-        like measure/reset as well as 2-qubit gates.
+        Returns `True` if the operation is one that should result in shard creation.
+        This includes non-gate operations like measure/reset as well as 2-qubit gates.
         """
         # TODO: This is almost certainly inadequate right now
         return (
