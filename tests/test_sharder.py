@@ -21,4 +21,4 @@ class TestSharder:
 
         output = sharder.shard()
 
-        assert len(output) == 2  # noqa: PLR2004
+        assert len(output) == 3  # noqa: PLR2004
