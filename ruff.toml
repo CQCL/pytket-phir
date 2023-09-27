@@ -51,7 +51,10 @@ ignore = [
 
 [per-file-ignores]
 "__init__.py" = ["F401"]  # module imported but unused
-"tests/*"     = ["S101"]  # Use of `assert` detected
+"tests/*"     = [
+    "S101", # Use of `assert` detected
+    "PLR2004" # Magic constants
+  ]
 
 [pydocstyle]
 convention = "google"
