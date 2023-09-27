@@ -7,14 +7,10 @@ name = "pytket-phir"
 version = "0.0.1"
 description = "A python library"
 requires-python = ">=3.10"
-authors = [{name = "Author", email = "author@email.com" }]
+authors = [{name = "Author", email = "author@quantinuum.com" }]
 
 [tool.setuptools.packages.find]
 where = ["."]
-
-[tool.ruff.pydocstyle]
-# Use Google-style docstrings.
-convention = "google"
 
 [tool.pytest.ini_options]
 pythonpath = [
