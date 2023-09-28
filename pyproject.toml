@@ -12,10 +12,10 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 
-dependencies = []
+dependencies = ["pytket"]
 
 [project.optional-dependencies]
-tests = ["pytest", "pytket"]
+tests = ["pytest"]
 
 [project.urls]
 Repository = "https://github.com/CQCL/pytket-phir.git"
