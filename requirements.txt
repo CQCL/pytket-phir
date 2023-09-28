@@ -1,10 +1,8 @@
 black==23.9.1
 build==1.0.3
-lark-parser==0.12.0
 mypy==1.5.1
 pre-commit==3.4.0
 pytest==7.4.2
 ruff==0.0.291
-sphinx==7.2.6
-wheel==0.41.2
 pytket==1.20.1
+wheel==0.41.2

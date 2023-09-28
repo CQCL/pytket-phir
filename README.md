@@ -21,6 +21,8 @@ Then install the project using:
 pip install -e .
 ```
 
+See `Makefile` for other useful commands.
+
 ## Testing
 
 Just issue `pytest` from the root directory.

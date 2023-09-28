@@ -2,12 +2,23 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
 [project]
 name = "pytket-phir"
 version = "0.0.1"
 description = "A python library"
+readme = "README.md"
 requires-python = ">=3.10"
-authors = [{name = "Author", email = "author@quantinuum.com" }]
+license = {file = "LICENSE"}
+authors = [{name = "Quantinuum"}]
+
+dependencies = []
+
+[project.optional-dependencies]
+tests = ["pytest", "pytket"]
+
+[project.urls]
+Repository = "https://github.com/CQCL/pytket-phir.git"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -16,4 +27,3 @@ where = ["."]
 pythonpath = [
   "."
 ]
-filterwarnings = ["ignore:::lark.s*"]
