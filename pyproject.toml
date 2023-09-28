@@ -16,3 +16,4 @@ where = ["."]
 pythonpath = [
   "."
 ]
+filterwarnings = ["ignore:::lark.s*"]

@@ -33,9 +33,9 @@ repos:
     hooks:
     - id: mypy
       pass_filenames: false
-      args: [.]
+      args: [--package=pytket.phir, --package=tests]
       additional_dependencies: [
         pytest,
+        pytket==1.20.1,
         types-setuptools,
-        pytket,
       ]

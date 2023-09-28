@@ -1,10 +1,29 @@
-"""This is the main module of the pytket-phir package."""
+"""
+NOTE: Just a placeholder to allow convenient testing of the flows
+"""
 
+from pytket.circuit import Circuit
+from pytket.qasm.qasm import circuit_from_qasm
 
-def hello_world() -> str:
-    """Print 'Hello, world!' to the console."""
-    hw = "Hello, World!"
-    return hw
+from .sharding.sharder import Sharder
 
+# Load a qasm circuit and parse
+#    ,=""=,
+#   c , _,{
+#   /\  @ )                 __
+#  /  ^~~^\          <=.,__/ '}=
+# (_/ ,, ,,)          \_ _>_/~
+#  ~\_(/-\)'-,_,_,_,-'(_)-(_)
+circuit: Circuit = circuit_from_qasm("tests/data/qasm/baby.qasm")
 
-print(hello_world())  # noqa: T201
+# https://cqcl.github.io/tket/pytket/api/circuit_class.html
+
+# Just a little debugging fun
+print("Input circuit:")
+print(circuit)
+print()
+
+sharding_output = Sharder(circuit).shard()
+
+print("Sharding output:")
+print(sharding_output)
