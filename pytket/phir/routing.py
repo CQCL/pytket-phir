@@ -29,7 +29,7 @@ class RoutingLibrary:
 
     def placement_check(self, ops, tq_options, sq_options, state):
         '''ensure that the qubits end up in the right gating zones'''
-        #assume ops look like this [[1,2],[3],[5,6],[7],[8],[9,10]]
+        #assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
         for op in ops:
             if len(op) == 2: #tq operation
                 q1 = op[0]
@@ -41,10 +41,8 @@ class RoutingLibrary:
             if len(op) == 1: #sq operation
                 q = op[0]
                 assert(state.index(q) in sq_options)
-
-        pass
         
     def simple_cost(self, max_distance, qb_swap_time):
-        '''simple stupid cost output, can be modified as necessary'''
+        '''simple cost output, can be modified as necessary'''
         return max_distance * qb_swap_time
 

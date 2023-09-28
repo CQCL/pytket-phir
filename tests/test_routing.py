@@ -1,6 +1,6 @@
 #Tests for qubit routing
 import pytest
-from pytket.routing import RoutingLibrary as lib
+from pytket.phir.routing import RoutingLibrary as lib
 from test_machine_class import TestMachine
 
 r = lib()
