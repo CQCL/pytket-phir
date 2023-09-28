@@ -1,6 +1,3 @@
-##############################################################################
-#
-# (c) 2023 @ Quantinuum LLC. All Rights Reserved.
 from pytket.phir.sharding.sharder import Sharder
 
 from .sample_data import QasmFiles, get_qasm_as_circuit
