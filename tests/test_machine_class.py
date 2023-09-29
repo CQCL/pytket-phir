@@ -1,7 +1,7 @@
 
 class TestMachine:
     '''A machine info class for testing'''
-    def __init__(self, num_qubits: int, tq_options: list[int], sq_options: list[int], tq_time: float, sq_time: float, qb_swap_time: float):
+    def __init__(self, num_qubits: int, tq_options: set[int], sq_options: set[int], tq_time: float, sq_time: float, qb_swap_time: float):
         self.num_qubits   = num_qubits
         self.tq_options   = tq_options
         self.sq_options   = sq_options

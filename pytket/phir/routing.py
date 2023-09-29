@@ -1,48 +1,33 @@
-# A Routing library that contains all the functions needed to give final qubit layout and an associated cost
+from __future__ import annotations
 
-class RoutingLibrary:
+class TransportError(Exception):
+    def __init__(self, a: list[int], b: list[int]):
+        super().__init__(f"Traps different sizes: {len(a)} vs. {len(b)}")
 
-    def oe_sort(self, q1l, q2l):
-        '''odd/even sort to determine the cost of routhing from q1l to q2l'''
-        rounds = flips = 0
-        p = [q2l.index(q) for q in q1l]
+class PermutationError(Exception):
+    def __init__(self, lst: list[int]):
+        super().__init__(f"List {lst} is not a permutation of range({len(lst)})")
 
-        while q1l != q2l:
-            e = o = 0
-            # even cycle
-            for i in range(0, len(q1l)-1, 2):
-                if p[i] > p[i+1]:
-                    e = 1
-                    flips += 1
-                    q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
-                    p[i], p[i+1] = p[i+1], p[i]
-            # odd cycle
-            for i in range(1, len(q1l)-1, 2):
-                if p[i] > p[i+1]:
-                    o = 1
-                    flips += 1
-                    q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
-                    p[i], p[i+1] = p[i+1], p[i]
-            rounds += e + o
+def inverse(lst: list[int]) -> list[int]:
+    '''Inverse of a permutation list. If a[i] = x, then inverse(a)[x] = i'''
+    
+    inv = [-1] * len(lst)
+   
+    for i, elem in enumerate(lst):
+        if not 0 <= elem < len(lst) or inv[elem] != -1:
+            raise PermutationError(lst)
+        inv[elem] = i
+    
+    return inv
 
-        return rounds, flips
+def transport_cost(init: list[int], goal: list[int], swap_cost: float) -> float:
+    '''Cost of transport from init to goal.
+    This is based on the number of parallel swaps performed by Odd-Even
+    Transposition Sort, which is the maximum distance that any qubit travels.'''
 
-    def placement_check(self, ops, tq_options, sq_options, state):
-        '''ensure that the qubits end up in the right gating zones'''
-        #assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
-        for op in ops:
-            if len(op) == 2: #tq operation
-                q1 = op[0]
-                q2 = op[1]
-                #check that the q1 is next to q2 and they are in the right zone
-                #for now assuming that it does not matter which qubit is where in the tq zone, can be modified once we have a better idea of what ops looks like
-                assert ((state.index(q1) in tq_options) | (state.index(q2) in tq_options)) & ((state.index(q2) == state.index(q1) + 1) | (state.index(q1) == state.index(q2) + 1))
-                         # q1 in tq zone                   # q2 in tq zone                     # [q1, q2]                                 # [q2, q1]                  
-            if len(op) == 1: #sq operation
-                q = op[0]
-                assert(state.index(q) in sq_options)
-        
-    def simple_cost(self, max_distance, qb_swap_time):
-        '''simple cost output, can be modified as necessary'''
-        return max_distance * qb_swap_time
+    if len(init) != len(goal):
+        raise TransportError(init, goal)
+    
+    n_swaps = max(abs(g-i) for i, g in zip(inverse(init), inverse(goal)))
 
+    return n_swaps * swap_cost
