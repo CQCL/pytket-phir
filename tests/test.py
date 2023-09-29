@@ -122,11 +122,11 @@ def test_place():
     assert place(ops, tq_options, sq_options, trap_size) == expected
 
     #real slice?
-    ops = [[1,5],[7,15],[9,11],[4,28],[17,23],[2],[4],[10],[13],[16],[21],[22],[25]]
+    ops = [[1,5],[7,15],[9,11],[4,28],[17,23],[2],[10],[13],[16],[21],[22],[25]]
     tq_options = {4,8,12,16,20,24,28}
     sq_options = {i for i in range(32)}
     trap_size = 32
-    expected = [2, 4, 10, 13, 1, 5, 16, 21, 9, 11, 22, 25, 7, 15, 0, 3, 4, 28, 6, 8, 17, 23, 12, 14, 18, 19, 20, 24, 26, 27, 29, 30]
+    expected = [2, 10, 13, 16, 1, 5, 21, 22, 9, 11, 25, 0, 7, 15, 3, 6, 4, 28, 8, 12, 17, 23, 14, 18, 19, 20, 24, 26, 27, 29, 30, 31]
     assert place(ops, tq_options, sq_options, trap_size) == expected
 
     #fail

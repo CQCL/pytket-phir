@@ -111,6 +111,7 @@ def place(ops: list[list[int]], tq_options: set[int], sq_options: set[int], trap
                     trap[j] = i
                     break
 
+    placement_check(ops, tq_options, sq_options, trap)
     #print(trap)
     return trap
 
