@@ -12,7 +12,7 @@ class OpError(Exception):
 
 def placement_check(ops: list[list[int]], tq_options: set[int], sq_options: set[int], state: list[int]) -> bool:
     '''Ensure that the qubits end up in the right gating zones'''
-    
+
     ok = False
     inv = inverse(state)
 
@@ -25,7 +25,7 @@ def placement_check(ops: list[list[int]], tq_options: set[int], sq_options: set[
             zone = ((inv[q1] in tq_options) | (inv[q2] in tq_options))
             neighbor = ((state.index(q2) == state.index(q1) + 1) | (state.index(q1) == state.index(q2) + 1))
             ok = zone & neighbor
-                             
+
         if len(op) == 1: #sq operation
             q = op[0]
             zone = (state.index(q) in sq_options)
@@ -55,9 +55,9 @@ def place(ops: list[list[int]], tq_options: set[int], sq_options: set[int], trap
     #need a way to determine which qubits are furthest away from each other first
     trap = [-1] * trap_size
     placed_qubits = set()
-    
-    tq_zones = tq_options
-    sq_zones = sq_options
+
+    tq_zones = tq_options.copy()
+    sq_zones = sq_options.copy()
 
     tq_ops = []
     sq_ops = []
@@ -123,7 +123,7 @@ def place(ops: list[list[int]], tq_options: set[int], sq_options: set[int], trap
                     trap[j] = i
                     break
 
-    placement_check(ops, tq_options, sq_options, trap)
+    assert placement_check(ops, tq_options, sq_options, trap)
     #print(trap)
     return trap
 

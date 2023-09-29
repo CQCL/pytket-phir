@@ -129,12 +129,20 @@ def test_place():
     expected = [2, 10, 13, 16, 1, 5, 21, 22, 9, 11, 25, 0, 7, 15, 3, 6, 4, 28, 8, 12, 17, 23, 14, 18, 19, 20, 24, 26, 27, 29, 30, 31]
     assert place(ops, tq_options, sq_options, trap_size) == expected
 
-    #fail
+    #placement error
     ops = [[0,1],[1]]
     tq_options = {0}
     sq_options = {0,1}
     trap_size = 2
     with pytest.raises(PlacementError):
+        place(ops, tq_options, sq_options, trap_size)
+
+    #op error
+    ops = [[1],[1]]
+    tq_options = {1}
+    sq_options = {0,1}
+    trap_size = 2
+    with pytest.raises(OpError):
         place(ops, tq_options, sq_options, trap_size)
 
 
