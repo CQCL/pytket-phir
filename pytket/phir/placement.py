@@ -6,6 +6,10 @@ class PlacementError(Exception):
     def __init__(self) -> None:
         super().__init__('No more possible zones to place qubit')
 
+class OpError(Exception):
+    def __init__(self, q: int) -> None:
+        super().__init__(f'Cannot gate qubit {q} more than once in the same slice')
+
 def placement_check(ops: list[list[int]], tq_options: set[int], sq_options: set[int], state: list[int]) -> bool:
     '''Ensure that the qubits end up in the right gating zones'''
     
@@ -70,10 +74,15 @@ def place(ops: list[list[int]], tq_options: set[int], sq_options: set[int], trap
 
     #place the tq ops
     for op in tq_ops:
+        q1, q2 = op[0], op[1]
         #check to make sure that there are tq zones available
         if len(tq_zones) == 0:
             raise PlacementError()
-        q1, q2 = op[0], op[1]
+        #check to make sure that the qubits have not already been placed
+        if q1 in placed_qubits:
+            raise OpError(q1)
+        if q2 in placed_qubits:
+            raise OpError(q2)
         #for now assuming that it does not matter which qubit is where in the tq zone, can be modified once we have a better idea of what ops looks like
         midpoint = math.floor(abs(q2-q1)/2) + min(q1, q2)
         #find the tq gating zone closest to the midpoint of the 2 qubits
@@ -90,10 +99,13 @@ def place(ops: list[list[int]], tq_options: set[int], sq_options: set[int], trap
 
     #place the sq ops
     for op in sq_ops:
+        q1 = op[0]
         #check to make sure that there are tq zones available
         if len(sq_zones) == 0:
-            raise PlacementError()
-        q1 = op[0]
+            raise PlacementError()  
+        #check to make sure that the qubits have not already been placed
+        if q1 in placed_qubits:
+            raise OpError(q1)
         #place the qubit in the first available zone
         for i in range(trap_size):
             if i in sq_zones:

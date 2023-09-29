@@ -140,7 +140,7 @@ def test_place():
 
 
 
-#test_inverse()
-#test_transport_cost()
-#test_placement_check()
+test_inverse()
+test_transport_cost()
+test_placement_check()
 test_place()
