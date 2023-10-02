@@ -28,7 +28,7 @@ class TestShard:
         circuit = Circuit(4, 4)
         circuit.H(0)
         circuit.Measure(0, 0)
-        circuit.X(1, condition_bits=[0], condition_value=1)  # type: ignore # noqa: PGH003
+        circuit.X(1, condition_bits=[0], condition_value=1)  # type: ignore [misc]
         circuit.Measure(1, 1)  # The command we'll build the shard from
         commands = circuit.get_commands()
 

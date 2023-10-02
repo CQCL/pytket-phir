@@ -6,7 +6,7 @@ from pytket.circuit import Command
 from pytket.unit_id import Bit, Qubit, UnitID
 
 
-@dataclass(unsafe_hash=False)
+@dataclass
 class Shard:
     """
     A shard is a logical grouping of operations that represents the unit by which
@@ -47,7 +47,7 @@ class Shard:
         for sub_command in all_sub_commands:
             self.bits_written.update(sub_command.bits)
             self.bits_read.update(
-                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore  # noqa: PGH003
+                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc,arg-type]  # noqa: E501
             )
 
     def pretty_print(self) -> str:

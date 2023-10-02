@@ -66,8 +66,8 @@ class Sharder:
         # Handle dependency calculations
         depends_upon: set[int] = set()
         for shard in self._shards:
-            # Check qubit dependencies (R/W implicitly) since all commands on a given qubit
-            # need to be ordered as the circuit dictated
+            # Check qubit dependencies (R/W implicitly) since all commands
+            # on a given qubit need to be ordered as the circuit dictated
             if not shard.qubits_used.isdisjoint(command.qubits):
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
@@ -83,7 +83,7 @@ class Sharder:
         Checks for any remaining "unsharded" commands, and if found, adds them
         to Barrier op shards for each qubit
         """
-        remaining_qubits = [k for k, v in self._pending_commands.items() if len(v) > 0]
+        remaining_qubits = [k for k, v in self._pending_commands.items() if v]
         for qubit in remaining_qubits:
             self._circuit.add_barrier([qubit])
             # Easiest way to get to a command, since there's no constructor. Could
@@ -110,9 +110,6 @@ class Sharder:
         This includes non-gate operations like measure/reset as well as 2-qubit gates.
         TODO: This is almost certainly inadequate right now
         """
-        return (
-            op.type == OpType.Measure
-            or op.type == OpType.Reset
-            or op.type == OpType.Barrier
-            or (op.is_gate() and op.n_qubits > 1)
+        return op.type in (OpType.Measure, OpType.Reset, OpType.Barrier) or (
+            op.is_gate() and op.n_qubits > 1
         )
