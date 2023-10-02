@@ -4,8 +4,9 @@ from pytket.phir.placement import *
 from pytket.phir.routing import *
 from test_machine_class import TestMachine
 
-m = TestMachine(4, {1}, {1,2}, 10, 2, 2)
-m2 = TestMachine(6, {1,3}, {1,2,3,4}, 10, 2, 2)
+m = TestMachine(4, {1}, 10, 2, 2)
+m2 = TestMachine(6, {1,3}, 10, 2, 2)
+m3 = TestMachine(8, {0, 6}, 10, 2, 2)
 
 def test_inverse():
     
@@ -144,8 +145,6 @@ def test_place():
     trap_size = 2
     with pytest.raises(OpError):
         place(ops, tq_options, sq_options, trap_size)
-
-
 
 
 test_inverse()
