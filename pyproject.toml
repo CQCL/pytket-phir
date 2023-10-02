@@ -24,6 +24,9 @@ Repository = "https://github.com/CQCL/pytket-phir.git"
 where = ["."]
 
 [tool.pytest.ini_options]
+addopts = "-s -vv"
 pythonpath = [
   "."
 ]
+log_cli = true
+filterwarnings = ["ignore:::lark.s*"]
