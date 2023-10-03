@@ -1,9 +1,18 @@
 from pytket.circuit import Circuit, Command, Op, OpType
-from pytket.unit_id import UnitID
+from pytket.unit_id import Bit, UnitID
 
 from .shard import Shard
 
 NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
+
+SHARD_TRIGGER_OP_TYPES = [
+    OpType.Measure,
+    OpType.Reset,
+    OpType.Barrier,
+    OpType.SetBits,
+    OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
+    OpType.RangePredicate,
+]
 
 
 class Sharder:
@@ -46,7 +55,9 @@ class Sharder:
             raise NotImplementedError(msg)
 
         if self.should_op_create_shard(command.op):
-            print(f"Building shard for command: {command}")
+            print(
+                f"Building shard for command: {command} args:{command.args} bits:{command.bits}",
+            )
             self._build_shard(command)
         else:
             self._add_pending_sub_command(command)
@@ -63,6 +74,22 @@ class Sharder:
         ):
             sub_commands[key] = self._pending_commands.pop(key)
 
+        all_commands = [command]
+        for sub_command in sub_commands.values():
+            all_commands.extend(sub_command)
+
+        qubits_used = set(command.qubits)
+
+        bits_written = set(command.bits)
+
+        bits_read = set()
+
+        for sub_command in all_commands:
+            bits_written.update(sub_command.bits)
+            bits_read.update(
+                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc,arg-type]  # noqa: E501
+            )
+
         # Handle dependency calculations
         depends_upon: set[int] = set()
         for shard in self._shards:
@@ -72,9 +99,14 @@ class Sharder:
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
             # hazards: RAW, WAW, WAR
-            # TODO: Do it!
+            elif not shard.bits_written.isdisjoint(bits_written):
+                depends_upon.add(shard.ID)
+            elif not shard.bits_read.isdisjoint(bits_written):
+                depends_upon.add(shard.ID)
 
-        shard = Shard(command, sub_commands, depends_upon)
+        shard = Shard(
+            command, sub_commands, qubits_used, bits_written, bits_read, depends_upon,
+        )
         self._shards.append(shard)
         print("Appended shard:", shard)
 
@@ -101,15 +133,20 @@ class Sharder:
         if key not in self._pending_commands:
             self._pending_commands[key] = []
         self._pending_commands[key].append(command)
-        print(f"Adding pending command {command}")
+        print(
+            f"Adding pending command {command} args: {command.args} bits: {command.bits}",
+        )
 
     @staticmethod
     def should_op_create_shard(op: Op) -> bool:
         """
         Returns `True` if the operation is one that should result in shard creation.
         This includes non-gate operations like measure/reset as well as 2-qubit gates.
-        TODO: This is almost certainly inadequate right now
         """
-        return op.type in (OpType.Measure, OpType.Reset, OpType.Barrier) or (
-            op.is_gate() and op.n_qubits > 1
+        return (
+            op.type in (SHARD_TRIGGER_OP_TYPES)
+            or (
+                op.type == OpType.Conditional and op.op.type in (SHARD_TRIGGER_OP_TYPES)
+            )
+            or (op.is_gate() and op.n_qubits > 1)
         )
