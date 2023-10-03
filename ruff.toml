@@ -1,3 +1,4 @@
+# See https://docs.astral.sh/ruff/rules/
 target-version = "py310"
 
 line-length = 88
@@ -11,6 +12,7 @@ select = [
   "BLE",  # flake8-blind-except
   "C4",   # flake8-comprehensions
   "COM",  # flake8-commas
+  "D",    # pydocstyle
   "EM",   # flake8-errmsg
   "EXE",  # flake8-executable
   "F",    # pyFlakes
@@ -43,16 +45,23 @@ select = [
 ]
 
 ignore = [
-  "T201", # no prints flake-8
+  "T201",   # no prints flake-8
   "FIX002", # Allow todos
-  "TD002", # Allow no author todos
-  "TD003", # allow todos with no issues
+  "TD002",  # Allow no author todos
+  "TD003",  # allow todos with no issues
+  "D100",   # Missing docstring in public module
 ]
 
 [per-file-ignores]
-"__init__.py" = ["F401"]  # module imported but unused
+"__init__.py" = ["F401", "D104"]  # module imported but unused
+"docs/*"      = [
+    "D100",     # Missing docstring in public module
+    "INP001",   # File * is part of an implicit namespace package. Add an `__init__.py`.
+]
 "tests/*"     = [
-    "S101", # Use of `assert` detected
+    "INP001",
+    "D101",   # Missing docstring in public class
+    "S101",   # Use of `assert` detected
     "PLR2004" # Magic constants
   ]
 
