@@ -9,15 +9,15 @@ from .sample_data import QasmFiles, get_qasm_as_circuit
 class TestSharder:
     def test_should_op_create_shard(self) -> None:
         expected_true: list[Op] = [
-            Op.create(OpType.Measure),  # type: ignore  # noqa: PGH003
-            Op.create(OpType.Reset),  # type: ignore  # noqa: PGH003
-            Op.create(OpType.CX),  # type: ignore  # noqa: PGH003
-            Op.create(OpType.Barrier),  # type: ignore  # noqa: PGH003
+            Op.create(OpType.Measure),  # type: ignore [misc]
+            Op.create(OpType.Reset),  # type: ignore [misc]
+            Op.create(OpType.CX),  # type: ignore [misc]
+            Op.create(OpType.Barrier),  # type: ignore [misc]
         ]
         expected_false: list[Op] = [
-            Op.create(OpType.U1, 0.32),  # type: ignore  # noqa: PGH003
-            Op.create(OpType.H),  # type: ignore  # noqa: PGH003
-            Op.create(OpType.Z),  # type: ignore  # noqa: PGH003
+            Op.create(OpType.U1, 0.32),  # type: ignore [misc]
+            Op.create(OpType.H),  # type: ignore [misc]
+            Op.create(OpType.Z),  # type: ignore [misc]
         ]
 
         for op in expected_true:
