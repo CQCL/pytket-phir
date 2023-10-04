@@ -54,21 +54,15 @@ class Shard:
         output = io.StringIO()
         output.write(f"Shard {self.ID}:")
         output.write(f"\n   Command: {self.primary_command}")
-        output.write(
-            f'\n   Qubits used: [{", ".join(repr(x) for x in self.qubits_used)}]',
-        )
         output.write("\n   Sub commands: ")
         if not self.sub_commands:
-            output.write("none")
+            output.write("[]")
         for sub in self.sub_commands:
             output.write(f"\n       {sub}: {self.sub_commands[sub]}")
         output.write(f"\n   Qubits used:  {self.qubits_used}")
         output.write(f"\n   Bits written: {self.bits_written}")
         output.write(f"\n   Bits read:    {self.bits_read}")
-        output.write("\n   Depends upon shards: ")
-        if not self.depends_upon:
-            output.write("none")
-        output.write(", ".join(map(repr, self.depends_upon)))
+        output.write(f"\n   Depends upon: {self.depends_upon}")
         content = output.getvalue()
         output.close()
         return content

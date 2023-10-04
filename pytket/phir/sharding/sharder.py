@@ -1,4 +1,6 @@
-from pytket.circuit import Circuit, Command, Op, OpType
+from typing import cast
+
+from pytket.circuit import Circuit, Command, Conditional, Op, OpType
 from pytket.unit_id import Bit, UnitID
 
 from .shard import Shard
@@ -39,6 +41,7 @@ class Sharder:
             self._process_command(command)
         self._cleanup_remaining_commands()
 
+        print("--------------------------------------------")
         print("Shard output:")
         for shard in self._shards:
             print(shard.pretty_print())
@@ -67,7 +70,7 @@ class Sharder:
         Creates a Shard object given the extant sharding context and the schedulable
         Command object passed in, and appends it to the Shard list
         """
-        # Resolve any sub commands (SQ gates) that interact with the same qubits
+        # Rollup any sub commands (SQ gates) that interact with the same qubits
         sub_commands: dict[UnitID, list[Command]] = {}
         for key in (
             key for key in list(self._pending_commands) if key in command.qubits
@@ -75,19 +78,17 @@ class Sharder:
             sub_commands[key] = self._pending_commands.pop(key)
 
         all_commands = [command]
-        for sub_command in sub_commands.values():
-            all_commands.extend(sub_command)
+        for sub_command_list in sub_commands.values():
+            all_commands.extend(sub_command_list)
 
         qubits_used = set(command.qubits)
-
         bits_written = set(command.bits)
-
-        bits_read = set()
+        bits_read: set[Bit] = set()
 
         for sub_command in all_commands:
             bits_written.update(sub_command.bits)
             bits_read.update(
-                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc,arg-type]  # noqa: E501
+                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc, arg-type]
             )
 
         # Handle dependency calculations
@@ -96,16 +97,38 @@ class Sharder:
             # Check qubit dependencies (R/W implicitly) since all commands
             # on a given qubit need to be ordered as the circuit dictated
             if not shard.qubits_used.isdisjoint(command.qubits):
+                print(f"...adding shard dep {shard.ID} -> qubit overlap")
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
             # hazards: RAW, WAW, WAR
+            # NOTE: bits_read will include bits_written in the current impl
+
+            # Check for write-after-write (changing order would change final value)
+            # by looking at overlap of bits_written
             elif not shard.bits_written.isdisjoint(bits_written):
+                print(f"...adding shard dep {shard.ID} -> WAW")
                 depends_upon.add(shard.ID)
-            elif not shard.bits_read.isdisjoint(bits_written):
+
+            # Check for read-after-write (value seen would change if reordered)
+            # elif not shard.bits_read.isdisjoint(bits_written):
+            #     print(f'...adding shard dep {shard.ID} -> ')
+            #     depends_upon.add(shard.ID)
+            elif not shard.bits_written.isdisjoint(bits_read):
+                print(f"...adding shard dep {shard.ID} -> RAW")
+                depends_upon.add(shard.ID)
+
+            # Check for write-after-read (no reordering or read is changed)
+            elif not shard.bits_written.isdisjoint(bits_read):
+                print(f"...adding shard dep {shard.ID} -> WAR")
                 depends_upon.add(shard.ID)
 
         shard = Shard(
-            command, sub_commands, qubits_used, bits_written, bits_read, depends_upon,
+            command,
+            sub_commands,
+            qubits_used,
+            bits_written,
+            bits_read,
+            depends_upon,
         )
         self._shards.append(shard)
         print("Appended shard:", shard)
@@ -146,7 +169,8 @@ class Sharder:
         return (
             op.type in (SHARD_TRIGGER_OP_TYPES)
             or (
-                op.type == OpType.Conditional and op.op.type in (SHARD_TRIGGER_OP_TYPES)
+                op.type == OpType.Conditional
+                and cast(Conditional, op).op.type in (SHARD_TRIGGER_OP_TYPES)
             )
             or (op.is_gate() and op.n_qubits > 1)
         )

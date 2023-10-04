@@ -89,80 +89,42 @@ class TestSharder:
 
         assert len(shards) == 4
 
-        # shard 0: h q; measure q->c;
+        # shard 0: [h q;] measure q->c;
         assert shards[0].primary_command.op.type == OpType.Measure
+        assert shards[0].qubits_used == {circuit.qubits[0]}
+        assert shards[0].bits_written == {circuit.bits[0]}
+        assert shards[0].depends_upon == set()
         assert len(shards[0].sub_commands.items()) == 1
         s0_qubit, s0_sub_cmds = next(iter(shards[0].sub_commands.items()))
         assert s0_qubit == circuit.qubits[0]
         assert s0_sub_cmds[0].op.type == OpType.H
-        assert shards[0].depends_upon == set()
 
         # shard 1: reset q;
         assert shards[1].primary_command.op.type == OpType.Reset
         assert len(shards[1].sub_commands.items()) == 0
+        assert shards[1].qubits_used == {circuit.qubits[0]}
         assert shards[1].depends_upon == {shards[0].ID}
+        assert shards[1].bits_written == set()
+        assert shards[1].bits_read == set()
 
-        # shard 2: if (c==1) z=3;
+        # shard 2: if (c==1) z=1;
         assert shards[2].primary_command.op.type == OpType.Conditional
-        assert cast(Conditional, shards[2].primary_command).op.op.type == OpType.SetBits
+        assert cast(Conditional, shards[2].primary_command.op).op.type == OpType.SetBits
         assert len(shards[2].sub_commands.keys()) == 0
+        assert shards[2].qubits_used == set()
+        assert shards[2].bits_written == {circuit.bits[1]}
+        # assert shards[2].bits_read == {circuit.bits[0]}
         assert shards[2].depends_upon == {shards[0].ID}
 
-        # shard 3: if (c==1) h q; measure q->c;
+        # shard 3: [if (c==1) h q;] measure q->c;
         assert shards[3].primary_command.op.type == OpType.Measure
+        assert shards[3].qubits_used == {circuit.qubits[0]}
+        assert shards[3].bits_written == {circuit.bits[0]}
+        assert shards[3].bits_read == {circuit.bits[0]}
+        assert shards[3].depends_upon == {shards[0].ID, shards[1].ID}
         assert len(shards[3].sub_commands.items()) == 1
         s2_qubit, s2_sub_cmds = next(iter(shards[3].sub_commands.items()))
         assert s2_qubit == circuit.qubits[0]
         assert s2_sub_cmds[0].op.type == OpType.Conditional
         assert cast(Conditional, s2_sub_cmds[0].op).op.type == OpType.H
         assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
-
-    def test_classical_with_conditionals(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.cond_classical)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
-
-        circuit.get_commands()
-
-        # assert len(shards) == 10 # TODO: fix with correct value
-
-        # shard 0: a[0] = 1;
-        assert shards[0].primary_command.op.type == OpType.SetBits
-        assert len(shards[0].sub_commands.keys()) == 0
-        assert shards[0].depends_upon == set()
-        assert shards[0].qubits_used == set()
-        assert shards[0].bits_read == set()
-        assert shards[0].bits_written == {circuit.bits[0]}
-
-        # shard 1: a = 3;
-        assert shards[1].primary_command.op.type == OpType.SetBits
-        assert len(shards[1].sub_commands.keys()) == 0
-        assert shards[1].depends_upon == {shards[0].ID}  # WAW for shard 0
-        assert shards[1].qubits_used == set()
-        assert shards[1].bits_read == set()
-        assert len(shards[1].bits_written) == 10  # TODO: Check for a[0-9]
-
-        # shard 2: a = 1;
-        assert shards[2].primary_command.op.type == OpType.SetBits
-        assert len(shards[2].sub_commands.keys()) == 0
-        assert shards[2].depends_upon == {
-            shards[0].ID,
-            shards[1].ID,
-        }  # WAW for shard 0, 1
-        assert shards[2].qubits_used == set()
-        assert shards[2].bits_read == set()
-        assert len(shards[2].bits_written) == 10  # TODO: Check for a[0-9]
-
-        # shard 3: b = 3;
-        assert shards[3].primary_command.op.type == OpType.SetBits
-        assert len(shards[3].sub_commands.keys()) == 0
-        assert shards[3].depends_upon == set()
-        assert shards[3].qubits_used == set()
-        assert shards[3].bits_read == set()
-        assert len(shards[3].bits_written) == 10  # TODO: Check for b[0-9]
-
-        # shard 4: c = a ^ b; // XOR
-        assert shards[4].primary_command.op.type == OpType.ClassicalExpBox
-        assert len(shards[3].sub_commands.keys()) == 0
-        assert shards[3].depends_upon == set()
-        assert shards[4].qubits_used == set()

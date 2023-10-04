@@ -4,6 +4,7 @@ qreg q[1];
 creg a[10];
 creg b[10];
 creg c[4];
+
 // classical assignment of registers
 a[0] = 1;
 a = 3;
