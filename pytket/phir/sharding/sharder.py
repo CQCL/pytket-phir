@@ -59,7 +59,7 @@ class Sharder:
 
         if self.should_op_create_shard(command.op):
             print(
-                f"Building shard for command: {command} args:{command.args} bits:{command.bits}",
+                f"Building shard for command: {command}",
             )
             self._build_shard(command)
         else:
@@ -67,7 +67,7 @@ class Sharder:
 
     def _build_shard(self, command: Command) -> None:
         """
-        Creates a Shard object given the extant sharding context and the schedulable
+        Creates a Shard object given the extant sharding context and the primary
         Command object passed in, and appends it to the Shard list
         """
         # Rollup any sub commands (SQ gates) that interact with the same qubits
@@ -85,10 +85,11 @@ class Sharder:
         bits_written = set(command.bits)
         bits_read: set[Bit] = set()
 
+        # def filter_to_bits: Callable[[UnitId], bool] = lambda x: isinstance(x, Bit)
         for sub_command in all_commands:
             bits_written.update(sub_command.bits)
             bits_read.update(
-                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc, arg-type]
+                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc, arg-type]  # noqa: E501
             )
 
         # Handle dependency calculations
@@ -157,7 +158,7 @@ class Sharder:
             self._pending_commands[key] = []
         self._pending_commands[key].append(command)
         print(
-            f"Adding pending command {command} args: {command.args} bits: {command.bits}",
+            f"Adding pending command {command}",
         )
 
     @staticmethod
