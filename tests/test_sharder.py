@@ -13,7 +13,6 @@ class TestSharder:
             Op.create(OpType.Reset),  # type: ignore  # noqa: PGH003
             Op.create(OpType.CX),  # type: ignore  # noqa: PGH003
             Op.create(OpType.Barrier),  # type: ignore  # noqa: PGH003
-            # Op.create(OpType.SetBits, [3, 1]),
         ]
         expected_false: list[Op] = [
             Op.create(OpType.U1, 0.32),  # type: ignore  # noqa: PGH003
@@ -113,7 +112,7 @@ class TestSharder:
         assert len(shards[2].sub_commands.keys()) == 0
         assert shards[2].qubits_used == set()
         assert shards[2].bits_written == {circuit.bits[1]}
-        # assert shards[2].bits_read == {circuit.bits[0]}
+        assert shards[2].bits_read == {circuit.bits[0], circuit.bits[1]}
         assert shards[2].depends_upon == {shards[0].ID}
 
         # shard 3: [if (c==1) h q;] measure q->c;

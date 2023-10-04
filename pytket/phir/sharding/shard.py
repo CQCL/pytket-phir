@@ -35,21 +35,6 @@ class Shard:
     # A set of the identifiers of other shards this particular shard depends upon
     depends_upon: set[int]
 
-    # def __post_init__(self) -> None:
-    #     self.qubits_used = set(self.primary_command.qubits)
-    #     self.bits_written = set(self.primary_command.bits)
-    #     self.bits_read = set()
-
-    #     all_sub_commands: list[Command] = []
-    #     for sub_commands in self.sub_commands.values():
-    #         all_sub_commands.extend(sub_commands)
-
-    #     for sub_command in all_sub_commands:
-    #         self.bits_written.update(sub_command.bits)
-    #         self.bits_read.update(
-    #             set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc,arg-type]  # noqa: E501
-    #         )
-
     def pretty_print(self) -> str:
         output = io.StringIO()
         output.write(f"Shard {self.ID}:")
