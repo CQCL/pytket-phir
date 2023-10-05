@@ -7,22 +7,31 @@ NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
 
 
 class Sharder:
-    """
-    The sharder class is responsible for taking in a circuit in TKET representation
+    """The Sharder class.
+
+    Responsible for taking in a circuit in TKET representation
     and converting it into shards that can be subsequently handled in the
     compilation pipeline.
     """
 
     def __init__(self, circuit: Circuit) -> None:
+        """Create Sharder object.
+
+        Args:
+        ----
+            circuit: tket Circuit
+        """
         self._circuit = circuit
         print(f"Sharder created for circuit {self._circuit}")
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
 
     def shard(self) -> list[Shard]:
-        """
-        Performs the sharding algorithm on the circuit the Sharder was initialized
-        with, returning the list of Shards needed to schedule
+        """Performs sharding algorithm on the circuit the Sharder was initialized with.
+
+        Returns:
+        -------
+            list of Shards needed to schedule
         """
         print("Sharding begins....")
         # https://cqcl.github.io/tket/pytket/api/circuit.html#pytket.circuit.Command
@@ -31,9 +40,10 @@ class Sharder:
         return self._shards
 
     def _process_command(self, command: Command) -> None:
-        """
-        Handles a given TKET command (operation, bits, etc) according to the type
-        and the extant context within the Sharder
+        """Handles a command per the type and the extant context within the Sharder.
+
+        Args:
+            command: tket command (operation, bits, etc)
         """
         print("Processing command: ", command.op, command.op.type, command.args)
         if command.op.type in NOT_IMPLEMENTED_OP_TYPES:
@@ -47,9 +57,13 @@ class Sharder:
             self._add_pending_command(command)
 
     def _build_shard(self, command: Command) -> None:
-        """
+        """Builds a shard.
+
         Creates a Shard object given the extant sharding context and the schedulable
-        Command object passed in, and appends it to the Shard list
+        Command object passed in, and appends it to the Shard list.
+
+        Args:
+            command: tket command (operation, bits, etc)
         """
         shard = Shard(command, self._pending_commands, set())
         # TODO: Dependencies!
@@ -58,9 +72,13 @@ class Sharder:
         print("Appended shard:", shard)
 
     def _add_pending_command(self, command: Command) -> None:
-        """
+        """Adds a pending command.
+
         Adds a pending sub command to the buffer to be flushed when a schedulable
         operation creates a Shard.
+
+        Args:
+            command:  tket command (operation, bits, etc)
         """
         # TODO: Need to make sure 'args[0]' is the right key to use.
         if command.args[0] not in self._pending_commands:
@@ -69,9 +87,15 @@ class Sharder:
 
     @staticmethod
     def should_op_create_shard(op: Op) -> bool:
-        """
-        Returns `True` if the operation is one that should result in shard creation.
+        """Decide whether to create a shard.
+
         This includes non-gate operations like measure/reset as well as 2-qubit gates.
+
+        Args:
+            op: operation
+
+        Returns:
+            `True` if the operation is one that should result in shard creation
         """
         # TODO: This is almost certainly inadequate right now
         return (

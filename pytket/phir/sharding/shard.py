@@ -6,9 +6,10 @@ from pytket.unit_id import UnitID
 
 @dataclass
 class Shard:
-    """
+    """The Shard class.
+
     A shard is a logical grouping of operations that represents the unit by which
-    we actually do placement of qubits
+    we actually do placement of qubits.
     """
 
     # The schedulable command of the shard

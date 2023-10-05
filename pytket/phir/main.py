@@ -1,6 +1,4 @@
-"""
-NOTE: Just a placeholder to allow convenient testing of the flows
-"""
+"""NOTE: Just a placeholder to allow convenient testing of the flows."""
 
 from pytket.circuit import Circuit
 from pytket.qasm.qasm import circuit_from_qasm
