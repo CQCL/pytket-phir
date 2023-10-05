@@ -18,22 +18,31 @@ SHARD_TRIGGER_OP_TYPES = [
 
 
 class Sharder:
-    """
-    The sharder class is responsible for taking in a circuit in TKET representation
+    """The Sharder class.
+
+    Responsible for taking in a circuit in TKET representation
     and converting it into shards that can be subsequently handled in the
     compilation pipeline.
     """
 
     def __init__(self, circuit: Circuit) -> None:
+        """Create Sharder object.
+
+        Args:
+        ----
+            circuit: tket Circuit
+        """
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
         print(f"Sharder created for circuit {self._circuit}")
 
     def shard(self) -> list[Shard]:
-        """
-        Performs the sharding algorithm on the circuit the Sharder was initialized
-        with, returning the list of Shards needed to schedule
+        """Performs sharding algorithm on the circuit the Sharder was initialized with.
+
+        Returns:
+        -------
+            list of Shards needed to schedule
         """
         print("Sharding begins....")
         # https://cqcl.github.io/tket/pytket/api/circuit.html#pytket.circuit.Command
@@ -48,9 +57,10 @@ class Sharder:
         return self._shards
 
     def _process_command(self, command: Command) -> None:
-        """
-        Handles a given TKET command (operation, bits, etc) according to the type
-        and the extant context within the Sharder
+        """Handles a command per the type and the extant context within the Sharder.
+
+        Args:
+            command: tket command (operation, bits, etc)
         """
         print("Processing command: ", command.op, command.op.type, command.args)
         if command.op.type in NOT_IMPLEMENTED_OP_TYPES:
@@ -66,9 +76,13 @@ class Sharder:
             self._add_pending_sub_command(command)
 
     def _build_shard(self, command: Command) -> None:
-        """
-        Creates a Shard object given the extant sharding context and the primary
-        Command object passed in, and appends it to the Shard list
+        """Builds a shard.
+
+        Creates a Shard object given the extant sharding context and the schedulable
+        Command object passed in, and appends it to the Shard list.
+
+        Args:
+            command: tket command (operation, bits, etc)
         """
         # Rollup any sub commands (SQ gates) that interact with the same qubits
         sub_commands: dict[UnitID, list[Command]] = {}
@@ -89,7 +103,7 @@ class Sharder:
         for sub_command in all_commands:
             bits_written.update(sub_command.bits)
             bits_read.update(
-                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc, arg-type]  # noqa: E501
+                set(filter(lambda x: isinstance(x, Bit), sub_command.args)),  # type: ignore [misc, arg-type]
             )
 
         # Handle dependency calculations
@@ -135,10 +149,6 @@ class Sharder:
         print("Appended shard:", shard)
 
     def _cleanup_remaining_commands(self) -> None:
-        """
-        Checks for any remaining "unsharded" commands, and if found, adds them
-        to Barrier op shards for each qubit
-        """
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
         for qubit in remaining_qubits:
             self._circuit.add_barrier([qubit])
@@ -149,9 +159,13 @@ class Sharder:
             self._build_shard(barrier_command)
 
     def _add_pending_sub_command(self, command: Command) -> None:
-        """
+        """Adds a pending command.
+
         Adds a pending sub command to the buffer to be flushed when a schedulable
         operation creates a Shard.
+
+        Args:
+            command:  tket command (operation, bits, etc)
         """
         key = command.qubits[0]
         if key not in self._pending_commands:
@@ -163,9 +177,15 @@ class Sharder:
 
     @staticmethod
     def should_op_create_shard(op: Op) -> bool:
-        """
-        Returns `True` if the operation is one that should result in shard creation.
+        """Decide whether to create a shard.
+
         This includes non-gate operations like measure/reset as well as 2-qubit gates.
+
+        Args:
+            op: operation
+
+        Returns:
+            `True` if the operation is one that should result in shard creation
         """
         return (
             op.type in (SHARD_TRIGGER_OP_TYPES)

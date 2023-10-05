@@ -8,9 +8,10 @@ from pytket.unit_id import Bit, Qubit, UnitID
 
 @dataclass
 class Shard:
-    """
+    """The Shard class.
+
     A shard is a logical grouping of operations that represents the unit by which
-    we actually do placement of qubits
+    we actually do placement of qubits.
     """
 
     # The unique identifier of the shard
@@ -36,6 +37,7 @@ class Shard:
     depends_upon: set[int]
 
     def pretty_print(self) -> str:
+        """Returns the shard in a human-friendly format."""
         output = io.StringIO()
         output.write(f"Shard {self.ID}:")
         output.write(f"\n   Command: {self.primary_command}")
