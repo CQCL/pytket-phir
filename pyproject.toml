@@ -17,6 +17,8 @@ dependencies = ["pytket"]
 [project.optional-dependencies]
 tests = ["pytest"]
 
+docs = ["sphinx", "sphinx-rtd-theme"]
+
 [project.urls]
 Repository = "https://github.com/CQCL/pytket-phir.git"
 
