@@ -127,3 +127,67 @@ class TestSharder:
         assert s2_sub_cmds[0].op.type == OpType.Conditional
         assert cast(Conditional, s2_sub_cmds[0].op).op.type == OpType.H
         assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
+
+    def test_complex_barriers(self) -> None:
+        circuit = get_qasm_as_circuit(QasmFiles.barrier_complex)
+        sharder = Sharder(circuit)
+        shards = sharder.shard()
+
+        assert len(shards) == 7
+
+        # shard 0: [], c[3] = 1
+        assert shards[0].primary_command.op.type == OpType.SetBits
+        assert len(shards[0].sub_commands.items()) == 0
+        assert shards[0].qubits_used == set()
+        assert shards[0].bits_written == {circuit.bits[3]}
+        assert shards[0].bits_read == {circuit.bits[3]}  # bits written are always read
+        assert shards[0].depends_upon == set()
+
+        # shard 1: [h q[0]; h q[1];] barrier q[0], q[1], c[3];
+        assert shards[1].primary_command.op.type == OpType.Barrier
+        assert len(shards[1].sub_commands.items()) == 2
+        # TODO: sub commands
+        assert shards[1].qubits_used == {circuit.qubits[0], circuit.qubits[1]}
+        assert shards[1].bits_written == {circuit.bits[3]}
+        assert shards[1].bits_read == {circuit.bits[3]}
+        assert shards[1].depends_upon == {shards[0].ID}
+
+        # shard 2: [] CX q[0], q[1];
+        assert shards[2].primary_command.op.type == OpType.CX
+        assert len(shards[2].sub_commands.items()) == 0
+        assert shards[2].qubits_used == {circuit.qubits[0], circuit.qubits[1]}
+        assert shards[2].bits_written == set()
+        assert shards[2].bits_read == set()
+        assert shards[2].depends_upon == {shards[1].ID}
+
+        # shard 3: measure q[0]->c[0];
+        assert shards[3].primary_command.op.type == OpType.Measure
+        assert len(shards[3].sub_commands.items()) == 0
+        assert shards[3].qubits_used == {circuit.qubits[0]}
+        assert shards[3].bits_written == {circuit.bits[0]}
+        assert shards[3].bits_read == {circuit.bits[0]}
+        assert shards[3].depends_upon == {shards[2].ID, shards[1].ID}
+
+        # shard 4: [] barrier q[2], q[3];
+        assert shards[4].primary_command.op.type == OpType.Barrier
+        assert len(shards[4].sub_commands.items()) == 2
+        assert shards[4].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
+        assert shards[4].bits_written == set()
+        assert shards[4].bits_read == set()
+        assert shards[4].depends_upon == set()
+
+        # shard 5: [] CX q[2], q[3];
+        assert shards[5].primary_command.op.type == OpType.CX
+        assert len(shards[5].sub_commands.items()) == 0
+        assert shards[5].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
+        assert shards[5].bits_written == set()
+        assert shards[5].bits_read == set()
+        assert shards[5].depends_upon == {shards[4].ID}
+
+        # shard 6: measure q[2]->c[2];
+        assert shards[6].primary_command.op.type == OpType.Measure
+        assert len(shards[6].sub_commands.items()) == 0
+        assert shards[6].qubits_used == {circuit.qubits[2]}
+        assert shards[6].bits_written == {circuit.bits[2]}
+        assert shards[6].bits_read == {circuit.bits[2]}
+        assert shards[6].depends_upon == {shards[5].ID, shards[4].ID}

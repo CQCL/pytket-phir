@@ -12,6 +12,7 @@ class QasmFiles(Enum):
     baby_with_rollup = 5
     simple_cond = 6
     cond_classical = 7
+    barrier_complex = 8
 
 
 def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
