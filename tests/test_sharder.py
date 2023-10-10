@@ -212,3 +212,51 @@ class TestSharder:
         assert shards[6].bits_written == {circuit.bits[2]}
         assert shards[6].bits_read == {circuit.bits[2]}
         assert shards[6].depends_upon == {shards[5].ID, shards[4].ID}
+
+    def test_classical_hazards(self) -> None:
+        circuit = get_qasm_as_circuit(QasmFiles.classical_hazards)
+        sharder = Sharder(circuit)
+        shards = sharder.shard()
+
+        assert len(shards) == 5
+
+        # shard 0: [h q[0];] measure q[0]->c[0];
+        assert shards[0].primary_command.op.type == OpType.Measure
+        assert len(shards[0].sub_commands.items()) == 1
+        assert shards[0].qubits_used == {circuit.qubits[0]}
+        assert shards[0].bits_written == {circuit.bits[0]}
+        assert shards[0].bits_read == {circuit.bits[0]}
+        assert shards[0].depends_upon == set()
+
+        # shard 1: [H q[1];] measure q[1]->c[2];
+        # NOTE: pytket reorganizes circuits to be efficiently ordered
+        assert shards[1].primary_command.op.type == OpType.Measure
+        assert len(shards[1].sub_commands.items()) == 1
+        assert shards[1].qubits_used == {circuit.qubits[1]}
+        assert shards[1].bits_written == {circuit.bits[2]}
+        assert shards[1].bits_read == {circuit.bits[2]}
+        assert shards[1].depends_upon == set()
+
+        # shard 2: [] if(c[0]==1) c[1]=1;
+        assert shards[2].primary_command.op.type == OpType.Conditional
+        assert len(shards[2].sub_commands) == 0
+        assert shards[2].qubits_used == set()
+        assert shards[2].bits_written == {circuit.bits[1]}
+        assert shards[2].bits_read == {circuit.bits[1], circuit.bits[0]}
+        assert shards[2].depends_upon == {shards[0].ID}
+
+        # shard 3: [] c[0]=0;
+        assert shards[3].primary_command.op.type == OpType.SetBits
+        assert len(shards[2].sub_commands) == 0
+        assert shards[3].qubits_used == set()
+        assert shards[3].bits_written == {circuit.bits[0]}
+        assert shards[3].bits_read == {circuit.bits[0]}
+        assert shards[3].depends_upon == {shards[0].ID}
+
+        # shard 4: [] if(c[2]==1) c[0]=1;
+        assert shards[4].primary_command.op.type == OpType.Conditional
+        assert len(shards[4].sub_commands) == 0
+        assert shards[4].qubits_used == set()
+        assert shards[4].bits_written == {circuit.bits[0]}
+        assert shards[4].bits_read == {circuit.bits[0], circuit.bits[2]}
+        assert shards[4].depends_upon == {shards[1].ID, shards[0].ID, shards[3].ID}

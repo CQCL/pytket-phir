@@ -13,6 +13,7 @@ class QasmFiles(Enum):
     simple_cond = 6
     cond_classical = 7
     barrier_complex = 8
+    classical_hazards = 9
 
 
 def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
