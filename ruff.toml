@@ -63,7 +63,8 @@ ignore = [
     "D101",   # Missing docstring in public class
     "D102",   # Missing docstring in public method
     "S101",   # Use of `assert` detected
-    "PLR2004" # Magic constants
+    "PLR2004", # Magic constants
+    "PLR0915", # Too many statements in function
   ]
 
 [pydocstyle]

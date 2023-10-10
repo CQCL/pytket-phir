@@ -146,7 +146,14 @@ class TestSharder:
         # shard 1: [h q[0]; h q[1];] barrier q[0], q[1], c[3];
         assert shards[1].primary_command.op.type == OpType.Barrier
         assert len(shards[1].sub_commands.items()) == 2
-        # TODO: sub commands
+        shard_1_q0_cmds = shards[1].sub_commands[circuit.qubits[0]]
+        assert len(shard_1_q0_cmds) == 1
+        assert shard_1_q0_cmds[0].op.type == OpType.H
+        assert shard_1_q0_cmds[0].qubits == [circuit.qubits[0]]
+        shard_1_q1_cmds = shards[1].sub_commands[circuit.qubits[1]]
+        assert len(shard_1_q1_cmds) == 1
+        assert shard_1_q1_cmds[0].op.type == OpType.H
+        assert shard_1_q1_cmds[0].qubits == [circuit.qubits[1]]
         assert shards[1].qubits_used == {circuit.qubits[0], circuit.qubits[1]}
         assert shards[1].bits_written == {circuit.bits[3]}
         assert shards[1].bits_read == {circuit.bits[3]}
@@ -168,9 +175,23 @@ class TestSharder:
         assert shards[3].bits_read == {circuit.bits[0]}
         assert shards[3].depends_upon == {shards[2].ID, shards[1].ID}
 
-        # shard 4: [] barrier q[2], q[3];
+        # shard 4: [H q[3];, H q[3];, X q[3];]] barrier q[2], q[3];
         assert shards[4].primary_command.op.type == OpType.Barrier
         assert len(shards[4].sub_commands.items()) == 2
+        shard_4_q2_cmds = shards[4].sub_commands[circuit.qubits[2]]
+        assert len(shard_4_q2_cmds) == 2
+        assert shard_4_q2_cmds[0].op.type == OpType.H
+        assert shard_4_q2_cmds[0].qubits == [circuit.qubits[2]]
+        assert shard_4_q2_cmds[1].op.type == OpType.H
+        assert shard_4_q2_cmds[1].qubits == [circuit.qubits[2]]
+        shard_4_q3_cmds = shards[4].sub_commands[circuit.qubits[3]]
+        assert len(shard_4_q3_cmds) == 3
+        assert shard_4_q3_cmds[0].op.type == OpType.H
+        assert shard_4_q3_cmds[0].qubits == [circuit.qubits[3]]
+        assert shard_4_q3_cmds[1].op.type == OpType.H
+        assert shard_4_q3_cmds[1].qubits == [circuit.qubits[3]]
+        assert shard_4_q3_cmds[2].op.type == OpType.X
+        assert shard_4_q3_cmds[2].qubits == [circuit.qubits[3]]
         assert shards[4].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
         assert shards[4].bits_written == set()
         assert shards[4].bits_read == set()
