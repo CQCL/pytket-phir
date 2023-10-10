@@ -45,7 +45,6 @@ class Sharder:
             list of Shards needed to schedule
         """
         print("Sharding begins....")
-        # https://cqcl.github.io/tket/pytket/api/circuit.html#pytket.circuit.Command
         for command in self._circuit.get_commands():
             self._process_command(command)
         self._cleanup_remaining_commands()
@@ -99,7 +98,6 @@ class Sharder:
         bits_written = set(command.bits)
         bits_read: set[Bit] = set()
 
-        # def filter_to_bits: Callable[[UnitId], bool] = lambda x: isinstance(x, Bit)
         for sub_command in all_commands:
             bits_written.update(sub_command.bits)
             bits_read.update(
@@ -125,9 +123,6 @@ class Sharder:
                 depends_upon.add(shard.ID)
 
             # Check for read-after-write (value seen would change if reordered)
-            # elif not shard.bits_read.isdisjoint(bits_written):
-            #     print(f'...adding shard dep {shard.ID} -> ')
-            #     depends_upon.add(shard.ID)
             elif not shard.bits_written.isdisjoint(bits_read):
                 print(f"...adding shard dep {shard.ID} -> RAW")
                 depends_upon.add(shard.ID)
