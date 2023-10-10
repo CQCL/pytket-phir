@@ -260,3 +260,27 @@ class TestSharder:
         assert shards[4].bits_written == {circuit.bits[0]}
         assert shards[4].bits_read == {circuit.bits[0], circuit.bits[2]}
         assert shards[4].depends_upon == {shards[1].ID, shards[0].ID, shards[3].ID}
+
+    def test_with_big_gate(self) -> None:
+        circuit = get_qasm_as_circuit(QasmFiles.big_gate)
+        sharder = Sharder(circuit)
+        shards = sharder.shard()
+
+        assert len(shards) == 2
+
+        # shard 0: [h q[0]; h q[1]; h q[2];] c4x q[0],q[1],q[2],q[3];
+        assert shards[0].primary_command.op.type == OpType.CnX
+        assert len(shards[0].sub_commands) == 3
+        assert shards[0].qubits_used == {
+            circuit.qubits[0],
+            circuit.qubits[1],
+            circuit.qubits[2],
+            circuit.qubits[3],
+        }
+        assert shards[0].bits_written == set()
+
+        # shard 1: [] measure q[3]->[c0]
+        assert shards[1].primary_command.op.type == OpType.Measure
+        assert len(shards[1].sub_commands) == 0
+        assert shards[1].qubits_used == {circuit.qubits[3]}
+        assert shards[1].bits_written == {circuit.bits[0]}
