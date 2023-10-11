@@ -5,4 +5,5 @@ pre-commit==3.4.0
 pytest==7.4.2
 ruff==0.0.292
 pytket==1.20.1
+pytket-quantinuum==0.23.0
 wheel==0.41.2
