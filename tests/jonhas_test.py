@@ -19,7 +19,7 @@ def parse_circuit(file):
                 opstrings = line.split(' ')
                 ops = []
                 for op in opstrings:
-                    ops.append(ast.literal_eval(op)) #this is unsafe, so not leave in open source
+                    ops.append(ast.literal_eval(op)) #this is unsafe, do not leave in open source
                 for op in ops:
                     for qubit in op:
                         qubit = int(qubit)
@@ -44,8 +44,12 @@ def eval_circuit(circuit):
         state = place(row, m.tq_options, m.sq_options, 12)
         # print(prev_state)
         # print(state)
-        e, o = eo_sort_rounds(prev_state, state)
-        cost = calc_cost(e, o)
+
+        # e, o = eo_sort_rounds(prev_state, state)
+        # cost = calc_cost(e, o)
+        
+        cost = transport_cost(prev_state, state, 725) #725 is avg of even and odd swaps
+        
         # print(f'Cost: {cost} us')
         # print('\n')
         net_cost += cost
@@ -59,15 +63,19 @@ def eval_optimized(circuit):
         state = optimized_place(row, m.tq_options, m.sq_options, 12, prev_state)
         # print(prev_state)
         # print(state)
-        e, o = eo_sort_rounds(prev_state, state)
-        cost = calc_cost(e, o)
+
+        # e, o = eo_sort_rounds(prev_state, state)
+        # cost = calc_cost(e, o)
+        
+        cost = transport_cost(prev_state, state, 725) #725 is avg of even and odd swaps
+
         # print(f'Cost: {cost} us')
         # print('\n')
         net_cost += cost
         prev_state = state
     return net_cost
  
-bwc = parse_circuit("lattice_circuit.txt")
+bwc = parse_circuit("brickwork_circuit.txt")
 nc = eval_circuit(bwc)
 oc = eval_optimized(bwc)
 print(f'Regaular: {nc} us')

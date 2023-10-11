@@ -32,25 +32,29 @@ def transport_cost(init: list[int], goal: list[int], swap_cost: float) -> float:
 
     return n_swaps * swap_cost
 
-def eo_sort_rounds(q1l, q2l) -> (int, int):
+def eo_sort_rounds(q1l, q2l) -> tuple[int, int]:
     '''Find the number of even and odd rounds to get from ordering state one to state two'''
 
     even_rounds = odd_rounds = 0
-
-    p = [q2l.index(q) for q in q1l]
-    while q1l != q2l:
+    #commented lines to remove q1l manipulation, uncomment for info about specific swaps
+    # p = [q2l.index(q) for q in q1l]
+    q2l_inv = inverse(q2l)
+    p = [q2l_inv[q] for q in q1l]
+    final_p = [i for i in range(len(p))]
+    # while q1l != q2l:
+    while p != final_p:
         e = o = 0
         # even cycle
         for i in range(0, len(q1l)-1, 2):
             if p[i] > p[i+1]:
                 e = 1
-                q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
+                # q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
                 p[i], p[i+1] = p[i+1], p[i]
         # odd cycle
         for i in range(1, len(q1l)-1, 2):
             if p[i] > p[i+1]:
                 o = 1
-                q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
+                # q1l[i], q1l[i+1] = q1l[i+1], q1l[i]
                 p[i], p[i+1] = p[i+1], p[i]
         even_rounds += e
         odd_rounds += o
