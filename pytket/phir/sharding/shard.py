@@ -6,7 +6,7 @@ from pytket.circuit import Command
 from pytket.unit_id import Bit, Qubit, UnitID
 
 
-@dataclass
+@dataclass(frozen=True)
 class Shard:
     """The Shard class.
 
@@ -25,16 +25,20 @@ class Shard:
     sub_commands: dict[UnitID, list[Command]]
 
     # All qubits used by the primary and sub commands
-    qubits_used: set[Qubit]  # = field(init=False)
+    qubits_used: set[Qubit]
 
     # Set of all classical bits written to by the primary and sub commands
-    bits_written: set[Bit]  # = field(init=False)
+    bits_written: set[Bit]
 
     # Set of all classical bits read by the primary and sub commands
-    bits_read: set[Bit]  # = field(init=False)
+    bits_read: set[Bit]
 
     # A set of the identifiers of other shards this particular shard depends upon
     depends_upon: set[int]
+
+    def __hash__(self) -> int:
+        """Hashing for shards is done only by its autogen unique int ID."""
+        return self.ID
 
     def pretty_print(self) -> str:
         """Returns the shard in a human-friendly format."""

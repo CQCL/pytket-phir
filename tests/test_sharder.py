@@ -7,6 +7,15 @@ from .sample_data import QasmFiles, get_qasm_as_circuit
 
 
 class TestSharder:
+    def test_shard_hashing(self) -> None:
+        circuit = get_qasm_as_circuit(QasmFiles.baby)
+        sharder = Sharder(circuit)
+        shards = sharder.shard()
+
+        shard_set = set(shards)
+
+        assert len(shard_set) > 0
+
     def test_should_op_create_shard(self) -> None:
         expected_true: list[Op] = [
             Op.create(OpType.Measure),  # type: ignore [misc]
