@@ -3,17 +3,17 @@ import typing
 
 import pytest
 
+from pytket.phir.machine_class import Machine
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
     place,
     placement_check,
 )
-from tests.test_machine_class import TestMachine
 
-m = TestMachine(4, {1}, 10, 2, 2)
-m2 = TestMachine(6, {1, 3}, 10, 2, 2)
-m3 = TestMachine(8, {0, 6}, 10, 2, 2)
+m = Machine(4, {1}, 10, 2, 2)
+m2 = Machine(6, {1, 3}, 10, 2, 2)
+m3 = Machine(8, {0, 6}, 10, 2, 2)
 
 
 @typing.no_type_check

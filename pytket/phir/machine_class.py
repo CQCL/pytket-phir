@@ -1,4 +1,4 @@
-class TestMachine:
+class Machine:
     """A machine info class for testing"""
 
     def __init__(  # noqa: PLR0913
