@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.14
+    rev: v1.16.17
     hooks:
       - id: typos
 
@@ -23,7 +23,7 @@ repos:
       - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.291
+    rev: v0.0.292
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -33,8 +33,9 @@ repos:
     hooks:
     - id: mypy
       pass_filenames: false
-      args: [.]
+      args: [--package=pytket.phir, --package=tests]
       additional_dependencies: [
-        pytest==7.4.2,
-        types-setuptools==68.2.0.0,
+        pytest,
+        pytket==1.20.1,
+        types-setuptools,
       ]
