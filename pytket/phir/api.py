@@ -1,8 +1,7 @@
 from pytket.circuit import Circuit
-
-from .qtm_machine import QtmMachine
-from .rebasing.rebaser import rebase_to_qtm_machine
-from .sharding.sharder import Sharder
+from pytket.phir.qtm_machine import QtmMachine
+from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
+from pytket.phir.sharding.sharder import Sharder
 
 
 def pytket_to_phir(
