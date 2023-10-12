@@ -106,7 +106,8 @@ def place(  # noqa: PLR0912
     # check to make sure that there are zones available for all ops
     if len(tq_ops) > len(tq_zones):
         raise GateOpportunitiesError
-    if len(sq_ops) > len(sq_zones):
+    if len(sq_ops) > len(sq_zones) - 2 * len(tq_ops):
+        # Because SQ zones are offsets of TQ zones, each tq op covers 2 sq zones
         raise GateOpportunitiesError
 
     # place the tq ops
@@ -190,7 +191,8 @@ def optimized_place(  # noqa: PLR0912
     # check to make sure that there are zones available for all ops
     if len(tq_ops) > len(tq_zones):
         raise GateOpportunitiesError
-    if len(sq_ops) > len(sq_zones):
+    if len(sq_ops) > len(sq_zones) - 2 * len(tq_ops):
+        # Because SQ zones are offsets of TQ zones, each tq op covers 2 sq zones
         raise GateOpportunitiesError
 
     # place the tq ops

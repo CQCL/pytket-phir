@@ -142,7 +142,7 @@ def test_place() -> None:
     assert place(ops, tq_options, sq_options, trap_size) == expected
 
     # placement error
-    ops = [[0, 1], [1]]
+    ops = [[0, 1], [2]]
     tq_options = {0}
     sq_options = {0, 1}
     trap_size = 2
