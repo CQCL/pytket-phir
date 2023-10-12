@@ -1,12 +1,13 @@
 from pytket.circuit import Circuit
 
+from .qtm_machine import QtmMachine
 from .rebasing.rebaser import rebase_to_qtm_machine
 from .sharding.sharder import Sharder
 
 
 def pytket_to_phir(
     circuit: Circuit,
-    qtm_machine: str | None = None,
+    qtm_machine: QtmMachine | None = None,
 ) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
@@ -20,7 +21,7 @@ def pytket_to_phir(
         PHIR JSON as a str
     """
     if qtm_machine:
-        circuit = rebase_to_qtm_machine(circuit, qtm_machine)
+        circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
 
     sharder = Sharder(circuit)
     shards = sharder.shard()
