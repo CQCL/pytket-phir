@@ -18,6 +18,7 @@ m3 = Machine(8, {0, 6}, 10, 2, 2)
 
 @typing.no_type_check
 def test_placement_check() -> None:
+    """Test placement check."""
     # simple tq check
     ops = [[1, 2]]
     state = [0, 1, 2, 3]
@@ -53,6 +54,7 @@ def test_placement_check() -> None:
 
 @typing.no_type_check
 def test_place() -> None:
+    """Test place."""
     # one tq
     ops = [[0, 3]]
     tq_options = {1}

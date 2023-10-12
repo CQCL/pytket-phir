@@ -5,17 +5,28 @@ from pytket.phir.routing import inverse
 
 
 class GateOpportunitiesError(Exception):
+    """Exception raised when gating zones cannot accommodate all operations."""
+
     def __init__(self) -> None:
+        """Exception"""  # noqa: D415
         super().__init__("Not enough gating opportunities for all ops in this layer")
 
 
 class InvalidParallelOpsError(Exception):
+    """Exception raised when a layer attempts to gate the same qubit more than once in parallel."""  # noqa: E501
+
     def __init__(self, q: int) -> None:
+        """Exception
+        Args: q: a qubit
+        """  # noqa: D205, D415
         super().__init__(f"Cannot gate qubit {q} more than once in the same layer")
 
 
 class PlacementCheckError(Exception):
+    """Exception raised when placement check fails."""
+
     def __init__(self) -> None:
+        """Exception"""  # noqa: D415
         super().__init__("Placement Check Failed")
 
 
@@ -25,8 +36,7 @@ def placement_check(
     sq_options: set[int],
     state: list[int],
 ) -> bool:
-    """Ensure that the qubits end up in the right gating zones"""
-
+    """Ensure that the qubits end up in the right gating zones."""
     placement_valid = False
     inv = inverse(state)
 
@@ -50,6 +60,7 @@ def placement_check(
 
 
 def nearest(zone: int, options: set[int]) -> int:
+    """Return the nearest available zone to the given zone."""
     lst = sorted(options)
     ind = bisect.bisect_left(lst, zone)
 
@@ -71,7 +82,7 @@ def place(  # noqa: PLR0912
     sq_options: set[int],
     num_qubits: int,
 ) -> list[int]:
-    """Place the qubits in the right order"""
+    """Place the qubits in the right order."""
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
     order = [-1] * num_qubits
     placed_qubits = set()
@@ -155,7 +166,7 @@ def optimized_place(  # noqa: PLR0912
     num_qubits: int,
     prev_state: list[int],
 ) -> list[int]:
-    """Place the qubits in the right order"""
+    """Place the qubits in the right order."""
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
     order = [-1] * num_qubits
     placed_qubits = set()

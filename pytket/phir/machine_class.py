@@ -1,5 +1,5 @@
 class Machine:
-    """A machine info class for testing"""
+    """A machine info class for testing."""
 
     def __init__(  # noqa: PLR0913
         self,
@@ -9,6 +9,15 @@ class Machine:
         sq_time: float,
         qb_swap_time: float,
     ):
+        """Create Machine object.
+
+        Args:
+            size: number of qubits/slots
+            tq_options: options for where to perform tq gates
+            tq_time: time for a two qubit gate
+            sq_time: time for a single qubit gate
+            qb_swap_time: time it takes to swap to qubits
+        """
         self.size = size
         self.tq_options = tq_options
         self.sq_options = set()
