@@ -20,7 +20,7 @@ class Machine:
         """
         self.size = size
         self.tq_options = tq_options
-        self.sq_options = set()
+        self.sq_options: set[int] = set()
         self.tq_time = tq_time
         self.sq_time = sq_time
         self.qb_swap_time = qb_swap_time
