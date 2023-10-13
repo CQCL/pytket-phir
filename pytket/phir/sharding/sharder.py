@@ -1,3 +1,4 @@
+import logging
 from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
@@ -14,6 +15,8 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
     OpType.RangePredicate,
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class Sharder:
@@ -34,7 +37,7 @@ class Sharder:
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
-        print(f"Sharder created for circuit {self._circuit}")
+        logger.debug(f"Sharder created for circuit {self._circuit}")
 
     def shard(self) -> list[Shard]:
         """Performs sharding algorithm on the circuit the Sharder was initialized with.
@@ -43,15 +46,14 @@ class Sharder:
         -------
             list of Shards needed to schedule
         """
-        print("Sharding begins....")
+        logger.debug("Sharding begins....")
         for command in self._circuit.get_commands():
             self._process_command(command)
         self._cleanup_remaining_commands()
 
-        print("--------------------------------------------")
-        print("Shard output:")
+        logger.debug("Shard output:")
         for shard in self._shards:
-            print(shard.pretty_print())
+            logger.debug(shard)
         return self._shards
 
     def _process_command(self, command: Command) -> None:
@@ -60,13 +62,15 @@ class Sharder:
         Args:
             command: tket command (operation, bits, etc)
         """
-        print("Processing command: ", command.op, command.op.type, command.args)
+        logger.debug(
+            f"Processing command: {command.op} {command.op.type} args: {command.args}",
+        )
         if command.op.type in NOT_IMPLEMENTED_OP_TYPES:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
         if self.should_op_create_shard(command.op):
-            print(
+            logger.debug(
                 f"Building shard for command: {command}",
             )
             self._build_shard(command)
@@ -109,7 +113,7 @@ class Sharder:
             # Check qubit dependencies (R/W implicitly) since all commands
             # on a given qubit need to be ordered as the circuit dictated
             if not shard.qubits_used.isdisjoint(command.qubits):
-                print(f"...adding shard dep {shard.ID} -> qubit overlap")
+                logger.debug(f"...adding shard dep {shard.ID} -> qubit overlap")
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
             # hazards: RAW, WAW, WAR
@@ -118,17 +122,17 @@ class Sharder:
             # Check for write-after-write (changing order would change final value)
             # by looking at overlap of bits_written
             elif not shard.bits_written.isdisjoint(bits_written):
-                print(f"...adding shard dep {shard.ID} -> WAW")
+                logger.debug(f"...adding shard dep {shard.ID} -> WAW")
                 depends_upon.add(shard.ID)
 
             # Check for read-after-write (value seen would change if reordered)
             elif not shard.bits_written.isdisjoint(bits_read):
-                print(f"...adding shard dep {shard.ID} -> RAW")
+                logger.debug(f"...adding shard dep {shard.ID} -> RAW")
                 depends_upon.add(shard.ID)
 
             # Check for write-after-read (no reordering or read is changed)
             elif not shard.bits_written.isdisjoint(bits_read):
-                print(f"...adding shard dep {shard.ID} -> WAR")
+                logger.debug(f"...adding shard dep {shard.ID} -> WAR")
                 depends_upon.add(shard.ID)
 
         shard = Shard(
@@ -140,7 +144,7 @@ class Sharder:
             depends_upon,
         )
         self._shards.append(shard)
-        print("Appended shard:", shard)
+        logger.debug(f"Appended shard: {shard}")
 
     def _cleanup_remaining_commands(self) -> None:
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
@@ -165,7 +169,7 @@ class Sharder:
         if key not in self._pending_commands:
             self._pending_commands[key] = []
         self._pending_commands[key].append(command)
-        print(
+        logger.debug(
             f"Adding pending command {command}",
         )
 

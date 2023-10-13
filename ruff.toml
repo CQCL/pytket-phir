@@ -50,6 +50,7 @@ ignore = [
   "TD002",  # Allow no author todos
   "TD003",  # allow todos with no issues
   "D100",   # Missing docstring in public module
+  "G004",   # F-string in logging invocation
 ]
 
 [per-file-ignores]

@@ -13,8 +13,11 @@ class TestSharder:
         shards = sharder.shard()
 
         shard_set = set(shards)
+        assert len(shard_set) == 3
 
-        assert len(shard_set) > 0
+        first_shard = next(iter(shard_set))
+        shard_set.add(first_shard)
+        assert len(shard_set) == 3
 
     def test_should_op_create_shard(self) -> None:
         expected_true: list[Op] = [

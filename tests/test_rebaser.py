@@ -1,3 +1,5 @@
+import logging
+
 from pytket.circuit import Circuit, OpType
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 
@@ -11,13 +13,15 @@ EXPECTED_GATES = [
 ]
 
 
+logger = logging.getLogger(__name__)
+
+
 class TestRebaser:
     def test_rebaser_happy_path_arc1a(self) -> None:
         circ = get_qasm_as_circuit(QasmFiles.baby)
         rebased: Circuit = rebase_to_qtm_machine(circ, "H1-1")
 
-        print(rebased)
+        logger.info(rebased)
         for command in rebased.get_commands():
-            print(command)
             if command.op.is_gate():
                 assert command.op.type in EXPECTED_GATES
