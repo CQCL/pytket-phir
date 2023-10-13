@@ -76,6 +76,36 @@ def nearest(zone: int, options: set[int]) -> int:
     return nearest_zone
 
 
+def place_tq_ops(
+    tq_ops: list[list[int]],
+    placed_qubits: set[int],
+    order: list[int],
+    tq_zones: set[int],
+    sq_zones: set[int],
+) -> list[int]:
+    """A helper function to place the TQ operations."""
+    for op in tq_ops:
+        q1, q2 = op[0], op[1]
+        # check to make sure that the qubits have not already been placed
+        if q1 in placed_qubits:
+            raise InvalidParallelOpsError(q1)
+        if q2 in placed_qubits:
+            raise InvalidParallelOpsError(q2)
+        midpoint = math.floor(abs(q2 - q1) / 2) + min(q1, q2)
+        # find the tq gating zone closest to the midpoint of the 2 qubits
+        nearest_tq_zone = nearest(midpoint, tq_zones)
+        order[nearest_tq_zone] = q1
+        order[nearest_tq_zone + 1] = q2
+        # remove the occupied zones in the tap from tq and sq options
+        tq_zones.discard(nearest_tq_zone)
+        tq_zones.discard(nearest_tq_zone + 1)
+        sq_zones.discard(nearest_tq_zone)
+        sq_zones.discard(nearest_tq_zone + 1)
+        placed_qubits.add(q1)
+        placed_qubits.add(q2)
+    return order
+
+
 def place(  # noqa: PLR0912
     ops: list[list[int]],
     tq_options: set[int],
@@ -85,7 +115,7 @@ def place(  # noqa: PLR0912
     """Place the qubits in the right order."""
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
     order = [-1] * num_qubits
-    placed_qubits = set()
+    placed_qubits: set[int] = set()
 
     tq_zones = tq_options.copy()
     sq_zones = sq_options.copy()
@@ -111,25 +141,7 @@ def place(  # noqa: PLR0912
         raise GateOpportunitiesError
 
     # place the tq ops
-    for op in tq_ops_sorted:
-        q1, q2 = op[0], op[1]
-        # check to make sure that the qubits have not already been placed
-        if q1 in placed_qubits:
-            raise InvalidParallelOpsError(q1)
-        if q2 in placed_qubits:
-            raise InvalidParallelOpsError(q2)
-        midpoint = math.floor(abs(q2 - q1) / 2) + min(q1, q2)
-        # find the tq gating zone closest to the midpoint of the 2 qubits
-        nearest_tq_zone = nearest(midpoint, tq_zones)
-        order[nearest_tq_zone] = q1
-        order[nearest_tq_zone + 1] = q2
-        # remove the occupied zones in the tap from tq and sq options
-        tq_zones.discard(nearest_tq_zone)
-        tq_zones.discard(nearest_tq_zone + 1)
-        sq_zones.discard(nearest_tq_zone)
-        sq_zones.discard(nearest_tq_zone + 1)
-        placed_qubits.add(q1)
-        placed_qubits.add(q2)
+    order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
 
     # place the sq ops
     for op in sq_ops:
@@ -160,7 +172,7 @@ def place(  # noqa: PLR0912
         raise PlacementCheckError
 
 
-def optimized_place(  # noqa: PLR0912
+def optimized_place(
     ops: list[list[int]],
     tq_options: set[int],
     sq_options: set[int],
@@ -170,7 +182,7 @@ def optimized_place(  # noqa: PLR0912
     """Place the qubits in the right order."""
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
     order = [-1] * num_qubits
-    placed_qubits = set()
+    placed_qubits: set[int] = set()
 
     tq_zones = tq_options.copy()
     sq_zones = sq_options.copy()
@@ -196,25 +208,7 @@ def optimized_place(  # noqa: PLR0912
         raise GateOpportunitiesError
 
     # place the tq ops
-    for op in tq_ops_sorted:
-        q1, q2 = op[0], op[1]
-        # check to make sure that the qubits have not already been placed
-        if q1 in placed_qubits:
-            raise InvalidParallelOpsError(q1)
-        if q2 in placed_qubits:
-            raise InvalidParallelOpsError(q2)
-        midpoint = math.floor(abs(q2 - q1) / 2) + min(q1, q2)
-        # find the tq gating zone closest to the midpoint of the 2 qubits
-        nearest_tq_zone = nearest(midpoint, tq_zones)
-        order[nearest_tq_zone] = q1
-        order[nearest_tq_zone + 1] = q2
-        # remove the occupied zones in the tap from tq and sq options
-        tq_zones.discard(nearest_tq_zone)
-        tq_zones.discard(nearest_tq_zone + 1)
-        sq_zones.discard(nearest_tq_zone)
-        sq_zones.discard(nearest_tq_zone + 1)
-        placed_qubits.add(q1)
-        placed_qubits.add(q2)
+    order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
 
     # place the sq ops
     for op in sq_ops:
