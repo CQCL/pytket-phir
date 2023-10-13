@@ -49,7 +49,6 @@ class TestSharder:
         assert not shards[0].primary_command.bits
         assert len(shards[0].sub_commands) == 2
         sub_commands = list(shards[0].sub_commands.items())
-        print(sub_commands)
         assert sub_commands[0][1][0].op.type == OpType.H
         assert len(shards[0].depends_upon) == 0
 
@@ -73,7 +72,6 @@ class TestSharder:
         assert not shards[0].primary_command.bits
         assert len(shards[0].sub_commands) == 2
         sub_commands = list(shards[0].sub_commands.items())
-        print(sub_commands)
         assert sub_commands[0][1][0].op.type == OpType.H
         assert len(shards[0].depends_upon) == 0
 

@@ -45,7 +45,6 @@ select = [
 ]
 
 ignore = [
-  "T201",   # no prints flake-8
   "FIX002", # Allow todos
   "TD002",  # Allow no author todos
   "TD003",  # allow todos with no issues
