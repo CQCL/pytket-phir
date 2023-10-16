@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 
 from pytket.circuit import Circuit
@@ -26,4 +27,5 @@ def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
     Returns:
         Corresponding tket circuit
     """
-    return circuit_from_qasm(f"tests/data/qasm/{qasm_file.name}.qasm")
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    return circuit_from_qasm(f"{this_dir}/data/qasm/{qasm_file.name}.qasm")
