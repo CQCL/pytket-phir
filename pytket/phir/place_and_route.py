@@ -12,7 +12,7 @@ from tests.sample_data import (  # type: ignore [attr-defined]
 
 
 @typing.no_type_check
-def place_and_route(machine: Machine, qasm: Circuit):  # give type hint for return
+def place_and_route(machine: Machine, qasm: Circuit):
     """Get all the routing info needed for PHIR generation."""
     circuit = get_qasm_as_circuit(qasm)
     sharder = Sharder(circuit)

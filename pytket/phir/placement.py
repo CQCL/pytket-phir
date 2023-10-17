@@ -172,7 +172,7 @@ def place(  # noqa: PLR0912
         raise PlacementCheckError
 
 
-def optimized_place(
+def optimized_place(  # noqa: PLR0912
     ops: list[list[int]],
     tq_options: set[int],
     sq_options: set[int],
@@ -209,7 +209,18 @@ def optimized_place(
 
     # place the tq ops
     order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
-
+    # run a check to avoid unnecessary swaps
+    for zone in tq_zones:
+        # this condition will be true if there was a swap due to the order of qubits_used  # noqa: E501
+        # in the shard creating the TQ op, even if those two qubits were already in a TQ zone  # noqa: E501
+        # example: ops = [[0,1]] prev_state = [0,1,2,3] new order = [1,0,2,3]
+        # this check s to prevent the above situation
+        if (order[zone] == prev_state[zone + 1]) & (
+            order[zone + 1] == prev_state[zone]
+        ):
+            swapped = order[zone + 1]
+            order[zone + 1] = order[zone]
+            order[zone] = swapped
     # place the sq ops
     for op in sq_ops:
         q1 = op[0]
