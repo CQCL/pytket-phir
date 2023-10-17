@@ -1,19 +1,15 @@
-from pytket.circuit import Circuit
-from pytket.phir.machine_class import Machine
+from pytket.phir.machine import Machine
 from pytket.phir.placement import optimized_place
 from pytket.phir.routing import transport_cost
 from pytket.phir.sharding.shard import Shard
-from pytket.phir.sharding.sharder import Sharder
 from pytket.phir.sharding.shards2ops import parse_shards_naive
 
 
 def place_and_route(
     machine: Machine,
-    circuit: Circuit,
+    shards: list[Shard],
 ) -> list[tuple[list[int], list[Shard], float]]:
     """Get all the routing info needed for PHIR generation."""
-    sharder = Sharder(circuit)
-    shards = sharder.shard()
     shard_set = set(shards)
     circuit_rep, shard_layers = parse_shards_naive(shard_set)
     initial_order = list(range(machine.size))
