@@ -211,8 +211,9 @@ def optimized_place(  # noqa: PLR0912
     order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
     # run a check to avoid unnecessary swaps
     for zone in tq_zones:
-        # this condition will be true if there was a swap due to the order of qubits_used  # noqa: E501
-        # in the shard creating the TQ op, even if those two qubits were already in a TQ zone  # noqa: E501
+        # this condition is true if there was a swap due to the order of qubits_used
+        # in the shard creating the TQ op,
+        # even if those two qubits were already in a TQ zone
         # example: ops = [[0,1]] prev_state = [0,1,2,3] new order = [1,0,2,3]
         # this check s to prevent the above situation
         if (order[zone] == prev_state[zone + 1]) & (
