@@ -3,7 +3,7 @@ import typing
 
 import pytest
 
-from pytket.phir.machine_class import Machine
+from pytket.phir.machine import Machine
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
