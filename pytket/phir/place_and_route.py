@@ -1,22 +1,15 @@
 import typing
 
-from pytket.phir.machine_class import Machine
+from pytket.phir.machine import Machine
 from pytket.phir.placement import optimized_place
 from pytket.phir.routing import transport_cost
-from pytket.phir.sharding.sharder import Sharder
+from pytket.phir.sharding.shard import Shard
 from pytket.phir.sharding.shards2ops import parse_shards_naive
-from tests.sample_data import (  # type: ignore [attr-defined]
-    Circuit,
-    get_qasm_as_circuit,
-)
 
 
 @typing.no_type_check
-def place_and_route(machine: Machine, qasm: Circuit):
+def place_and_route(machine: Machine, shards: list[Shard]):
     """Get all the routing info needed for PHIR generation."""
-    circuit = get_qasm_as_circuit(qasm)
-    sharder = Sharder(circuit)
-    shards = sharder.shard()
     shard_set = set(shards)
     circuit_rep, shard_layers = parse_shards_naive(shard_set)
     initial_order = list(range(machine.size))

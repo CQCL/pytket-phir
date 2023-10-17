@@ -1,28 +1,28 @@
 import os
-from enum import Enum
+from enum import Enum, auto
 
 from pytket.circuit import Circuit
 from pytket.qasm.qasm import circuit_from_qasm
 
 
-class QasmFiles(Enum):
-    simple = 1
-    cond_1 = 2
-    bv_n10 = 3
-    baby = 4
-    baby_with_rollup = 5
-    simple_cond = 6
-    cond_classical = 7
-    barrier_complex = 8
-    classical_hazards = 9
-    big_gate = 10
-    n10_test = 11
-    qv20_0 = 13
-    oned_brickwork_circuit_n20 = 14
-    eztest = 15
+class QasmFile(Enum):
+    simple = auto()
+    cond_1 = auto()
+    bv_n10 = auto()
+    baby = auto()
+    baby_with_rollup = auto()
+    simple_cond = auto()
+    cond_classical = auto()
+    barrier_complex = auto()
+    classical_hazards = auto()
+    big_gate = auto()
+    n10_test = auto()
+    qv20_0 = auto()
+    oned_brickwork_circuit_n20 = auto()
+    eztest = auto()
 
 
-def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
+def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
     """Utility function to convert a QASM file to Circuit.
 
     Args:

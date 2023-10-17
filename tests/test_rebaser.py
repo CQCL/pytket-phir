@@ -3,7 +3,7 @@ import logging
 from pytket.circuit import Circuit, OpType
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 
-from .sample_data import QasmFiles, get_qasm_as_circuit
+from .sample_data import QasmFile, get_qasm_as_circuit
 
 EXPECTED_GATES = [
     OpType.Measure,
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TestRebaser:
     def test_rebaser_happy_path_arc1a(self) -> None:
-        circ = get_qasm_as_circuit(QasmFiles.baby)
+        circ = get_qasm_as_circuit(QasmFile.baby)
         rebased: Circuit = rebase_to_qtm_machine(circ, "H1-1")
 
         logger.info(rebased)

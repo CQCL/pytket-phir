@@ -1,7 +1,7 @@
-from pytket.phir.machine_class import Machine
+from pytket.phir.machine import Machine
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
-from tests.sample_data import QasmFiles
+from tests.sample_data import QasmFile
 
 if __name__ == "__main__":
     machine = Machine(
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     machine.sq_options = {0, 1, 2}
     # The type: ignores in this file are because mypy doesn't like the return type of place and route,  # noqa: E501
     # list[triple(list[int], list[Shard], float)]
-    output = place_and_route(machine, QasmFiles.eztest)  # type: ignore [misc]
+    output = place_and_route(machine, QasmFile.eztest)  # type: ignore [misc]
     # print(output)
     ez_ops_0 = [[0, 2], [1]]
     ez_ops_1 = [[0], [2]]
