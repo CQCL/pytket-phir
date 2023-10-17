@@ -19,7 +19,6 @@ def place_and_route(machine: Machine, qasm: Circuit):
     shards = sharder.shard()
     shard_set = set(shards)
     circuit_rep, shard_layers = parse_shards_naive(shard_set)
-    # print(circuit_rep)
     initial_order = list(range(machine.size))
     layer_num = 0
     orders: list[list[int]] = []
