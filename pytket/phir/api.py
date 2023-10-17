@@ -51,7 +51,6 @@ def pytket_to_phir(
 
     phir_output = str(placed)
 
-    # TODO(neal): Pass shards[] into placement, routing, etc
-    # TODO(neal): Convert to PHIR JSON spec and return
+    # TODO(kartik): Convert to PHIR JSON spec and return
     logger.info("Output: %s", phir_output)
     return phir_output
