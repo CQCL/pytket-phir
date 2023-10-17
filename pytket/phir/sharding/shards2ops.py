@@ -1,9 +1,10 @@
 from pytket.phir.sharding.shard import Shard
 
 
-def parse_shards_naive(shards: set[Shard]) -> list[list[list[int]]]:
+def parse_shards_naive(shards: set[Shard]):  # type: ignore [no-untyped-def]
     """Parse a set of shards and return a circuit representation for placement."""
     layers: list[list[list[int]]] = []
+    shards_in_layer: list[list[Shard]] = []
     scheduled: set[int] = set()
     num_shards: int = len(shards)
 
@@ -20,6 +21,7 @@ def parse_shards_naive(shards: set[Shard]) -> list[list[list[int]]]:
 
             if scheduled_deps == deps and not already_scheduled:
                 to_schedule.append(s)
+        shards_in_layer.append(to_schedule)
 
         for shard in to_schedule:  # type: ignore [assignment]
             op: list[int] = []
@@ -39,4 +41,4 @@ def parse_shards_naive(shards: set[Shard]) -> list[list[list[int]]]:
 
         layers.append(layer)
 
-    return layers
+    return layers, shards_in_layer

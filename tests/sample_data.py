@@ -16,6 +16,10 @@ class QasmFiles(Enum):
     barrier_complex = 8
     classical_hazards = 9
     big_gate = 10
+    n10_test = 11
+    qv20_0 = 13
+    oned_brickwork_circuit_n20 = 14
+    eztest = 15
 
 
 def get_qasm_as_circuit(qasm_file: QasmFiles) -> Circuit:
