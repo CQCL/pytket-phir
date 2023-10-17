@@ -8,17 +8,13 @@ class GateOpportunitiesError(Exception):
     """Exception raised when gating zones cannot accommodate all operations."""
 
     def __init__(self) -> None:
-        """Exception"""  # noqa: D415
         super().__init__("Not enough gating opportunities for all ops in this layer")
 
 
 class InvalidParallelOpsError(Exception):
-    """Exception raised when a layer attempts to gate the same qubit more than once in parallel."""  # noqa: E501
+    """Raised when a layer tries to gate the same qubit more than once in parallel."""
 
     def __init__(self, q: int) -> None:
-        """Exception
-        Args: q: a qubit
-        """  # noqa: D205, D415
         super().__init__(f"Cannot gate qubit {q} more than once in the same layer")
 
 
@@ -26,7 +22,6 @@ class PlacementCheckError(Exception):
     """Exception raised when placement check fails."""
 
     def __init__(self) -> None:
-        """Exception"""  # noqa: D415
         super().__init__("Placement Check Failed")
 
 
@@ -69,9 +64,9 @@ def nearest(zone: int, options: set[int]) -> int:
     elif ind == len(lst):
         nearest_zone = lst[-1]
     else:
-        l = lst[ind - 1]  # noqa: E741
-        r = lst[ind]
-        nearest_zone = l if r - zone > zone - l else r
+        lft = lst[ind - 1]
+        rgt = lst[ind]
+        nearest_zone = lft if rgt - zone > zone - lft else rgt
 
     return nearest_zone
 
@@ -131,7 +126,7 @@ def place(  # noqa: PLR0912
             sq_ops.append(op)
 
     # sort the tq_ops by distance apart [[furthest] -> [closest]]
-    tq_ops_sorted = sorted(tq_ops, key=lambda x: abs(x[0] - x[1]), reverse=True)  # type: ignore [misc] # noqa: E501, RUF100
+    tq_ops_sorted = sorted(tq_ops, key=lambda x: abs(x[0] - x[1]), reverse=True)  # type: ignore [misc]
 
     # check to make sure that there are zones available for all ops
     if len(tq_ops) > len(tq_zones):
@@ -168,11 +163,11 @@ def place(  # noqa: PLR0912
 
     if placement_check(ops, tq_options, sq_options, order):
         return order
-    else:
-        raise PlacementCheckError
+
+    raise PlacementCheckError
 
 
-def optimized_place(  # noqa: PLR0912
+def optimized_place(
     ops: list[list[int]],
     tq_options: set[int],
     sq_options: set[int],
@@ -198,7 +193,7 @@ def optimized_place(  # noqa: PLR0912
             sq_ops.append(op)
 
     # sort the tq_ops by distance apart [[furthest] -> [closest]]
-    tq_ops_sorted = sorted(tq_ops, key=lambda x: abs(x[0] - x[1]), reverse=True)  # type: ignore [misc] # noqa: E501, RUF100
+    tq_ops_sorted = sorted(tq_ops, key=lambda x: abs(x[0] - x[1]), reverse=True)  # type: ignore [misc]
 
     # check to make sure that there are zones available for all ops
     if len(tq_ops) > len(tq_zones):
@@ -244,5 +239,5 @@ def optimized_place(  # noqa: PLR0912
 
     if placement_check(ops, tq_options, sq_options, order):
         return order
-    else:
-        raise PlacementCheckError
+
+    raise PlacementCheckError

@@ -9,7 +9,6 @@ import pathlib
 import sys
 
 sys.path.insert(0, pathlib.Path("../../pytket").resolve().as_posix())
-# print(sys.path)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information

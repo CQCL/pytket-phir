@@ -1,5 +1,4 @@
 # Tests for qubit routing
-import typing
 
 import pytest
 
@@ -16,7 +15,6 @@ m2 = Machine(6, {1, 3}, 10, 2, 2)
 m3 = Machine(8, {0, 6}, 10, 2, 2)
 
 
-@typing.no_type_check
 def test_placement_check() -> None:
     """Test placement check."""
     # simple tq check
@@ -52,7 +50,6 @@ def test_placement_check() -> None:
     assert not placement_check(ops, m2.tq_options, m2.sq_options, state)
 
 
-@typing.no_type_check
 def test_place() -> None:
     """Test place."""
     # one tq

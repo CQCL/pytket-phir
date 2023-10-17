@@ -32,7 +32,7 @@ def pytket_to_phir(
     shards = sharder.shard()
 
     phir_output = str(shards)  # Just returning fake string for now
-    # TODO: Pass shards[] into placement, routing, etc
-    # TODO: Convert to PHIR JSON spec and return
+    # TODO(neal): Pass shards[] into placement, routing, etc
+    # TODO(neal): Convert to PHIR JSON spec and return
     logger.info("Output: %s", phir_output)
     return phir_output
