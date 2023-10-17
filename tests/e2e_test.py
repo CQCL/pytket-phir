@@ -30,6 +30,7 @@ if __name__ == "__main__":
         assert shard.ID in {0, 1}  # type: ignore [misc]
     for shard in shards_1:  # type: ignore [misc]
         assert shard.ID in {2, 3}  # type: ignore [misc]
-    # cost_0 is wrong because we are getting an unnecessary swap, add swap reduction option?  # noqa: E501
+    cost_0 = output[0][2]  # type: ignore [misc]
     cost_1 = output[1][2]  # type: ignore [misc]
+    assert cost_0 == 2.0  # type: ignore [misc]
     assert cost_1 == 0.0  # type: ignore [misc]

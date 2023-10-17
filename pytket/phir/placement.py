@@ -206,22 +206,21 @@ def optimized_place(  # noqa: PLR0912
     if len(sq_ops) > len(sq_zones) - 2 * len(tq_ops):
         # Because SQ zones are offsets of TQ zones, each tq op covers 2 sq zones
         raise GateOpportunitiesError
-
     # place the tq ops
     order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
     # run a check to avoid unnecessary swaps
-    for zone in tq_zones:
-        # this condition is true if there was a swap due to the order of qubits_used
-        # in the shard creating the TQ op,
-        # even if those two qubits were already in a TQ zone
-        # example: ops = [[0,1]] prev_state = [0,1,2,3] new order = [1,0,2,3]
-        # this check s to prevent the above situation
-        if (order[zone] == prev_state[zone + 1]) & (
-            order[zone + 1] == prev_state[zone]
-        ):
-            swapped = order[zone + 1]
-            order[zone + 1] = order[zone]
-            order[zone] = swapped
+    prev_state_inv = inverse(prev_state)
+    for zone in tq_options:
+        # enforce the relative ordering of qubits to prevent uneseccasry swaps
+        # if the first qubit of a TQ gate was to the right of the second in prev_state
+        # then there has been an unnecessary swap
+        q0s = order[zone]
+        q1s = order[zone + 1]
+        if prev_state_inv[q0s] > prev_state_inv[q1s]:
+            swapped = order[zone]
+            order[zone] = order[zone + 1]
+            order[zone + 1] = swapped
+
     # place the sq ops
     for op in sq_ops:
         q1 = op[0]
