@@ -1,5 +1,3 @@
-import logging
-
 from phir.model import PHIRModel
 from rich import print
 
@@ -9,8 +7,6 @@ from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
 from pytket.phir.sharding.sharder import Sharder
 from tests.sample_data import QasmFile, get_qasm_as_circuit
-
-logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     machine = Machine(
