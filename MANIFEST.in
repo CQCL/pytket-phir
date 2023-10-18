@@ -3,6 +3,7 @@ include *.txt
 include Makefile
 include mypy.ini
 recursive-include docs *.rst
+recursive-include docs Makefile
 recursive-include tests *.qasm
 exclude Dockerfile
 exclude .docker*
