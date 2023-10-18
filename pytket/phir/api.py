@@ -1,6 +1,9 @@
 import logging
 from typing import TYPE_CHECKING
 
+from rich import print
+
+from phir.model import PHIRModel
 from pytket.circuit import Circuit
 from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
@@ -50,7 +53,9 @@ def pytket_to_phir(
         msg = "no machine found"
         raise ValueError(msg)
 
-    phir_output = genphir(placed)
+    phir_json = genphir(placed)
 
-    logger.info("Output: %s", phir_output)
-    return phir_output
+    logger.info(
+        print(PHIRModel.model_validate_json(phir_json, strict=True)),  # type: ignore[func-returns-value, misc]
+    )
+    return phir_json

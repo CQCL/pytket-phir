@@ -1,9 +1,7 @@
 import json
 from typing import Any
 
-from phir.model import (
-    PHIRModel,
-)
+from phir.model import PHIRModel
 from pytket.circuit import Command
 from pytket.phir.sharding.shard import Shard
 
@@ -18,7 +16,7 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     gate = cmd.op.get_name().split("(", 1)[0]
     metadata, angles = (
         ({"angle_multiplier": "π"}, cmd.op.params)
-        if gate != "Measure"
+        if gate != "Measure" and cmd.op.params
         else (None, None)
     )
     qop: dict[str, Any] = {
@@ -29,6 +27,8 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     }
     for qbit in cmd.args:
         qop["args"].append([qbit.reg_name, qbit.index[0]])
+        if gate == "Measure":
+            break
     if cmd.bits:
         qop["returns"] = []
         for cbit in cmd.bits:
@@ -97,5 +97,5 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
     ]
 
     phir["ops"] = decls + ops
-    PHIRModel.model_validate(phir)
+    PHIRModel.model_validate(phir, strict=True)
     return json.dumps(phir)
