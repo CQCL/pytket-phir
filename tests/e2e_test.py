@@ -45,6 +45,5 @@ if __name__ == "__main__":
     assert cost_1 == 0.0
 
     phir_json = genphir(output)
-    logger.info(
-        print(PHIRModel.model_validate_json(phir_json, strict=True)),  # type: ignore[func-returns-value, misc]
-    )
+
+    print(PHIRModel.model_validate_json(phir_json, strict=True))  # type: ignore[misc]
