@@ -39,4 +39,5 @@ repos:
         pytket==1.21.0,
         pytket-quantinuum==0.25.0,
         types-setuptools,
+        "git+https://github.com/CQCL/phir#egg=phir",
       ]

@@ -2,6 +2,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from pytket.circuit import Circuit
+from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
@@ -49,8 +50,7 @@ def pytket_to_phir(
         msg = "no machine found"
         raise ValueError(msg)
 
-    phir_output = str(placed)
+    phir_output = genphir(placed)
 
-    # TODO(kartik): Convert to PHIR JSON spec and return
     logger.info("Output: %s", phir_output)
     return phir_output
