@@ -1,11 +1,15 @@
 import logging
+from typing import TYPE_CHECKING
 
 from pytket.circuit import Circuit
-from pytket.phir.machine import Machine
+from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 from pytket.phir.sharding.sharder import Sharder
+
+if TYPE_CHECKING:
+    from pytket.phir.machine import Machine
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +44,13 @@ def pytket_to_phir(
     shards = sharder.shard()
 
     logger.debug("Performing placement and routing...")
-    placed = place_and_route(machine, shards)  # type: ignore [misc]
+    if machine:
+        placed = place_and_route(machine, shards)
+    else:
+        msg = "no machine found"
+        raise ValueError(msg)
 
-    phir_output = str(placed)  # type: ignore [misc]
+    phir_output = genphir(placed)
 
-    # TODO: Pass shards[] into placement, routing, etc
-    # TODO: Convert to PHIR JSON spec and return
     logger.info("Output: %s", phir_output)
     return phir_output

@@ -1,5 +1,5 @@
-import os
 from enum import Enum, auto
+from pathlib import Path
 
 from pytket.circuit import Circuit
 from pytket.qasm.qasm import circuit_from_qasm
@@ -31,5 +31,5 @@ def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
     Returns:
         Corresponding tket circuit
     """
-    this_dir = os.path.dirname(os.path.abspath(__file__))
+    this_dir = Path(Path(__file__).resolve()).parent
     return circuit_from_qasm(f"{this_dir}/data/qasm/{qasm_file.name}.qasm")

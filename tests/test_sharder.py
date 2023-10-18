@@ -21,15 +21,15 @@ class TestSharder:
 
     def test_should_op_create_shard(self) -> None:
         expected_true: list[Op] = [
-            Op.create(OpType.Measure),  # type: ignore [misc]
-            Op.create(OpType.Reset),  # type: ignore [misc]
-            Op.create(OpType.CX),  # type: ignore [misc]
-            Op.create(OpType.Barrier),  # type: ignore [misc]
+            Op.create(OpType.Measure),
+            Op.create(OpType.Reset),
+            Op.create(OpType.CX),
+            Op.create(OpType.Barrier),
         ]
         expected_false: list[Op] = [
-            Op.create(OpType.U1, 0.32),  # type: ignore [misc]
-            Op.create(OpType.H),  # type: ignore [misc]
-            Op.create(OpType.Z),  # type: ignore [misc]
+            Op.create(OpType.U1, 0.32),
+            Op.create(OpType.H),
+            Op.create(OpType.Z),
         ]
 
         for op in expected_true:
@@ -138,7 +138,7 @@ class TestSharder:
         assert cast(Conditional, s2_sub_cmds[0].op).op.type == OpType.H
         assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
 
-    def test_complex_barriers(self) -> None:
+    def test_complex_barriers(self) -> None:  # noqa: PLR0915
         circuit = get_qasm_as_circuit(QasmFile.barrier_complex)
         sharder = Sharder(circuit)
         shards = sharder.shard()

@@ -8,28 +8,40 @@ select = [
   "W",    # pycodestyle Warnings
 
   "A",    # flake8-builtins
+  # "ANN",  # flake8-annotations
+  "ARG",  # flake8-unused-arguments
   "B",    # flake8-Bugbear
   "BLE",  # flake8-blind-except
   "C4",   # flake8-comprehensions
+  # "C90",  # mccabe
   "COM",  # flake8-commas
   "D",    # pydocstyle
   "EM",   # flake8-errmsg
+  "ERA",  # eradicate
   "EXE",  # flake8-executable
   "F",    # pyFlakes
   "FA",   # flake8-future-annotations
+  "FBT",  # flake8-boolean-trap
   "FIX",  # flake8-fixme
   "FLY",  # flynt
   "G",    # flake8-logging-format
   "I",    # isort
+  "ICN",  # flake8-import-conventions
   "INP",  # flake8-no-pep420
+  "INT",  # flake8-gettext
   "ISC",  # flake8-implicit-str-concat
   "N",    # pep8-Naming
   "NPY",  # NumPy-specific
   "PERF", # Perflint
   "PGH",  # pygrep-hooks
+  "PGH",  # pygrep-hooks
   "PIE",  # flake8-pie
   "PL",   # pylint
   "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "PYI",  # flake8-pyi
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
   "RSE",  # flake8-raise
   "RUF",  # Ruff-specific
   "S",    # flake8-bandit (Security)
@@ -38,7 +50,9 @@ select = [
   "SLOT", # flake8-slots
   "T10",  # flake8-debugger
   "T20",  # flake8-print
+  "TCH",  # flake8-type-checking
   "TD",   # flake8-todos
+  "TID",  # flake8-tidy-imports
   "TRY",  # tryceratops
   "UP",   # pyupgrade
   "YTT",  # flake8-2020
@@ -46,26 +60,26 @@ select = [
 
 ignore = [
   "FIX002", # Allow todos
-  "TD002",  # Allow no author todos
   "TD003",  # allow todos with no issues
   "D100",   # Missing docstring in public module
+  "D107",   # Missing docstring in `__init__` (5)
   "G004",   # F-string in logging invocation
 ]
 
 [per-file-ignores]
 "__init__.py" = ["F401", "D104"]  # module imported but unused
 "docs/*"      = [
-    "D100",     # Missing docstring in public module
     "INP001",   # File * is part of an implicit namespace package. Add an `__init__.py`.
 ]
 "tests/*"     = [
-    "INP001",
-    "D101",   # Missing docstring in public class
-    "D102",   # Missing docstring in public method
-    "S101",   # Use of `assert` detected
-    "PLR2004", # Magic constants
-    "PLR0915", # Too many statements in function
+    "D101",     # Missing docstring in public class
+    "D102",     # Missing docstring in public method
+    "S101",     # Use of `assert` detected
+    "PLR2004",  # Magic constants
   ]
 
 [pydocstyle]
 convention = "google"
+
+[pylint]
+max-args = 6

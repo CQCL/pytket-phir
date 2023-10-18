@@ -1,9 +1,10 @@
-black==23.9.1
+black==23.10.0
 build==1.0.3
-mypy==1.5.1
-pre-commit==3.4.0
+mypy==1.6.0
+phir @ git+https://github.com/CQCL/phir
+pre-commit==3.5.0
 pytest==7.4.2
-ruff==0.0.292
-pytket==1.20.1
-pytket-quantinuum==0.23.0
+pytket-quantinuum==0.25.0
+pytket==1.21.0
+ruff==0.1.0
 wheel==0.41.2
