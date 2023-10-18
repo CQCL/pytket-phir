@@ -1,19 +1,14 @@
-# mypy: disable-error-code="misc,no-any-unimported"
-
 import json
+from typing import Any
 
-from phir.model import (  # type: ignore [import-untyped]
-    Cmd,
-    DataMgmt,
-    OpType,
+from phir.model import (
     PHIRModel,
-    QOp,
 )
 from pytket.circuit import Command
 from pytket.phir.sharding.shard import Shard
 
 
-def write_cmd(cmd: Command, ops: list[Cmd]) -> None:
+def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     """Write a pytket command to PHIR qop.
 
     Args:
@@ -26,7 +21,7 @@ def write_cmd(cmd: Command, ops: list[Cmd]) -> None:
         if gate != "Measure"
         else (None, None)
     )
-    qop: QOp = {
+    qop: dict[str, Any] = {
         "metadata": metadata,
         "angles": angles,
         "qop": gate,
@@ -47,12 +42,12 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
     Args:
         inp: list of shards
     """
-    phir = {
+    phir: dict[str, Any] = {
         "format": "PHIR/JSON",
         "version": "0.1.0",
         "metadata": {"source": "pytket-phir"},
     }
-    ops: OpType = []
+    ops: list[dict[str, Any]] = []
 
     qbits = set()
     cbits = set()
@@ -82,7 +77,7 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
         cvar_dim.setdefault(cbit.reg_name, 0)
         cvar_dim[cbit.reg_name] += 1
 
-    decls: list[DataMgmt] = [
+    decls: list[dict[str, str | int]] = [
         {
             "data": "qvar_define",
             "data_type": "qubits",
