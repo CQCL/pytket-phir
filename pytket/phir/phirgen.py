@@ -38,8 +38,7 @@ def write_cmd(cmd: Command, ops: list[Cmd]) -> None:
         qop["returns"] = []
         for cbit in cmd.bits:
             qop["returns"].append([cbit.reg_name, cbit.index[0]])
-    ops.append({"//": str(cmd)})
-    ops.append(qop)
+    ops.extend(({"//": str(cmd)}, qop))
 
 
 def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
@@ -83,25 +82,24 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
         cvar_dim.setdefault(cbit.reg_name, 0)
         cvar_dim[cbit.reg_name] += 1
 
-    decls: list[DataMgmt] = []
-    for q, d in qvar_dim.items():
-        decls.append(
-            {
-                "data": "qvar_define",
-                "data_type": "qubits",
-                "variable": q,
-                "size": d,
-            },
-        )
+    decls: list[DataMgmt] = [
+        {
+            "data": "qvar_define",
+            "data_type": "qubits",
+            "variable": q,
+            "size": d,
+        }
+        for q, d in qvar_dim.items()
+    ]
 
-    for c, d in cvar_dim.items():
-        decls.append(
-            {
-                "data": "cvar_define",
-                "variable": c,
-                "size": d,
-            },
-        )
+    decls += [
+        {
+            "data": "cvar_define",
+            "variable": c,
+            "size": d,
+        }
+        for c, d in cvar_dim.items()
+    ]
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)

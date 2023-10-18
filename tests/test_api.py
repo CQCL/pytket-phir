@@ -16,7 +16,5 @@ class TestApi:
     def test_pytket_to_phir_h1_1(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.baby)
 
-        phir = pytket_to_phir(circuit, QtmMachine.H1_1)
-
         # TODO(neal): Make this test more valuable once PHIR is actually returned
-        assert len(phir) > 0
+        assert pytket_to_phir(circuit, QtmMachine.H1_1)
