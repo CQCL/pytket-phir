@@ -25,6 +25,9 @@ Repository = "https://github.com/CQCL/pytket-phir.git"
 [tool.setuptools.packages.find]
 where = ["."]
 
+[tool.setuptools.package-data]
+"pytket.phir" = ["py.typed"]
+
 [tool.pytest.ini_options]
 addopts = "-s -vv"
 pythonpath = [

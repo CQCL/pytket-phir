@@ -29,7 +29,7 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.6.0'
+    rev: 'v1.6.1'
     hooks:
     - id: mypy
       pass_filenames: false
@@ -39,5 +39,5 @@ repos:
         pytket==1.21.0,
         pytket-quantinuum==0.25.0,
         types-setuptools,
-        "git+https://github.com/CQCL/phir#egg=phir",
+        "phir",
       ]

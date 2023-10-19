@@ -1,4 +1,8 @@
+from phir.model import PHIRModel
+from rich import print
+
 from pytket.phir.machine import Machine
+from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
 from pytket.phir.sharding.sharder import Sharder
@@ -35,3 +39,7 @@ if __name__ == "__main__":
     cost_1 = output[1][2]
     assert cost_0 == 2.0
     assert cost_1 == 0.0
+
+    phir_json = genphir(output)
+
+    print(PHIRModel.model_validate_json(phir_json, strict=True))  # type: ignore[misc]
