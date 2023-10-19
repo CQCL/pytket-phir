@@ -97,5 +97,5 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
     ]
 
     phir["ops"] = decls + ops
-    PHIRModel.model_validate(phir, strict=True)
+    PHIRModel.model_validate(phir)
     return json.dumps(phir)
