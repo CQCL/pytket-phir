@@ -12,7 +12,7 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 
-dependencies = ["pytket"]
+dependencies = ["phir>=0.1.5", "pytket"]
 
 [project.optional-dependencies]
 tests = ["pytest"]

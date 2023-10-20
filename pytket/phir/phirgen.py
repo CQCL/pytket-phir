@@ -14,13 +14,9 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
         ops: the list of ops to append to
     """
     gate = cmd.op.get_name().split("(", 1)[0]
-    metadata, angles = (
-        ({"angle_multiplier": "π"}, cmd.op.params)
-        if gate != "Measure" and cmd.op.params
-        else (None, None)
-    )
+    angles = (cmd.op.params, "pi") if gate != "Measure" and cmd.op.params else None
+
     qop: dict[str, Any] = {
-        "metadata": metadata,
         "angles": angles,
         "qop": gate,
         "args": [],
@@ -62,7 +58,7 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
         ops.append(
             {
                 "mop": "Transport",
-                "metadata": {"duration": layer_costs / 1000000},  # microseconds to secs
+                "duration": (layer_costs, "ms"),
             },
         )
 
