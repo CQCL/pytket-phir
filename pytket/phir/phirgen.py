@@ -3,7 +3,7 @@ from typing import Any
 
 from phir.model import PHIRModel
 from pytket.circuit import Command
-from pytket.phir.sharding.shard import Shard
+from pytket.phir.sharding.shard import Cost, Layer, Ordering
 
 
 def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
@@ -36,7 +36,7 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     ops.extend(({"//": str(cmd)}, qop))
 
 
-def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
+def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
     Args:
@@ -51,8 +51,8 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
 
     qbits = set()
     cbits = set()
-    for _orders, shard_layers, layer_costs in inp:
-        for shard in shard_layers:
+    for _orders, shard_layer, layer_cost in inp:
+        for shard in shard_layer:
             qbits |= shard.qubits_used
             cbits |= shard.bits_read | shard.bits_written
             for sub_commands in shard.sub_commands.values():
@@ -62,7 +62,7 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
         ops.append(
             {
                 "mop": "Transport",
-                "duration": (layer_costs, "ms"),
+                "duration": (layer_cost, "ms"),
             },
         )
 
