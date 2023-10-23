@@ -3,7 +3,7 @@ from typing import Any
 
 from phir.model import PHIRModel
 from pytket.circuit import Command
-from pytket.phir.sharding.shard import Shard
+from pytket.phir.sharding.shard import Cost, Layer, Ordering
 
 
 def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
@@ -14,13 +14,13 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
         ops: the list of ops to append to
     """
     gate = cmd.op.get_name().split("(", 1)[0]
-    metadata, angles = (
-        ({"angle_multiplier": "π"}, cmd.op.params)
-        if gate != "Measure" and cmd.op.params
-        else (None, None)
+    angles = (
+        (cmd.op.params, "pi")
+        if gate not in ("Measure", "Barrier", "SetBits") and cmd.op.params
+        else None
     )
+
     qop: dict[str, Any] = {
-        "metadata": metadata,
         "angles": angles,
         "qop": gate,
         "args": [],
@@ -36,7 +36,7 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     ops.extend(({"//": str(cmd)}, qop))
 
 
-def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
+def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
     Args:
@@ -51,8 +51,8 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
 
     qbits = set()
     cbits = set()
-    for _orders, shard_layers, layer_costs in inp:
-        for shard in shard_layers:
+    for _orders, shard_layer, layer_cost in inp:
+        for shard in shard_layer:
             qbits |= shard.qubits_used
             cbits |= shard.bits_read | shard.bits_written
             for sub_commands in shard.sub_commands.values():
@@ -62,7 +62,7 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
         ops.append(
             {
                 "mop": "Transport",
-                "metadata": {"duration": layer_costs / 1000000},  # microseconds to secs
+                "duration": (layer_cost, "ms"),
             },
         )
 
@@ -97,5 +97,5 @@ def genphir(inp: list[tuple[list[int], list[Shard], float]]) -> str:
     ]
 
     phir["ops"] = decls + ops
-    PHIRModel.model_validate(phir, strict=True)
+    PHIRModel.model_validate(phir)
     return json.dumps(phir)

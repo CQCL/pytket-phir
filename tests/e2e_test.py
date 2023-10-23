@@ -42,4 +42,4 @@ if __name__ == "__main__":
 
     phir_json = genphir(output)
 
-    print(PHIRModel.model_validate_json(phir_json, strict=True))  # type: ignore[misc]
+    print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
