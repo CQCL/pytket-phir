@@ -1,7 +1,7 @@
 class Machine:
     """A machine info class for testing."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         size: int,
         tq_options: set[int],

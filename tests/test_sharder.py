@@ -3,12 +3,12 @@ from typing import cast
 from pytket.circuit import Conditional, Op, OpType
 from pytket.phir.sharding.sharder import Sharder
 
-from .sample_data import QasmFiles, get_qasm_as_circuit
+from .sample_data import QasmFile, get_qasm_as_circuit
 
 
 class TestSharder:
     def test_shard_hashing(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.baby)
+        circuit = get_qasm_as_circuit(QasmFile.baby)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -21,15 +21,15 @@ class TestSharder:
 
     def test_should_op_create_shard(self) -> None:
         expected_true: list[Op] = [
-            Op.create(OpType.Measure),  # type: ignore [misc]
-            Op.create(OpType.Reset),  # type: ignore [misc]
-            Op.create(OpType.CX),  # type: ignore [misc]
-            Op.create(OpType.Barrier),  # type: ignore [misc]
+            Op.create(OpType.Measure),
+            Op.create(OpType.Reset),
+            Op.create(OpType.CX),
+            Op.create(OpType.Barrier),
         ]
         expected_false: list[Op] = [
-            Op.create(OpType.U1, 0.32),  # type: ignore [misc]
-            Op.create(OpType.H),  # type: ignore [misc]
-            Op.create(OpType.Z),  # type: ignore [misc]
+            Op.create(OpType.U1, 0.32),
+            Op.create(OpType.H),
+            Op.create(OpType.Z),
         ]
 
         for op in expected_true:
@@ -38,7 +38,7 @@ class TestSharder:
             assert not Sharder.should_op_create_shard(op)
 
     def test_with_baby_circuit(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.baby)
+        circuit = get_qasm_as_circuit(QasmFile.baby)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -61,7 +61,7 @@ class TestSharder:
         assert shards[2].depends_upon == {shards[0].ID}
 
     def test_rollup_behavior(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.baby_with_rollup)
+        circuit = get_qasm_as_circuit(QasmFile.baby_with_rollup)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -92,7 +92,7 @@ class TestSharder:
         assert shards[4].depends_upon == {shards[0].ID, shards[2].ID}
 
     def test_simple_conditional(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.simple_cond)
+        circuit = get_qasm_as_circuit(QasmFile.simple_cond)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -138,8 +138,8 @@ class TestSharder:
         assert cast(Conditional, s2_sub_cmds[0].op).op.type == OpType.H
         assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
 
-    def test_complex_barriers(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.barrier_complex)
+    def test_complex_barriers(self) -> None:  # noqa: PLR0915
+        circuit = get_qasm_as_circuit(QasmFile.barrier_complex)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -224,7 +224,7 @@ class TestSharder:
         assert shards[6].depends_upon == {shards[5].ID, shards[4].ID}
 
     def test_classical_hazards(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.classical_hazards)
+        circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
@@ -272,7 +272,7 @@ class TestSharder:
         assert shards[4].depends_upon == {shards[1].ID, shards[0].ID, shards[3].ID}
 
     def test_with_big_gate(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFiles.big_gate)
+        circuit = get_qasm_as_circuit(QasmFile.big_gate)
         sharder = Sharder(circuit)
         shards = sharder.shard()
 
