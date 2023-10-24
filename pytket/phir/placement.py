@@ -35,6 +35,11 @@ def placement_check(
     placement_valid = False
     inv = inverse(state)
 
+    # If there are no operations to place, it does not matter where the
+    # qubits are and any placement is valid
+    if len(ops) == 0:
+        return True
+
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
     for op in ops:
         if len(op) == 2:  # tq operation   # noqa: PLR2004
