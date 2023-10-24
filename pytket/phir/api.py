@@ -39,19 +39,17 @@ def pytket_to_phir(
         circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
         machine = QTM_MACHINES_MAP.get(qtm_machine)
     else:
-        msg = "Machine parameter is currently required"
-        raise NotImplementedError(msg)
+        machine = None
 
     logger.debug("Sharding input circuit...")
     sharder = Sharder(circuit)
     shards = sharder.shard()
 
-    logger.debug("Performing placement and routing...")
     if machine:
+        logger.debug("Performing placement and routing...")
         placed = place_and_route(machine, shards)
     else:
-        msg = "no machine found"
-        raise ValueError(msg)
+        placed = place_and_route(machine, shards)  # type: ignore [arg-type]
 
     phir_json = genphir(placed)
 
