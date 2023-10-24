@@ -14,11 +14,7 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
         ops: the list of ops to append to
     """
     gate = cmd.op.get_name().split("(", 1)[0]
-    angles = (
-        (cmd.op.params, "pi")
-        if gate not in ("Measure", "Barrier", "SetBits") and cmd.op.params
-        else None
-    )
+    angles = (cmd.op.params, "pi") if cmd.op.is_gate() and cmd.op.params else None
 
     qop: dict[str, Any] = {
         "angles": angles,
