@@ -27,7 +27,7 @@ if __name__ == "__main__":
     sharder = Sharder(circuit)
     shards = sharder.shard()
 
-    output = place_and_route(h11, shards)
+    output = place_and_route(shards, h11)
     ez_ops_0 = [[0, 2], [1]]
     ez_ops_1 = [[0], [2]]
     state_0 = output[0][0]

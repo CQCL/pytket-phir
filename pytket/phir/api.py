@@ -47,9 +47,9 @@ def pytket_to_phir(
 
     if machine:
         logger.debug("Performing placement and routing...")
-        placed = place_and_route(machine, shards)
+        placed = place_and_route(shards, machine)
     else:
-        placed = place_and_route(machine, shards)  # type: ignore [arg-type]
+        placed = place_and_route(shards, machine)
 
     phir_json = genphir(placed)
 

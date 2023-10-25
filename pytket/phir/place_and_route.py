@@ -6,8 +6,8 @@ from pytket.phir.sharding.shards2ops import parse_shards_naive
 
 
 def place_and_route(
-    machine: Machine,
     shards: list[Shard],
+    machine: Machine | None = None,
 ) -> list[tuple[Ordering, Layer, Cost]]:
     """Get all the routing info needed for PHIR generation."""
     shard_set = set(shards)
@@ -40,10 +40,9 @@ def place_and_route(
 
         # If needed later, write a helper to find the number
         # of qubits needed in the circuit
-
-        for layer in circuit_rep:  # noqa: B007
-            orders.append([])
-            layer_costs.append(0)
+        n = len(circuit_rep)
+        orders = [[]] * n
+        layer_costs = [0] * n
 
     # don't need a custom error for this, "strict" parameter will throw error if needed
     return list(zip(orders, shard_layers, layer_costs, strict=True))
