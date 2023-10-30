@@ -3,6 +3,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIOffl
 from pytket.extensions.quantinuum.backends.quantinuum import (
     QuantinuumBackend,
 )
+from pytket.qasm.qasm import circuit_from_qasm_str, circuit_to_qasm_str
 
 
 def rebase_to_qtm_machine(circuit: Circuit, qtm_machine: str) -> Circuit:
@@ -15,4 +16,8 @@ def rebase_to_qtm_machine(circuit: Circuit, qtm_machine: str) -> Circuit:
     )
     # Optimization level 0 includes rebasing and little else
     # see: https://cqcl.github.io/pytket-quantinuum/api/#default-compilation
-    return backend.get_compiled_circuit(circuit, 0)
+    compiled = backend.get_compiled_circuit(circuit, 0)
+
+    # NOTE: Serializing and deserializing to remove global phase gates
+    as_qasm_str = circuit_to_qasm_str(compiled, header="hqslib1")
+    return circuit_from_qasm_str(as_qasm_str)
