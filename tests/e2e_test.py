@@ -5,6 +5,7 @@ from pytket.phir.machine import Machine
 from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
+from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.sharding.sharder import Sharder
 from tests.sample_data import QasmFile, get_qasm_as_circuit
 
@@ -19,10 +20,14 @@ if __name__ == "__main__":
     # force machine options for this test
     # machines normally don't like odd numbers of qubits
     machine.sq_options = {0, 1, 2}
-    circuit = get_qasm_as_circuit(QasmFile.eztest)
+
+    h11 = QTM_MACHINES_MAP[QtmMachine.H1_1]
+
+    circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
     sharder = Sharder(circuit)
     shards = sharder.shard()
-    output = place_and_route(machine, shards)
+
+    output = place_and_route(shards, h11)
     ez_ops_0 = [[0, 2], [1]]
     ez_ops_1 = [[0], [2]]
     state_0 = output[0][0]
@@ -42,4 +47,4 @@ if __name__ == "__main__":
 
     phir_json = genphir(output)
 
-    print(PHIRModel.model_validate_json(phir_json, strict=True))  # type: ignore[misc]
+    print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]

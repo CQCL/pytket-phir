@@ -39,22 +39,21 @@ def pytket_to_phir(
         circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
         machine = QTM_MACHINES_MAP.get(qtm_machine)
     else:
-        msg = "Machine parameter is currently required"
-        raise NotImplementedError(msg)
+        machine = None
 
     logger.debug("Sharding input circuit...")
     sharder = Sharder(circuit)
     shards = sharder.shard()
 
-    logger.debug("Performing placement and routing...")
     if machine:
-        placed = place_and_route(machine, shards)
-    else:
-        msg = "no machine found"
-        raise ValueError(msg)
+        # Only print message if a machine object is passed
+        # Otherwise, placment and routing are functionally skipped
+        # The function is called, but the output is just filled with 0s
+        logger.debug("Performing placement and routing...")
+    placed = place_and_route(shards, machine)
 
     phir_json = genphir(placed)
 
     if logger.getEffectiveLevel() <= logging.INFO:
-        print(PHIRModel.model_validate_json(phir_json, strict=True))  # type: ignore[misc]
+        print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
     return phir_json

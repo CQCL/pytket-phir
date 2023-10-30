@@ -1,6 +1,7 @@
 import io
 from dataclasses import dataclass, field
 from itertools import count
+from typing import TypeAlias
 
 from pytket.circuit import Command
 from pytket.unit_id import Bit, Qubit, UnitID
@@ -57,3 +58,8 @@ class Shard:
         content = output.getvalue()
         output.close()
         return content
+
+
+Cost: TypeAlias = float
+Layer: TypeAlias = list[Shard]
+Ordering: TypeAlias = list[int]
