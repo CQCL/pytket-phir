@@ -1,7 +1,13 @@
+import logging
+
+import pytest
+
 from pytket.phir.api import pytket_to_phir
 from pytket.phir.qtm_machine import QtmMachine
 
 from .sample_data import QasmFile, get_qasm_as_circuit
+
+logger = logging.getLogger(__name__)
 
 
 class TestApi:
@@ -11,14 +17,9 @@ class TestApi:
 
         assert pytket_to_phir(circuit)
 
-    def test_pytket_to_phir_h1_1(self) -> None:
+    @pytest.mark.parametrize("test_file", list(QasmFile))
+    def test_pytket_to_phir_h1_1_all_circuits(self, test_file: QasmFile) -> None:
         """Standard case."""
-        circuit = get_qasm_as_circuit(QasmFile.baby)
-
-        # TODO(neal): Make this test more valuable once PHIR is actually returned
-        assert pytket_to_phir(circuit, QtmMachine.H1_1)
-
-    def test_pytket_to_phir_cond_1(self) -> None:
-        circuit = get_qasm_as_circuit(QasmFile.cond_1)
+        circuit = get_qasm_as_circuit(test_file)
 
         assert pytket_to_phir(circuit, QtmMachine.H1_1)
