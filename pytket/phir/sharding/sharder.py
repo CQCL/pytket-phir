@@ -14,6 +14,8 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.SetBits,
     OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
     OpType.RangePredicate,
+    OpType.ExplicitPredicate,
+    # OpType.Phase
 ]
 
 logger = logging.getLogger(__name__)
@@ -46,8 +48,15 @@ class Sharder:
         -------
             list of Shards needed to schedule
         """
-        logger.debug("Sharding begins....")
-        for command in self._circuit.get_commands():
+        logger.debug("Sharding beginning")
+        commands = self._circuit.get_commands()
+
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("All commands:")
+            for command in commands:
+                logger.debug(command)
+
+        for command in commands:
             self._process_command(command)
         self._cleanup_remaining_commands()
 
@@ -165,10 +174,10 @@ class Sharder:
         Args:
             command:  tket command (operation, bits, etc)
         """
-        key = command.qubits[0]
-        if key not in self._pending_commands:
-            self._pending_commands[key] = []
-        self._pending_commands[key].append(command)
+        qubit_key = command.qubits[0]
+        if qubit_key not in self._pending_commands:
+            self._pending_commands[qubit_key] = []
+        self._pending_commands[qubit_key].append(command)
         logger.debug(
             f"Adding pending command {command}",
         )
