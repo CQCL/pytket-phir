@@ -5,6 +5,37 @@ from phir.model import PHIRModel
 from pytket.circuit import Command
 from pytket.phir.sharding.shard import Cost, Layer, Ordering
 
+tket_to_phir = {
+    "CX": "CX",
+    "CY": "CY",
+    "CZ": "CZ",
+    "H": "H",
+    "noop": "I",
+    "TK2": "R2XXYYZZ",
+    "Rx": "RX",
+    "XXPhase": "RXX",
+    "Ry": "RY",
+    "YYPhase": "RYY",
+    "Rz": "RZ",
+    "U1": "RZ",
+    "ZZPhase": "RZZ",
+    "SWAP": "SWAP",
+    "V": "SX",
+    "SX": "SX",
+    "Vdg": "SXdg",
+    "SXdg": "SXdg",
+    "S": "SZ",
+    "Sdg": "SZdg",
+    "ZZMax": "SZZ",
+    "T": "T",
+    "Tdg": "Tdg",
+    "X": "X",
+    "Y": "Y",
+    "Z": "Z",
+    "Measure": "Measure",
+    "PhasedX": "R1XY",  # TODO(kartik): make this precise
+}
+
 
 def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
     """Write a pytket command to PHIR qop.
@@ -13,7 +44,14 @@ def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    gate = cmd.op.get_name().split("(", 1)[0]
+    tket_gate = cmd.op.get_name().split("(", 1)[0]
+    try:
+        gate = tket_to_phir[tket_gate]
+    except KeyError:
+        if not cmd.op.is_gate():  # TODO(kartik): convert these gates as well
+            gate = tket_gate
+        else:
+            raise
     angles = (cmd.op.params, "pi") if cmd.op.is_gate() and cmd.op.params else None
 
     qop: dict[str, Any] = {
