@@ -77,7 +77,7 @@ class Sharder:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
-        if command.op.type == OpType.Phase:
+        if self._is_command_global_phase(command):
             logger.debug("Ignoring global Phase gate")
             return
 
@@ -88,6 +88,12 @@ class Sharder:
             self._build_shard(command)
         else:
             self._add_pending_sub_command(command)
+
+    def _is_command_global_phase(self, command: Command) -> bool:
+        return command.op.type == OpType.Phase or (
+            command.op.type == OpType.Conditional
+            and cast(Conditional, command).op.type == OpType.Phase
+        )
 
     def _build_shard(self, command: Command) -> None:
         """Builds a shard.
