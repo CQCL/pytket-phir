@@ -92,7 +92,7 @@ class Sharder:
     def _is_command_global_phase(self, command: Command) -> bool:
         return command.op.type == OpType.Phase or (
             command.op.type == OpType.Conditional
-            and cast(Conditional, command).op.type == OpType.Phase
+            and cast(Conditional, command.op).op.type == OpType.Phase
         )
 
     def _build_shard(self, command: Command) -> None:
