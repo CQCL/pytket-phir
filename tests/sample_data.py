@@ -6,20 +6,20 @@ from pytket.qasm.qasm import circuit_from_qasm
 
 
 class QasmFile(Enum):
-    simple = auto()
-    cond_1 = auto()
-    bv_n10 = auto()
     baby = auto()
-    baby_with_rollup = auto()
-    simple_cond = auto()
-    cond_classical = auto()
-    barrier_complex = auto()
-    classical_hazards = auto()
-    big_gate = auto()
-    n10_test = auto()
-    qv20_0 = auto()
-    oned_brickwork_circuit_n20 = auto()
+    simple = auto()
     eztest = auto()
+    baby_with_rollup = auto()
+    big_gate = auto()
+    simple_cond = auto()
+    n10_test = auto()
+    classical_hazards = auto()
+    cond_1 = auto()
+    barrier_complex = auto()
+    cond_classical = auto()
+    bv_n10 = auto()
+    oned_brickwork_circuit_n20 = auto()
+    qv20_0 = auto()
 
 
 def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
