@@ -2,77 +2,139 @@ import json
 import logging
 from typing import Any
 
-from phir.model import PHIRModel
-from pytket.circuit import Command
+from phir.model import Bit, PHIRModel
+from pytket.circuit import (
+    BarrierOp,
+    ClassicalExpBox,
+    Command,
+    Conditional,
+    Op,
+    OpType,
+    RangePredicateOp,
+    SetBitsOp,
+)
+from pytket.unit_id import UnitID
 
 from .sharding.shard import Cost, Layer, Ordering
 
 logger = logging.getLogger(__name__)
 
-tket_op_to_phir = {
-    "CX":       "CX",
-    "CY":       "CY",
-    "CZ":       "CZ",
-    "H":        "H",
-    "Measure":  "Measure",
-    "noop":     "I",
-    "PhasedX":  "R1XY",
-    "Reset":    "Reset",  # TODO(kartik): confirm
-    "Rx":       "RX",
-    "Ry":       "RY",
-    "Rz":       "RZ",
-    "S":        "SZ",
-    "Sdg":      "SZdg",
-    "SWAP":     "SWAP",
-    "SX":       "SX",
-    "SXdg":     "SXdg",
-    "T":        "T",
-    "Tdg":      "Tdg",
-    "TK2":      "R2XXYYZZ",
-    "U1":       "RZ",
-    "V":        "SX",
-    "Vdg":      "SXdg",
-    "X":        "X",
-    "XXPhase":  "RXX",
-    "Y":        "Y",
-    "YYPhase":  "RYY",
-    "Z":        "Z",
-    "ZZMax":    "SZZ",
-    "ZZPhase":  "RZZ",
+tket_gate_to_phir = {
+    OpType.CX:          "CX",
+    OpType.CY:          "CY",
+    OpType.CZ:          "CZ",
+    OpType.H:           "H",
+    OpType.Measure:     "Measure",
+    OpType.noop:        "I",
+    OpType.PhasedX:     "R1XY",
+    OpType.Reset:       "Reset",  # TODO(kartik): confirm
+    OpType.Rx:          "RX",
+    OpType.Ry:          "RY",
+    OpType.Rz:          "RZ",
+    OpType.S:           "SZ",
+    OpType.Sdg:         "SZdg",
+    OpType.SWAP:        "SWAP",
+    OpType.SX:          "SX",
+    OpType.SXdg:        "SXdg",
+    OpType.T:           "T",
+    OpType.Tdg:         "Tdg",
+    OpType.TK2:         "R2XXYYZZ",
+    OpType.U1:          "RZ",
+    OpType.V:           "SX",
+    OpType.Vdg:         "SXdg",
+    OpType.X:           "X",
+    OpType.XXPhase:     "RXX",
+    OpType.Y:           "Y",
+    OpType.YYPhase:     "RYY",
+    OpType.Z:           "Z",
+    OpType.ZZMax:       "SZZ",
+    OpType.ZZPhase:     "RZZ",
 }  # fmt: skip
 
 
+def arg_to_bit(arg: UnitID) -> Bit:
+    """Convert tket arg to Bit."""
+    return [arg.reg_name, arg.index[0]]
+
+
+def write_subcmd(op: Op, args: list[UnitID]) -> dict[str, Any]:
+    """Return PHIR dict give op and its arguments."""
+    if op.is_gate():
+        gate = tket_gate_to_phir[op.type]
+        angles = (op.params, "pi") if op.params else None
+        qop: dict[str, Any]
+        match op.type:
+            case OpType.Measure:
+                qop = {
+                    "cop": "Measure",
+                    "returns": [arg_to_bit(args[1])],
+                    "args": [arg_to_bit(args[0])],
+                }
+
+            case _:
+                qop = {
+                    "angles": angles,
+                    "qop": gate,
+                    "args": [arg_to_bit(qbit) for qbit in args],
+                }
+        return qop
+
+    match op:
+        case SetBitsOp():
+            return {
+                "cop": "=",
+                "returns": [arg_to_bit(args[0])],
+                "args": op.values,
+            }
+
+        case _:
+            raise NotImplementedError
+
+
 def write_cmd(cmd: Command, ops: list[dict[str, Any]]) -> None:
-    """Write a pytket command to PHIR qop.
+    """Convert and write a pytket command as a PHIR command.
 
     Args:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    gate_str = cmd.op.get_name().split("(", 1)[0]
-    try:
-        gate = tket_op_to_phir[gate_str]
-    except KeyError:
-        if not cmd.op.is_gate():  # TODO(kartik): convert these gates as well
-            gate = gate_str
-        else:
-            raise
-    angles = (cmd.op.params, "pi") if cmd.op.is_gate() and cmd.op.params else None
+    ops.append({"//": str(cmd)})
+    if cmd.op.is_gate():
+        ops.append(write_subcmd(cmd.op, cmd.args))
+    else:
+        op: dict[str, Any] | None = None
+        match cmd.op:
+            case SetBitsOp():
+                op = write_subcmd(cmd.op, cmd.args)
 
-    qop: dict[str, Any] = {
-        "angles": angles,
-        "qop": gate,
-        "args": [],
-    }
-    for qbit in cmd.args:
-        qop["args"].append([qbit.reg_name, qbit.index[0]])
-        if gate == "Measure":
-            break
-    if cmd.bits:
-        qop["returns"] = []
-        for cbit in cmd.bits:
-            qop["returns"].append([cbit.reg_name, cbit.index[0]])
-    ops.extend(({"//": str(cmd)}, qop))
+            case BarrierOp():
+                # TODO(kartik): confirm with Ciaran
+                logger.debug("Skipping Barrier")
+
+            case Conditional():  # where the condition is equality check
+                if cmd.op.width != 1:
+                    # TODO(kartik): implement
+                    op = None
+                    logger.debug("NYI")
+                op = {
+                    "block": "if",
+                    "condition": {
+                        "cop": "==",
+                        "args": [arg_to_bit(cmd.args[0]), cmd.op.value],
+                    },
+                    "true_branch": [write_subcmd(cmd.op.op, cmd.args[1:])],
+                }
+
+            case RangePredicateOp():
+                # TODO(kartik): confirm
+                logger.debug("Skipping RangePredicate")
+            case ClassicalExpBox():
+                # TODO(kartik): confirm
+                logger.debug("Skipping ClassicalExpBox")
+            case m:
+                raise NotImplementedError(m)
+        if op:
+            ops.append(op)
 
 
 def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
