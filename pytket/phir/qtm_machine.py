@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pytket.phir.machine import Machine
+from .machine import Machine
 
 
 class QtmMachine(Enum):

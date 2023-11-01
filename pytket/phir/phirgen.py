@@ -1,10 +1,13 @@
 import json
+import logging
 from typing import Any
 
 from phir.model import PHIRModel
 from pytket.circuit import Command
 
 from .sharding.shard import Cost, Layer, Ordering
+
+logger = logging.getLogger(__name__)
 
 tket_op_to_phir = {
     "CX":       "CX",
@@ -14,6 +17,7 @@ tket_op_to_phir = {
     "Measure":  "Measure",
     "noop":     "I",
     "PhasedX":  "R1XY",
+    "Reset":    "Reset",  # TODO(kartik): confirm
     "Rx":       "RX",
     "Ry":       "RY",
     "Rz":       "RZ",

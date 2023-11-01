@@ -1,4 +1,4 @@
-from pytket.phir.sharding.shard import Shard
+from .shard import Shard
 
 
 def parse_shards_naive(

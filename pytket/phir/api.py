@@ -5,14 +5,15 @@ from rich import print
 
 from phir.model import PHIRModel
 from pytket.circuit import Circuit
-from pytket.phir.phirgen import genphir
-from pytket.phir.place_and_route import place_and_route
-from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
-from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
-from pytket.phir.sharding.sharder import Sharder
+
+from .phirgen import genphir
+from .place_and_route import place_and_route
+from .qtm_machine import QTM_MACHINES_MAP, QtmMachine
+from .rebasing.rebaser import rebase_to_qtm_machine
+from .sharding.sharder import Sharder
 
 if TYPE_CHECKING:
-    from pytket.phir.machine import Machine
+    from .machine import Machine
 
 logger = logging.getLogger(__name__)
 
