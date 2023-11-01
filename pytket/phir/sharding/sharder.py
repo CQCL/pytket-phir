@@ -2,8 +2,9 @@ import logging
 from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
-from pytket.phir.sharding.shard import Shard
 from pytket.unit_id import Bit, UnitID
+
+from .shard import Shard
 
 NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
 

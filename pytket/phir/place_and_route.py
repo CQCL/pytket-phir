@@ -1,8 +1,8 @@
-from pytket.phir.machine import Machine
-from pytket.phir.placement import optimized_place
-from pytket.phir.routing import transport_cost
-from pytket.phir.sharding.shard import Cost, Layer, Ordering, Shard
-from pytket.phir.sharding.shards2ops import parse_shards_naive
+from .machine import Machine
+from .placement import optimized_place
+from .routing import transport_cost
+from .sharding.shard import Cost, Layer, Ordering, Shard
+from .sharding.shards2ops import parse_shards_naive
 
 
 def place_and_route(
