@@ -64,6 +64,8 @@ ignore = [
   "D100",   # Missing docstring in public module
   "D107",   # Missing docstring in `__init__` (5)
   "G004",   # F-string in logging invocation
+
+  "COM812", "ISC001"  # required for `ruff format`
 ]
 
 [per-file-ignores]
