@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-from phir.model import Bit, PHIRModel
+from phir.model import PHIRModel
 from pytket.circuit import (
     BarrierOp,
     ClassicalExpBox,
@@ -52,7 +52,7 @@ tket_gate_to_phir = {
 }  # fmt: skip
 
 
-def arg_to_bit(arg: UnitID) -> Bit:
+def arg_to_bit(arg: UnitID) -> list[str | int]:
     """Convert tket arg to Bit."""
     return [arg.reg_name, arg.index[0]]
 
