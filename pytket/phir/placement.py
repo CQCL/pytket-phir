@@ -1,7 +1,7 @@
 import bisect
 import math
 
-from pytket.phir.routing import inverse
+from .routing import inverse
 
 
 class GateOpportunitiesError(Exception):
