@@ -3,6 +3,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIOffl
 from pytket.extensions.quantinuum.backends.quantinuum import (
     QuantinuumBackend,
 )
+from pytket.passes import DecomposeBoxes
 
 
 def rebase_to_qtm_machine(circuit: Circuit, qtm_machine: str) -> Circuit:
@@ -13,6 +14,10 @@ def rebase_to_qtm_machine(circuit: Circuit, qtm_machine: str) -> Circuit:
         machine_debug=False,
         api_handler=qapi_offline,  # type: ignore [arg-type]
     )
+
+    # Decompose boxes to ensure no problematic phase gates
+    DecomposeBoxes().apply(circuit)
+
     # Optimization level 0 includes rebasing and little else
     # see: https://cqcl.github.io/pytket-quantinuum/api/#default-compilation
     return backend.get_compiled_circuit(circuit, 0)

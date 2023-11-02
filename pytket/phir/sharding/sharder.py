@@ -14,6 +14,7 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.SetBits,
     OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
     OpType.RangePredicate,
+    OpType.ExplicitPredicate,
 ]
 
 logger = logging.getLogger(__name__)
@@ -46,8 +47,15 @@ class Sharder:
         -------
             list of Shards needed to schedule
         """
-        logger.debug("Sharding begins....")
-        for command in self._circuit.get_commands():
+        logger.debug("Sharding beginning")
+        commands = self._circuit.get_commands()
+
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("All commands:")
+            for command in commands:
+                logger.debug(command)
+
+        for command in commands:
             self._process_command(command)
         self._cleanup_remaining_commands()
 
@@ -69,6 +77,10 @@ class Sharder:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
+        if self._is_command_global_phase(command):
+            logger.debug("Ignoring global Phase gate")
+            return
+
         if self.should_op_create_shard(command.op):
             logger.debug(
                 f"Building shard for command: {command}",
@@ -76,6 +88,12 @@ class Sharder:
             self._build_shard(command)
         else:
             self._add_pending_sub_command(command)
+
+    def _is_command_global_phase(self, command: Command) -> bool:
+        return command.op.type == OpType.Phase or (
+            command.op.type == OpType.Conditional
+            and cast(Conditional, command.op).op.type == OpType.Phase
+        )
 
     def _build_shard(self, command: Command) -> None:
         """Builds a shard.
@@ -165,10 +183,10 @@ class Sharder:
         Args:
             command:  tket command (operation, bits, etc)
         """
-        key = command.qubits[0]
-        if key not in self._pending_commands:
-            self._pending_commands[key] = []
-        self._pending_commands[key].append(command)
+        qubit_key = command.qubits[0]
+        if qubit_key not in self._pending_commands:
+            self._pending_commands[qubit_key] = []
+        self._pending_commands[qubit_key].append(command)
         logger.debug(
             f"Adding pending command {command}",
         )
