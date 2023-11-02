@@ -48,7 +48,7 @@ def pytket_to_phir(
 
     if machine:
         # Only print message if a machine object is passed
-        # Otherwise, placment and routing are functionally skipped
+        # Otherwise, placement and routing are functionally skipped
         # The function is called, but the output is just filled with 0s
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
