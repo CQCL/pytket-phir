@@ -76,7 +76,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
         match op.type:
             case tk.OpType.Measure:
                 qop = {
-                    "cop": "Measure",
+                    "qop": "Measure",
                     "returns": [arg_to_bit(cmd.bits[0])],
                     "args": [arg_to_bit(cmd.args[0])],
                 }
