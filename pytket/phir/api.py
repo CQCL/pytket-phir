@@ -33,10 +33,10 @@ def pytket_to_phir(
     -------
         PHIR JSON as a str
     """
-    logger.info(f"Starting phir conversion process for circuit {circuit}")
+    logger.info("Starting phir conversion process for circuit %s", circuit)
     machine: Machine | None = None
     if qtm_machine:
-        logger.info(f"Rebasing to machine {qtm_machine}")
+        logger.info("Rebasing to machine %s", qtm_machine)
         circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
         machine = QTM_MACHINES_MAP.get(qtm_machine)
     else:

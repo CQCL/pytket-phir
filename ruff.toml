@@ -63,11 +63,9 @@ select = [
 ]
 
 ignore = [
-  "FIX002", # Allow todos
-  "TD003",  # allow todos with no issues
-  "D100",   # Missing docstring in public module
+  "FIX002", # Allow todos (4)
+  "D100",   # Missing docstring in public module (18)
   "D107",   # Missing docstring in `__init__` (5)
-  "G004",   # F-string in logging invocation
 
   "COM812", "ISC001"  # required for `ruff format`
 ]

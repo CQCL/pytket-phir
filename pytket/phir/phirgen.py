@@ -22,7 +22,8 @@ tket_gate_to_phir = {
     tk.OpType.CZ:       "CZ",
     tk.OpType.H:        "H",
     tk.OpType.PhasedX:  "R1XY",
-    tk.OpType.Reset:    "Reset",  # TODO(kartik): confirm with Ciaran
+    tk.OpType.Reset:    "Reset",  # TODO(kartik): confirm with Ciaran/spec
+                                  # https://github.com/CQCL/phir/blob/main/phir_spec_qasm.md
     tk.OpType.Rx:       "RX",
     tk.OpType.Ry:       "RY",
     tk.OpType.Rz:       "RZ",
@@ -69,7 +70,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
         try:
             gate = tket_gate_to_phir[op.type]
         except KeyError:
-            logging.exception(f"Gate {op.get_name()} unsupported by PHIR")
+            logging.exception("Gate %s unsupported by PHIR", op.get_name())
             raise
         angles = (op.params, "pi") if op.params else None
         qop: dict[str, Any]
@@ -95,6 +96,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
 
         case _:
             # TODO(kartik): NYI
+            # https://github.com/CQCL/pytket-phir/issues/25
             raise NotImplementedError
 
 
@@ -115,7 +117,8 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                 op = convert_subcmd(cmd.op, cmd)
 
             case tk.BarrierOp():
-                # TODO(kartik): confirm with Ciaran
+                # TODO(kartik): confirm with Ciaran/spec
+                # https://github.com/CQCL/phir/blob/main/phir_spec_qasm.md
                 logger.debug("Skipping Barrier instruction")
 
             case tk.Conditional():  # where the condition is equality check
@@ -188,7 +191,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     case RegWiseOp.NOT:
                         cop = "~"
                     case other:
-                        logging.exception(f"Unsupported classical operator {other}")
+                        logging.exception("Unsupported classical operator %s", other)
                         raise ValueError
                 op = {
                     "cop": cop,
@@ -235,6 +238,7 @@ def genphir(
             )
 
     # TODO(kartik): this may not always be accurate
+    # https://github.com/CQCL/pytket-phir/issues/24
     qvar_dim: dict[str, int] = {}
     for qbit in qbits:
         qvar_dim.setdefault(qbit.reg_name, 0)
