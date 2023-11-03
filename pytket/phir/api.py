@@ -53,7 +53,7 @@ def pytket_to_phir(
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
 
-    phir_json = genphir(placed)
+    phir_json = genphir(placed, machine_ops=bool(machine))
 
     if logger.getEffectiveLevel() <= logging.INFO:
         print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
