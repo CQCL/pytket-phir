@@ -200,11 +200,14 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
             ops.append(op)
 
 
-def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
+def genphir(
+    inp: list[tuple[Ordering, Layer, Cost]], *, machine_ops: bool = True
+) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
     Args:
         inp: list of shards
+        machine_ops: whether to include machine ops
     """
     phir: dict[str, Any] = {
         "format": "PHIR/JSON",
@@ -223,12 +226,13 @@ def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
                 for sc in sub_commands:
                     append_cmd(sc, ops)
             append_cmd(shard.primary_command, ops)
-        ops.append(
-            {
-                "mop": "Transport",
-                "duration": (layer_cost, "ms"),
-            },
-        )
+        if machine_ops:
+            ops.append(
+                {
+                    "mop": "Transport",
+                    "duration": (layer_cost, "ms"),
+                },
+            )
 
     # TODO(kartik): this may not always be accurate
     qvar_dim: dict[str, int] = {}
