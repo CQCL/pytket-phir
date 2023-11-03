@@ -245,19 +245,20 @@ def genphir(inp: list[tuple[Ordering, Layer, Cost]]) -> str:
         {
             "data": "qvar_define",
             "data_type": "qubits",
-            "variable": q,
-            "size": d,
+            "variable": qvar,
+            "size": dim,
         }
-        for q, d in qvar_dim.items()
+        for qvar, dim in qvar_dim.items()
     ]
 
     decls += [
         {
             "data": "cvar_define",
-            "variable": c,
-            "size": d,
+            "data_type": "u32",
+            "variable": cvar,
+            "size": dim,
         }
-        for c, d in cvar_dim.items()
+        for cvar, dim in cvar_dim.items()
     ]
 
     phir["ops"] = decls + ops
