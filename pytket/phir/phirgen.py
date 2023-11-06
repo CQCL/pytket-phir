@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 UINTMAX = 2**32 - 1
 
 tket_gate_to_phir = {
+    tk.OpType.Reset:    "Init",
+    tk.OpType.Measure:  "Measure",
     tk.OpType.noop:     "I",
 
     tk.OpType.CX:       "CX",
@@ -22,8 +24,6 @@ tket_gate_to_phir = {
     tk.OpType.CZ:       "CZ",
     tk.OpType.H:        "H",
     tk.OpType.PhasedX:  "R1XY",
-    tk.OpType.Reset:    "Reset",  # TODO(kartik): confirm with Ciaran/spec
-                                  # https://github.com/CQCL/phir/blob/main/phir_spec_qasm.md
     tk.OpType.Rx:       "RX",
     tk.OpType.Ry:       "RY",
     tk.OpType.Rz:       "RZ",
@@ -45,8 +45,6 @@ tket_gate_to_phir = {
     tk.OpType.Z:        "Z",
     tk.OpType.ZZMax:    "SZZ",
     tk.OpType.ZZPhase:  "RZZ",
-
-    tk.OpType.Measure:  "Measure",
 }  # fmt: skip
 
 
