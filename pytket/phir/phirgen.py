@@ -72,19 +72,52 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             raise
         angles = (op.params, "pi") if op.params else None
         qop: dict[str, Any]
-        match op.type:
-            case tk.OpType.Measure:
+        match gate:
+            case "Measure":
                 qop = {
-                    "qop": "Measure",
+                    "qop": gate,
                     "returns": [arg_to_bit(cmd.bits[0])],
                     "args": [arg_to_bit(cmd.args[0])],
                 }
 
-            case _:  # a regular quantum gate
+            case "R2XXYYZZ":  # three-qubit gate
                 qop = {
-                    "angles": angles,
                     "qop": gate,
-                    "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                    "angles": angles,
+                    "args": [
+                        [
+                            arg_to_bit(cmd.qubits[0]),
+                            arg_to_bit(cmd.qubits[1]),
+                            arg_to_bit(cmd.qubits[2]),
+                        ]
+                    ],
+                }
+
+            case (
+                "CX"
+                | "CY"
+                | "CZ"
+                | "RXX"
+                | "RYY"
+                | "RZZ"
+                | "SXX"
+                | "SXXdg"
+                | "SYY"
+                | "SYYdg"
+                | "SZZ"
+                | "SZZdg"
+                | "SWAP"
+            ):  # two-qubit gates
+                qop = {
+                    "qop": gate,
+                    "angles": angles,
+                    "args": [[arg_to_bit(cmd.qubits[0]), arg_to_bit(cmd.qubits[1])]],
+                }
+            case _:  # single-qubit gates
+                qop = {
+                    "qop": gate,
+                    "angles": angles,
+                    "args": [arg_to_bit(cmd.qubits[0])],
                 }
         return qop
 
