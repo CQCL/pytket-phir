@@ -149,7 +149,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
 
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
-                # https://github.com/CQCL/phir/blob/main/phir_spec_qasm.md
+                # https://github.com/CQCL/phir/blob/main/spec.md
                 logger.debug("Skipping Barrier instruction")
 
             case tk.Conditional():  # where the condition is equality check
