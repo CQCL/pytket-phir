@@ -1,28 +1,31 @@
-from .shard import Shard
+from typing import TypeAlias
+
+from .shard import Shard, ShardLayer
+
+Layer: TypeAlias = list[list[int]]
 
 
 def parse_shards_naive(
     shards: set[Shard],
-) -> tuple[list[list[list[int]]], list[list[Shard]]]:
+) -> tuple[list[Layer], list[ShardLayer]]:
     """Parse a set of shards and return a circuit representation for placement."""
-    layers: list[list[list[int]]] = []
-    shards_in_layer: list[list[Shard]] = []
+    layers: list[Layer] = []
+    shards_in_layer: list[ShardLayer] = []
     scheduled: set[int] = set()
     num_shards: int = len(shards)
 
     while len(scheduled) < num_shards:
-        layer: list[list[int]] = []
-        to_schedule: list[Shard] = []
-        # get all the shards with no dependencies
+        layer: Layer = []
+        to_schedule: ShardLayer = []
+        # Iterate the shards, looking for shards whose dependencies have been
+        # satisfied, or initially, shards with no dependencies
         for shard in shards:
-            s = shard
-            deps = s.depends_upon
-            # dependencies of the shard that have already been scheduled
-            scheduled_deps = deps.intersection(scheduled)
-            already_scheduled = s.ID in scheduled
-
-            if scheduled_deps == deps and not already_scheduled:
-                to_schedule.append(s)
+            if shard.ID not in scheduled:
+                deps = shard.depends_upon
+                # dependencies of the shard that have already been scheduled
+                scheduled_deps = deps.intersection(scheduled)
+                if scheduled_deps == deps:
+                    to_schedule.append(shard)
         shards_in_layer.append(to_schedule)
 
         for shard in to_schedule:

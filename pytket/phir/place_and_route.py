@@ -1,14 +1,14 @@
 from .machine import Machine
 from .placement import optimized_place
 from .routing import transport_cost
-from .sharding.shard import Cost, Layer, Ordering, Shard
+from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 from .sharding.shards2ops import parse_shards_naive
 
 
 def place_and_route(
     shards: list[Shard],
     machine: Machine | None = None,
-) -> list[tuple[Ordering, Layer, Cost]]:
+) -> list[tuple[Ordering, ShardLayer, Cost]]:
     """Get all the routing info needed for PHIR generation."""
     shard_set = set(shards)
     circuit_rep, shard_layers = parse_shards_naive(shard_set)

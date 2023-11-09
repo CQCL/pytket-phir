@@ -37,7 +37,7 @@ def placement_check(
 
     # If there are no operations to place, it does not matter where the
     # qubits are and any placement is valid
-    if len(ops) == 0:
+    if not ops:
         return True
 
     # assume ops look like this [[1,2],[3],[4],[5,6],[7],[8],[9,10]]
