@@ -1,20 +1,27 @@
-from .shard import Shard
+from typing import TypeAlias
+
+from .shard import Shard, ShardLayer
+
+Layer: TypeAlias = list[list[int]]
 
 
 def parse_shards_naive(
     shards: set[Shard],
-) -> tuple[list[list[list[int]]], list[list[Shard]]]:
+) -> tuple[list[Layer], list[ShardLayer]]:
     """Parse a set of shards and return a circuit representation for placement."""
-    layers: list[list[list[int]]] = []
-    shards_in_layer: list[list[Shard]] = []
+    layers: list[Layer] = []
+    shards_in_layer: list[ShardLayer] = []
     scheduled: set[int] = set()
     num_shards: int = len(shards)
 
     while len(scheduled) < num_shards:
-        layer: list[list[int]] = []
+        layer: Layer = []
+
         # Iterate the shards, looking for shards whose dependencies have been
         # satisfied, or initially, shards with no dependencies
-        to_schedule = [s for s in shards if s.depends_upon.issubset(scheduled)]
+        to_schedule: ShardLayer = [
+            s for s in shards if s.depends_upon.issubset(scheduled)
+        ]
         shards_in_layer.append(to_schedule)
         shards.difference_update(to_schedule)
 
