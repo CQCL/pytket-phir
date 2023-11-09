@@ -2,8 +2,9 @@ import logging
 from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
-from pytket.phir.sharding.shard import Shard
 from pytket.unit_id import Bit, UnitID
+
+from .shard import Shard
 
 NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
 
@@ -18,6 +19,13 @@ SHARD_TRIGGER_OP_TYPES = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def _is_command_global_phase(command: Command) -> bool:
+    return command.op.type == OpType.Phase or (
+        command.op.type == OpType.Conditional
+        and cast(Conditional, command.op).op.type == OpType.Phase
+    )
 
 
 class Sharder:
@@ -38,7 +46,7 @@ class Sharder:
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
-        logger.debug(f"Sharder created for circuit {self._circuit}")
+        logger.debug("Sharder created for circuit %s", self._circuit)
 
     def shard(self) -> list[Shard]:
         """Performs sharding algorithm on the circuit the Sharder was initialized with.
@@ -71,29 +79,24 @@ class Sharder:
             command: tket command (operation, bits, etc)
         """
         logger.debug(
-            f"Processing command: {command.op} {command.op.type} args: {command.args}",
+            "Processing command: %s of type %s with args: %s",
+            command.op,
+            command.op.type,
+            command.args,
         )
         if command.op.type in NOT_IMPLEMENTED_OP_TYPES:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
-        if self._is_command_global_phase(command):
+        if _is_command_global_phase(command):
             logger.debug("Ignoring global Phase gate")
             return
 
         if self.should_op_create_shard(command.op):
-            logger.debug(
-                f"Building shard for command: {command}",
-            )
+            logger.debug("Building shard for command: %s", command)
             self._build_shard(command)
         else:
             self._add_pending_sub_command(command)
-
-    def _is_command_global_phase(self, command: Command) -> bool:
-        return command.op.type == OpType.Phase or (
-            command.op.type == OpType.Conditional
-            and cast(Conditional, command.op).op.type == OpType.Phase
-        )
 
     def _build_shard(self, command: Command) -> None:
         """Builds a shard.
@@ -131,7 +134,7 @@ class Sharder:
             # Check qubit dependencies (R/W implicitly) since all commands
             # on a given qubit need to be ordered as the circuit dictated
             if not shard.qubits_used.isdisjoint(command.qubits):
-                logger.debug(f"...adding shard dep {shard.ID} -> qubit overlap")
+                logger.debug("...adding shard dep %s -> qubit overlap", shard.ID)
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
             # hazards: RAW, WAW, WAR
@@ -140,17 +143,17 @@ class Sharder:
             # Check for write-after-write (changing order would change final value)
             # by looking at overlap of bits_written
             elif not shard.bits_written.isdisjoint(bits_written):
-                logger.debug(f"...adding shard dep {shard.ID} -> WAW")
+                logger.debug("...adding shard dep %s -> WAW", shard.ID)
                 depends_upon.add(shard.ID)
 
             # Check for read-after-write (value seen would change if reordered)
             elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug(f"...adding shard dep {shard.ID} -> RAW")
+                logger.debug("...adding shard dep %s -> RAW", shard.ID)
                 depends_upon.add(shard.ID)
 
             # Check for write-after-read (no reordering or read is changed)
             elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug(f"...adding shard dep {shard.ID} -> WAR")
+                logger.debug("...adding shard dep %s -> WAR", shard.ID)
                 depends_upon.add(shard.ID)
 
         shard = Shard(
@@ -162,7 +165,7 @@ class Sharder:
             depends_upon,
         )
         self._shards.append(shard)
-        logger.debug(f"Appended shard: {shard}")
+        logger.debug("Appended shard: %s", shard)
 
     def _cleanup_remaining_commands(self) -> None:
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
@@ -187,9 +190,7 @@ class Sharder:
         if qubit_key not in self._pending_commands:
             self._pending_commands[qubit_key] = []
         self._pending_commands[qubit_key].append(command)
-        logger.debug(
-            f"Adding pending command {command}",
-        )
+        logger.debug("Adding pending command %s", command)
 
     @staticmethod
     def should_op_create_shard(op: Op) -> bool:

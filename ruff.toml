@@ -3,6 +3,8 @@ target-version = "py310"
 
 line-length = 88
 
+preview = true
+
 select = [
   "E",    # pycodestyle Errors
   "W",    # pycodestyle Warnings
@@ -19,17 +21,19 @@ select = [
   "EM",   # flake8-errmsg
   "ERA",  # eradicate
   "EXE",  # flake8-executable
-  "F",    # pyFlakes
+  "F",    # pyflakes
   "FA",   # flake8-future-annotations
   "FBT",  # flake8-boolean-trap
   "FIX",  # flake8-fixme
   "FLY",  # flynt
+  "FURB", # refurb
   "G",    # flake8-logging-format
   "I",    # isort
   "ICN",  # flake8-import-conventions
   "INP",  # flake8-no-pep420
   "INT",  # flake8-gettext
   "ISC",  # flake8-implicit-str-concat
+  "LOG",  # flake8-logging
   "N",    # pep8-Naming
   "NPY",  # NumPy-specific
   "PERF", # Perflint
@@ -59,15 +63,15 @@ select = [
 ]
 
 ignore = [
-  "FIX002", # Allow todos
-  "TD003",  # allow todos with no issues
-  "D100",   # Missing docstring in public module
+  "FIX002", # Allow todos (4)
+  "D100",   # Missing docstring in public module (18)
   "D107",   # Missing docstring in `__init__` (5)
-  "G004",   # F-string in logging invocation
+
+  "COM812", "ISC001"  # required for `ruff format`
 ]
 
 [per-file-ignores]
-"__init__.py" = ["F401", "D104"]  # module imported but unused
+"__init__.py" = ["F401", "D104"]  # module imported but unused; Missing docstring in public package
 "docs/*"      = [
     "INP001",   # File * is part of an implicit namespace package. Add an `__init__.py`.
 ]
@@ -76,6 +80,7 @@ ignore = [
     "D102",     # Missing docstring in public method
     "S101",     # Use of `assert` detected
     "PLR2004",  # Magic constants
+    "PLR6301",  # Method * could be a function, class method, or static method
   ]
 
 [pydocstyle]
@@ -83,3 +88,6 @@ convention = "google"
 
 [pylint]
 max-args = 6
+
+[format]
+preview = true

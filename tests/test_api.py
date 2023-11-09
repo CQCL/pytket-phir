@@ -18,7 +18,22 @@ class TestApi:
         assert pytket_to_phir(circuit)
 
     @pytest.mark.parametrize("test_file", list(QasmFile))
-    def test_pytket_to_phir_h1_1_all_circuits(self, test_file: QasmFile) -> None:
+    def test_pytket_to_phir_no_machine_all(self, test_file: QasmFile) -> None:
+        """Test case when no machine is present."""
+        circuit = get_qasm_as_circuit(test_file)
+
+        match test_file:
+            case QasmFile.big_gate:
+                with pytest.raises(KeyError, match=r".*CnX.*"):
+                    assert pytket_to_phir(circuit)
+            case QasmFile.qv20_0:
+                with pytest.raises(KeyError, match=r".*U3.*"):
+                    assert pytket_to_phir(circuit)
+            case _:
+                assert pytket_to_phir(circuit)
+
+    @pytest.mark.parametrize("test_file", list(QasmFile))
+    def test_pytket_to_phir_h1_1_all(self, test_file: QasmFile) -> None:
         """Standard case."""
         circuit = get_qasm_as_circuit(test_file)
 
