@@ -8,7 +8,7 @@ from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
 from pytket.unit_id import UnitID
 
-from .sharding.shard import Cost, Layer, Ordering
+from .sharding.shard import Cost, Ordering, ShardLayer
 
 logger = logging.getLogger(__name__)
 
@@ -235,7 +235,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
 
 
 def genphir(
-    inp: list[tuple[Ordering, Layer, Cost]], *, machine_ops: bool = True
+    inp: list[tuple[Ordering, ShardLayer, Cost]], *, machine_ops: bool = True
 ) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
