@@ -61,5 +61,5 @@ class Shard:
 
 
 Cost: TypeAlias = float
-Layer: TypeAlias = list[Shard]
+ShardLayer: TypeAlias = list[Shard]
 Ordering: TypeAlias = list[int]
