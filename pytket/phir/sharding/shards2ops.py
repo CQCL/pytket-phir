@@ -12,14 +12,11 @@ def parse_shards_naive(
 
     while len(scheduled) < num_shards:
         layer: list[list[int]] = []
-        to_schedule: list[Shard] = []
         # Iterate the shards, looking for shards whose dependencies have been
         # satisfied, or initially, shards with no dependencies
-        for shard in shards:
-            if shard.depends_upon.issubset(scheduled):
-                to_schedule.append(shard)
-                shards.remove(shard)
+        to_schedule = [s for s in shards if s.depends_upon.issubset(scheduled)]
         shards_in_layer.append(to_schedule)
+        shards.difference_update(to_schedule)
 
         for shard in to_schedule:
             op: list[int] = []
