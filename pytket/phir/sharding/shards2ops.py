@@ -16,12 +16,9 @@ def parse_shards_naive(
         # Iterate the shards, looking for shards whose dependencies have been
         # satisfied, or initially, shards with no dependencies
         for shard in shards:
-            if shard.ID not in scheduled:
-                deps = shard.depends_upon
-                # dependencies of the shard that have already been scheduled
-                scheduled_deps = deps.intersection(scheduled)
-                if scheduled_deps == deps:
-                    to_schedule.append(shard)
+            if shard.depends_upon.issubset(scheduled):
+                to_schedule.append(shard)
+                shards.remove(shard)
         shards_in_layer.append(to_schedule)
 
         for shard in to_schedule:
