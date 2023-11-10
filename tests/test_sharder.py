@@ -85,11 +85,11 @@ class TestSharder:
 
         assert shards[3].primary_command.op.type == OpType.Barrier
         assert len(shards[3].sub_commands) == 1
-        assert shards[3].depends_upon == {shards[0].ID, shards[1].ID}
+        assert shards[3].depends_upon == {shards[1].ID}
 
         assert shards[4].primary_command.op.type == OpType.Barrier
         assert len(shards[4].sub_commands) == 1
-        assert shards[4].depends_upon == {shards[0].ID, shards[2].ID}
+        assert shards[4].depends_upon == {shards[2].ID}
 
     def test_simple_conditional(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.simple_cond)
@@ -130,7 +130,7 @@ class TestSharder:
         assert shards[3].qubits_used == {circuit.qubits[0]}
         assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
-        assert shards[3].depends_upon == {shards[0].ID, shards[1].ID}
+        assert shards[3].depends_upon == {shards[1].ID, shards[2].ID}
         assert len(shards[3].sub_commands.items()) == 1
         s2_qubit, s2_sub_cmds = next(iter(shards[3].sub_commands.items()))
         assert s2_qubit == circuit.qubits[0]
@@ -183,7 +183,7 @@ class TestSharder:
         assert shards[3].qubits_used == {circuit.qubits[0]}
         assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
-        assert shards[3].depends_upon == {shards[2].ID, shards[1].ID}
+        assert shards[3].depends_upon == {shards[2].ID}
 
         # shard 4: [H q[3];, H q[3];, X q[3];]] barrier q[2], q[3];
         assert shards[4].primary_command.op.type == OpType.Barrier
@@ -221,7 +221,7 @@ class TestSharder:
         assert shards[6].qubits_used == {circuit.qubits[2]}
         assert shards[6].bits_written == {circuit.bits[2]}
         assert shards[6].bits_read == {circuit.bits[2]}
-        assert shards[6].depends_upon == {shards[5].ID, shards[4].ID}
+        assert shards[6].depends_upon == {shards[5].ID}
 
     def test_classical_hazards(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
@@ -261,7 +261,7 @@ class TestSharder:
         assert shards[3].qubits_used == set()
         assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
-        assert shards[3].depends_upon == {shards[0].ID}
+        assert shards[3].depends_upon == {shards[2].ID}
 
         # shard 4: [] if(c[2]==1) c[0]=1;
         assert shards[4].primary_command.op.type == OpType.Conditional
@@ -269,7 +269,7 @@ class TestSharder:
         assert shards[4].qubits_used == set()
         assert shards[4].bits_written == {circuit.bits[0]}
         assert shards[4].bits_read == {circuit.bits[0], circuit.bits[2]}
-        assert shards[4].depends_upon == {shards[1].ID, shards[0].ID, shards[3].ID}
+        assert shards[4].depends_upon == {shards[1].ID, shards[3].ID}
 
     def test_with_big_gate(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.big_gate)
