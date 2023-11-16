@@ -21,14 +21,6 @@ pytket.phir.api module
    :undoc-members:
    :show-inheritance:
 
-pytket.phir.cli module
-----------------------
-
-.. automodule:: pytket.phir.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pytket.phir.machine module
 --------------------------
 
