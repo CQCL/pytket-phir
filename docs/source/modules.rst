@@ -1,7 +1,7 @@
-pytket
-======
+pytket.phir
+===========
 
 .. toctree::
    :maxdepth: 4
 
-   phir
+   pytket.phir

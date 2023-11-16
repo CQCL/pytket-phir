@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 import logging
 from typing import TYPE_CHECKING
 
@@ -30,7 +38,7 @@ def pytket_to_phir(
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
 
     Returns:
-    -------
+    --------
         PHIR JSON as a str
     """
     logger.info("Starting phir conversion process for circuit %s", circuit)

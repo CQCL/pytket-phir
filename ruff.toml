@@ -2,7 +2,6 @@
 target-version = "py310"
 
 line-length = 88
-
 preview = true
 
 select = [
@@ -17,6 +16,7 @@ select = [
   "C4",   # flake8-comprehensions
   # "C90",  # mccabe
   "COM",  # flake8-commas
+  "CPY",  # flake8-copyright
   "D",    # pydocstyle
   "EM",   # flake8-errmsg
   "ERA",  # eradicate
@@ -71,7 +71,7 @@ ignore = [
 ]
 
 [per-file-ignores]
-"__init__.py" = ["F401", "D104"]  # module imported but unused; Missing docstring in public package
+"__init__.py" = ["F401", "D104", "CPY001"]  # module imported but unused; Missing docstring in public package
 "docs/*"      = [
     "INP001",   # File * is part of an implicit namespace package. Add an `__init__.py`.
 ]
@@ -88,6 +88,9 @@ convention = "google"
 
 [pylint]
 max-args = 6
+
+[flake8-copyright]
+author = "Quantinuum LLC"
 
 [format]
 preview = true

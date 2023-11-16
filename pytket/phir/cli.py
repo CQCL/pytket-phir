@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 # mypy: disable-error-code="misc"
 
 from argparse import ArgumentParser
@@ -21,10 +29,10 @@ def main() -> None:
     """pytket-phir compiler CLI."""
     parser = ArgumentParser(
         prog="phirc",
-        description="Simulates QASM file via PECOS",
+        description="Emulates QASM program execution via PECOS",
     )
     parser.add_argument(
-        "qasm_files", nargs="+", default=None, help="One or more QASM files to simulate"
+        "qasm_files", nargs="+", default=None, help="One or more QASM files to emulate"
     )
     parser.add_argument(
         "-m",

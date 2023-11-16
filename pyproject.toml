@@ -12,6 +12,7 @@ license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 
 classifiers = [
+  "Environment :: Console",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: BSD License",
@@ -21,19 +22,20 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
-
 dynamic = ["version"]
 dependencies = ["phir>=0.1.6", "pytket"]
 
 [project.optional-dependencies]
-tests = ["pytest"]
-
 docs = ["sphinx", "sphinx-rtd-theme"]
+phirc = ["quantum-pecos>=5.0.0"]
+tests = ["pytest"]
 
 [project.scripts]
 phirc = "pytket.phir.cli:main"
 
 [project.urls]
+Changelog = "https://github.com/CQCL/pytket-phir/blob/main/CHANGELOG.md"
+Documentation = "https://cqcl.github.io/pytket-phir/"
 Repository = "https://github.com/CQCL/pytket-phir.git"
 
 [tool.setuptools.packages.find]

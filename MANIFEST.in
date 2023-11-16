@@ -1,10 +1,11 @@
-include *.toml
+include *.md
 include *.txt
 include Makefile
 include mypy.ini
 recursive-include docs *.rst
 recursive-include docs Makefile
 recursive-include tests *.qasm
-exclude Dockerfile
-exclude .docker*
-exclude .pre-commit*
+
+exclude .pre-commit-config.yaml
+exclude mypy.ini
+exclude ruff.toml
