@@ -20,7 +20,9 @@ Just issue `pip install pytket-phir` to obtain the latest stable release.
 
 ## phirc CLI
 
-The package includes a tool for emulating QASM files from the command line.
+The package includes a tool for emulating QASM files from the command line using PECOS.
+
+PECOS needs to be installed using `pip install .[phirc]` for the CLI to work.
 
 ```sh
 ❯ phirc -h

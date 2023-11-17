@@ -26,7 +26,7 @@ dynamic = ["version"]
 dependencies = ["phir>=0.1.6", "pytket"]
 
 [project.optional-dependencies]
-docs = ["sphinx", "sphinx-rtd-theme"]
+docs = ["sphinx", "pydata_sphinx_theme"]
 phirc = ["quantum-pecos@git+https://github.com/PECOS-packages/PECOS.git@e2e-testing"]
 tests = ["pytest"]
 
