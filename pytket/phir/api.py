@@ -38,7 +38,6 @@ def pytket_to_phir(
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
 
     Returns:
-    --------
         PHIR JSON as a str
     """
     logger.info("Starting phir conversion process for circuit %s", circuit)

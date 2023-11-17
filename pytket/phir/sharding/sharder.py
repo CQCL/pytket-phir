@@ -48,7 +48,6 @@ class Sharder:
         """Create Sharder object.
 
         Args:
-        ----
             circuit: tket Circuit
         """
         self._circuit = circuit
@@ -60,7 +59,6 @@ class Sharder:
         """Performs sharding algorithm on the circuit the Sharder was initialized with.
 
         Returns:
-        -------
             list of Shards needed to schedule
         """
         logger.debug("Sharding beginning")
