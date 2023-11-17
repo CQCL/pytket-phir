@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "pytket-phir"
 description = "A circuit analyzer and translator from pytket to PHIR"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.12"
 license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 
@@ -23,7 +23,11 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["phir>=0.1.6", "pytket"]
+dependencies = [
+  "phir>=0.1.6",
+  "pytket-quantinuum",
+  "pytket",
+  ]
 
 [project.optional-dependencies]
 docs = ["sphinx", "pydata_sphinx_theme"]
