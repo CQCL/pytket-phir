@@ -22,7 +22,9 @@ Just issue `pip install pytket-phir` to obtain the latest stable release.
 
 The package includes a tool for emulating QASM files from the command line using PECOS.
 
-PECOS needs to be installed using `pip install .[phirc]` for the CLI to work.
+NOTE: PECOS currently requires installation using
+`pip install "quantum-pecos@git+https://github.com/PECOS-packages/PECOS.git@e2e-testing"`
+for the CLI to work.
 
 ```sh
 ❯ phirc -h
