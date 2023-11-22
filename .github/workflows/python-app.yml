@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -32,3 +34,14 @@ jobs:
     - name: Run tests
       run: |
         python -m pytest
+    - name: Sphinx documentation build
+      run: |
+        make docs
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.python-version == '3.11' }}
+      with:
+        publish_branch: gh-pages
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html/
+        force_orphan: true

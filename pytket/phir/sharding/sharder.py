@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 import logging
 from typing import cast
 
@@ -40,7 +48,6 @@ class Sharder:
         """Create Sharder object.
 
         Args:
-        ----
             circuit: tket Circuit
         """
         self._circuit = circuit
@@ -52,7 +59,6 @@ class Sharder:
         """Performs sharding algorithm on the circuit the Sharder was initialized with.
 
         Returns:
-        -------
             list of Shards needed to schedule
         """
         logger.debug("Sharding beginning")

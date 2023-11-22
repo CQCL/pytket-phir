@@ -1,18 +1,18 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
 [project]
 name = "pytket-phir"
-version = "0.0.1"
 description = "A circuit analyzer and translator from pytket to PHIR"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.12"
 license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 
 classifiers = [
+  "Environment :: Console",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: BSD License",
@@ -22,15 +22,24 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
-
-dependencies = ["phir>=0.1.6", "pytket"]
+dynamic = ["version"]
+dependencies = [
+  "phir>=0.1.6",
+  "pytket-quantinuum",
+  "pytket",
+  ]
 
 [project.optional-dependencies]
+docs = ["sphinx", "pydata_sphinx_theme"]
+# phirc = ["quantum-pecos@git+https://github.com/PECOS-packages/PECOS.git@e2e-testing"]
 tests = ["pytest"]
 
-docs = ["sphinx", "sphinx-rtd-theme"]
+[project.scripts]
+phirc = "pytket.phir.cli:main"
 
 [project.urls]
+Changelog = "https://github.com/CQCL/pytket-phir/blob/main/CHANGELOG.md"
+Documentation = "https://cqcl.github.io/pytket-phir/"
 Repository = "https://github.com/CQCL/pytket-phir.git"
 
 [tool.setuptools.packages.find]
@@ -49,3 +58,6 @@ log_cli_level = "INFO"
 filterwarnings = ["ignore:::lark.s*"]
 log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.setuptools_scm]
+version_scheme = "python-simplified-semver"

@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 from typing import TypeAlias
 
 from .shard import Shard, ShardLayer
@@ -16,17 +24,14 @@ def parse_shards_naive(
 
     while len(scheduled) < num_shards:
         layer: Layer = []
-        to_schedule: ShardLayer = []
+
         # Iterate the shards, looking for shards whose dependencies have been
         # satisfied, or initially, shards with no dependencies
-        for shard in shards:
-            if shard.ID not in scheduled:
-                deps = shard.depends_upon
-                # dependencies of the shard that have already been scheduled
-                scheduled_deps = deps.intersection(scheduled)
-                if scheduled_deps == deps:
-                    to_schedule.append(shard)
+        to_schedule: ShardLayer = [
+            s for s in shards if s.depends_upon.issubset(scheduled)
+        ]
         shards_in_layer.append(to_schedule)
+        shards.difference_update(to_schedule)
 
         for shard in to_schedule:
             op: list[int] = []

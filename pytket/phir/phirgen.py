@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 import json
 import logging
 from collections.abc import Sequence
@@ -259,6 +267,7 @@ def genphir(
             for sub_commands in shard.sub_commands.values():
                 for sc in sub_commands:
                     append_cmd(sc, ops)
+            # add RZ, R1XY and RZZ lists to ops
             append_cmd(shard.primary_command, ops)
         if machine_ops:
             ops.append(

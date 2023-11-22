@@ -1,3 +1,11 @@
+##############################################################################
+#
+# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+##############################################################################
+
 from pytket.circuit import Circuit
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIOffline
 from pytket.extensions.quantinuum.backends.quantinuum import (

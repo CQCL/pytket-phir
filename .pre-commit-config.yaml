@@ -13,34 +13,34 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.21
+    rev: v1.16.23
     hooks:
       - id: typos
 
   - repo: https://github.com/keewis/blackdoc
-    rev: v0.3.8
+    rev: v0.3.9
     hooks:
     -   id: blackdoc
         additional_dependencies:
         - black==23.10.1
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.4
+    rev: v0.1.5
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.6.1'
+    rev: 'v1.7.0'
     hooks:
     - id: mypy
       pass_filenames: false
       args: [--package=pytket.phir, --package=tests]
       additional_dependencies: [
+        phir,
         pytest,
-        pytket==1.21.0,
         pytket-quantinuum==0.25.0,
+        pytket==1.21.0,
         types-setuptools,
-        "phir",
       ]
