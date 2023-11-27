@@ -40,7 +40,7 @@ repos:
       additional_dependencies: [
         phir,
         pytest,
-        pytket-quantinuum==0.25.0,
-        pytket==1.21.0,
+        pytket-quantinuum,
+        pytket,
         types-setuptools,
       ]

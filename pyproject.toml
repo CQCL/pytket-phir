@@ -31,7 +31,7 @@ dependencies = [
 
 [project.optional-dependencies]
 docs = ["sphinx", "pydata_sphinx_theme"]
-# phirc = ["quantum-pecos@git+https://github.com/PECOS-packages/PECOS.git@e2e-testing"]
+phirc = ["projectq"] # add quantum-pecos>=5.0.0 once released
 tests = ["pytest"]
 
 [project.scripts]
