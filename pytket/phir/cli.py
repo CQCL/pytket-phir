@@ -7,9 +7,10 @@
 ##############################################################################
 
 # mypy: disable-error-code="misc"
-import json
 from argparse import ArgumentParser
 from importlib.metadata import version
+
+from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
 
 from phir.model import PHIRModel
 from pytket.qasm.qasm import (
@@ -64,12 +65,8 @@ def main() -> None:
                 machine = QtmMachine.H1_1
             case "H1-2":
                 machine = QtmMachine.H1_2
-        parallel = True if (args.parallel == "True") and bool(args.machine) else False
+        parallel = bool(args.parallel == "True" and bool(args.machine))
         phir = pytket_to_phir(circ, machine, parallel)
         PHIRModel.model_validate_json(phir)
 
-        j = json.loads(phir)
-        for op in j["ops"]:
-            if "//" not in op:
-                print(op)
-        # HybridEngine(qsim="state-vector").run(program=phir, shots=10)
+        HybridEngine(qsim="state-vector").run(program=phir, shots=10)
