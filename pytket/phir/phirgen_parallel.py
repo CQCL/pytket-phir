@@ -94,15 +94,17 @@ def assign_cop(into: str | list[str | int], what: Sequence[int]) -> dict[str, An
 
 
 def process_sub_commands(
-    sub_commands: dict[Qubit, list[tk.Command]], max_parallel_sq_gates: int
+    sub_commands: dict[UnitID, list[tk.Command]], max_parallel_sq_gates: int
 ) -> dict[int, list[tk.Command]]:
     """Create parallelizable groups of sub-commands."""
     groups: dict[
         int, list[tk.Command]
     ] = {}  # be sure to order by group number into a list when returning
-    qubits2groups = {}  # a dict to track the most recent group in which a qubit was used
-    # group numbers for each gate are incremented by 2 so they don't overlap and different gate types don't go in the same group
-    # RZ gates go in %3=1 groups, R1XY gates go in %3=1 groups, and all other gates will go in %3=2 groups
+    qubits2groups = {}  # a dict to track the most recent group in which a qubit was used  # noqa: E501
+    # group numbers for each gate are incremented by 2 so they don't overlap
+    # and different gate types don't go in the same group
+    # RZ gates go in %3=1 groups, R1XY gates go in %3=1 groups,
+    # and all other gates will go in %3=2 groups
     rz_group_number = -3  # will be set to 0 when first RZ gate is assigned (-3 + 3 = 0)
     r1xy_group_number = (
         -2  # will be set to 1 when first R1XY gate is assigned (-2 + 3 = 1)
@@ -136,14 +138,15 @@ def process_sub_commands(
                 else:
                     group_number = other_group_number
                     valid_pll_op = False
-                # does a group exist for that gate type
+                # does a group exist for that gate type?
                 group_available = group_number in groups
-                # is that group later in execution than the most recent group for an op on that qubit
+                # is that group later in execution than the
+                # most recent group for an op on that qubit?
                 order_preserved = group_number > qubits2groups[qubit]
-                # is the group size still under the maximum allowed parallel ops
+                # is the group size still under the maximum allowed parallel ops?
                 group_size = len(groups[group_number]) if group_number in groups else 0
                 group_not_too_large = group_size < max_parallel_sq_gates
-                # is the op parallelizable (only RZ or R1XY)
+                # is the op parallelizable (only RZ or R1XY)?
                 if (
                     group_available
                     and order_preserved
@@ -168,57 +171,57 @@ def process_sub_commands(
         index += 1
 
     groups = dict(sorted(groups.items()))
-    return groups
+    return groups  # noqa: RET504
 
 
-def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:
+def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:  # noqa: PLR0912
     """Convert the groups of parallel ops to properly formatted PHIR."""
     for group_number in groups:
         group = groups[group_number]
-        angles2qops: dict[tuple, list[dict[str, Any]]] = {}
+        angles2qops: dict[tuple, dict[str, Any]] = {}  # type: ignore[type-arg]
         comment_insert = None
         for qop in group:
             if not qop.op.is_gate():
                 append_cmd(qop, ops)
             else:
                 comment_insert = str(qop.op)
-                arg: UnitID | list[UnitID] = (
+                arg: UnitID | list[Qubit] = (
                     qop.qubits[0] if len(qop.qubits) == 1 else qop.qubits
                 )
                 angles = qop.op.params
                 if tuple(angles) not in angles2qops:
-                    fmt_qop = {
+                    fmt_qop: dict[str, Any] = {
                         "qop": tket_gate_to_phir[qop.op.type],
                         "angles": [angles, "pi"],
                     }
                     if len(qop.qubits) == 1:
-                        fmt_qop["args"] = [arg_to_bit(arg)]
+                        fmt_qop["args"] = [arg_to_bit(arg)]  # type: ignore[arg-type]
                     else:
-                        arg = [arg_to_bit(a) for a in arg]
+                        arg = [arg_to_bit(a) for a in arg]  # type: ignore[misc, union-attr]
                         fmt_qop["args"] = [arg]
                     angles2qops[tuple(angles)] = fmt_qop
                 else:
                     fmt_qop = angles2qops[tuple(angles)]
                     if len(qop.qubits) == 1:
-                        fmt_qop["args"].append(arg_to_bit(arg))
+                        fmt_qop["args"].append(arg_to_bit(arg))  # type: ignore[arg-type]
                     else:
-                        arg = [arg_to_bit(a) for a in arg]
+                        arg = [arg_to_bit(a) for a in arg]  # type: ignore[misc, union-attr]
                         fmt_qop["args"].append(arg)
         # in the case where the qop is not a gate (a conditional for example)
         # this branch is skipped because non-gate sub-commands
         # are always the only member of their group (see process_sub_commands)
         if len(angles2qops) > 1:
-            pll_block = {"block": "qparallel", "ops": []}
-            for qop in angles2qops.values():
-                pll_block["ops"].append(qop)
+            pll_block: dict[str, Any] = {"block": "qparallel", "ops": []}
+            for phir_qop in angles2qops.values():
+                pll_block["ops"].append(phir_qop)
             comment = {"//": f"Parallel {comment_insert}"}
             ops.append(comment)  # noqa: FURB113
             ops.append(pll_block)
         else:
-            for qop in angles2qops.values():
-                comment = {"//": comment_insert}
+            for phir_qop in angles2qops.values():
+                comment = {"//": comment_insert}  # type: ignore[dict-item]
                 ops.append(comment)  # noqa: FURB113
-                ops.append(qop)
+                ops.append(phir_qop)
 
 
 def process_shards(
@@ -231,10 +234,12 @@ def process_shards(
     ] = {}  # a dict to track the last group in which a gate type was used
     group_tracker = 0
     # parallelize shards in the same layer only
-    # keeps a cap on the complexity by not having to look at the relative ordering of ops in the whole circuit
-    # workong within layers guarantees no qubit overlap
+    # keeps a cap on the complexity by not having to look at
+    # the relative ordering of ops in the whole circuit
+    # working within layers guarantees no qubit overlap
     for shard in shard_layer:
-        # the gate is a quantum op with a fixed number of arguments and a known machine restriction (i.e. not Barrier, TK2, etc)
+        # the gate is a quantum op with a fixed number of arguments and
+        # a known machine restriction (i.e. not Barrier, TK2, etc)
         # add support for barriers later on
         not_tk2 = shard.primary_command.op.type != tk.OpType.TK2
         eligible_command_type = (
@@ -249,7 +254,7 @@ def process_shards(
         if group_available:
             group_number = types2groups[shard.primary_command.op.type]
             group = groups[group_number]
-            tq_case = (num_args == 2) and (len(group) < max_parallel_tq_gates)
+            tq_case = (num_args == 2) and (len(group) < max_parallel_tq_gates)  # noqa: PLR2004
             sq_case = (num_args == 1) and (len(group) < max_parallel_sq_gates)
             if tq_case or sq_case:
                 group_not_full = True
@@ -266,15 +271,19 @@ def process_shards(
 
     groups = consolidate_sub_commands(groups)
     groups = dict(sorted(groups.items()))
-    return groups
+    return groups  # noqa: RET504
 
 
 def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[Shard]]:
-    """Group all the sub_commands into the first shard in the group. This allows maximum parallelization of sub-commands across shards."""
+    """Group all the sub_commands into the first shard in the group.
+
+    This allows maximum parallelization of sub-commands across shards.
+    """
     for shards in groups.values():
         # stuckee == the shard that gets 'stuck' with all the sub-commands
         stuckee = shards[0]
-        # if the group of shards only contains one element, do nothing, the sub-commands are already packed into one shard
+        # if the group of shards only contains one element,
+        # do nothing, the sub-commands are already packed into one shard
         if len(shards) > 1:
             for i in range(1, len(shards)):
                 working_shard = shards[i]
@@ -283,7 +292,9 @@ def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[S
     return groups
 
 
-def format_and_add_primary_commands(group: list[Shard], ops: list[dict[str, Any]]):
+def format_and_add_primary_commands(
+    group: list[Shard], ops: list[dict[str, Any]]
+) -> None:
     """Create properly formatted PHIR for parallel primary commands."""
     if len(group) == 1:
         append_cmd(group[0].primary_command, ops)
@@ -298,7 +309,7 @@ def format_and_add_primary_commands(group: list[Shard], ops: list[dict[str, Any]
                     append_cmd(shard.primary_command, ops)
             # for measure, format and include "returns"
             elif gate_type == "Measure":
-                fmt_measure = {
+                fmt_measure: dict[str, Any] = {
                     "qop": "Measure",
                     "args": [],
                     "returns": [],
@@ -310,7 +321,7 @@ def format_and_add_primary_commands(group: list[Shard], ops: list[dict[str, Any]
                 ops.append(fmt_measure)
             # all other gates, treat as standard qops
             else:
-                fmt_qop = {"qop": gate_type, "args": []}
+                fmt_qop: dict[str, Any] = {"qop": gate_type, "args": []}
                 for shard in group:
                     pc = shard.primary_command
                     fmt_qop["args"].append(arg_to_bit(pc.args[0]))
@@ -326,26 +337,16 @@ def format_and_add_primary_commands(group: list[Shard], ops: list[dict[str, Any]
 
 
 def genphir_parallel(
-    inp: list[tuple[Ordering, ShardLayer, Cost]], machine: Machine | None
+    inp: list[tuple[Ordering, ShardLayer, Cost]], machine: Machine
 ) -> str:
     """Convert a list of shards to the equivalent PHIR with parallel gating.
 
     Args:
         inp: list of shards
-        machine_ops: whether to include machine ops
         machine: a QTM machine on which to simulate the circuit
     """
-    machine_ops = bool(machine)
-    # choose large default values for the max parallel gates
-    # if no machine object is specified, parallelized ops will
-    # not need to be broken into groups due to machine constraints
-    # if there is a machine, set the max values to machine specs
-    if machine_ops:
-        max_parallel_tq_gates = len(machine.tq_options)
-        max_parallel_sq_gates = len(machine.sq_options)
-    else:
-        max_parallel_tq_gates = 512
-        max_parallel_sq_gates = 256
+    max_parallel_tq_gates = len(machine.tq_options)
+    max_parallel_sq_gates = len(machine.sq_options)
 
     phir: dict[str, Any] = {
         "format": "PHIR/JSON",
@@ -375,13 +376,12 @@ def genphir_parallel(
                     groups2qops(subcmd_groups, ops)
             format_and_add_primary_commands(group, ops)
 
-        if machine_ops:
-            ops.append(
-                {
-                    "mop": "Transport",
-                    "duration": (layer_cost, "ms"),
-                },
-            )
+        ops.append(
+            {
+                "mop": "Transport",
+                "duration": (layer_cost, "ms"),
+            },
+        )
 
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
@@ -418,5 +418,3 @@ def genphir_parallel(
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)
     return json.dumps(phir)
-    # for op in ops:
-    #     print(op)

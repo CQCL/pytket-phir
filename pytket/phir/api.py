@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 def pytket_to_phir(
     circuit: Circuit,
     qtm_machine: QtmMachine | None = None,
-    parallel: bool = False,  # noqa: FBT001
+    parallel: bool = False,  # noqa: FBT001, FBT002
 ) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
@@ -62,7 +62,7 @@ def pytket_to_phir(
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
     if parallel:
-        phir_json = genphir_parallel(placed, machine)
+        phir_json = genphir_parallel(placed, machine)  # type: ignore[arg-type]
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:

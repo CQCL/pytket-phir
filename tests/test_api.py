@@ -52,4 +52,4 @@ class TestApi:
         """Using parallel execution."""
         circuit = get_qasm_as_circuit(test_file)
 
-        assert pytket_to_phir(circuit, QtmMachine.H1_1, True)
+        assert pytket_to_phir(circuit, QtmMachine.H1_1, True)  # noqa: FBT003
