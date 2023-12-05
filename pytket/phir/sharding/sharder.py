@@ -10,7 +10,7 @@ import logging
 from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
-from pytket.unit_id import Bit, UnitID
+from pytket.unit_id import Bit, Qubit, UnitID
 
 from .shard import Shard
 
@@ -27,13 +27,6 @@ SHARD_TRIGGER_OP_TYPES = [
 ]
 
 logger = logging.getLogger(__name__)
-
-
-def _is_command_global_phase(command: Command) -> bool:
-    return command.op.type == OpType.Phase or (
-        command.op.type == OpType.Conditional
-        and cast(Conditional, command.op).op.type == OpType.Phase
-    )
 
 
 class Sharder:
@@ -53,6 +46,7 @@ class Sharder:
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
+
         logger.debug("Sharder created for circuit %s", self._circuit)
 
     def shard(self) -> list[Shard]:
@@ -94,7 +88,7 @@ class Sharder:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
-        if _is_command_global_phase(command):
+        if self._is_command_global_phase(command):
             logger.debug("Ignoring global Phase gate")
             return
 
@@ -135,11 +129,48 @@ class Sharder:
             )
 
         # Handle dependency calculations
+        depends_upon = self._resolve_shard_dependencies(
+            qubits_used, bits_written, bits_read
+        )
+
+        shard = Shard(
+            command,
+            sub_commands,
+            qubits_used,
+            bits_written,
+            bits_read,
+            depends_upon,
+        )
+        self._shards.append(shard)
+        logger.debug("Appended shard: %s", shard)
+
+    def _resolve_shard_dependencies(
+        self, qubits: set[Qubit], bits_written: set[Bit], bits_read: set[Bit]
+    ) -> set[int]:
+        """Finds the dependent shards for a given shard.
+
+        This involves checking for qubit interaction and classical hazards of
+        various types.
+
+        Args:
+            shard: Shard to run dependency calculation on
+            qubits: Set of all qubits interacted with in the command/sub-commands
+            bits_written: Classical bits the command/sub-commands write to
+            bits_read: Classical bits the command/sub-commands read from
+        """
+        logger.debug(
+            "Resolving shard dependencies with qubits=%s bits_written=%s bits_read=%s",
+            qubits,
+            bits_written,
+            bits_read,
+        )
+
         depends_upon: set[int] = set()
+
         for shard in self._shards:
             # Check qubit dependencies (R/W implicitly) since all commands
             # on a given qubit need to be ordered as the circuit dictated
-            if not shard.qubits_used.isdisjoint(command.qubits):
+            if not shard.qubits_used.isdisjoint(qubits):
                 logger.debug("...adding shard dep %s -> qubit overlap", shard.ID)
                 depends_upon.add(shard.ID)
             # Check classical dependencies, which depend on writing and reading
@@ -162,16 +193,7 @@ class Sharder:
                 logger.debug("...adding shard dep %s -> WAR", shard.ID)
                 depends_upon.add(shard.ID)
 
-        shard = Shard(
-            command,
-            sub_commands,
-            qubits_used,
-            bits_written,
-            bits_read,
-            depends_upon,
-        )
-        self._shards.append(shard)
-        logger.debug("Appended shard: %s", shard)
+        return depends_upon
 
     def _cleanup_remaining_commands(self) -> None:
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
@@ -217,4 +239,16 @@ class Sharder:
                 and cast(Conditional, op).op.type in (SHARD_TRIGGER_OP_TYPES)
             )
             or (op.is_gate() and op.n_qubits > 1)
+        )
+
+    @staticmethod
+    def _is_command_global_phase(command: Command) -> bool:
+        """Check if an operation related to global phase.
+
+        Args:
+            command: Command to evaluate
+        """
+        return command.op.type == OpType.Phase or (
+            command.op.type == OpType.Conditional
+            and cast(Conditional, command.op).op.type == OpType.Phase
         )
