@@ -267,8 +267,8 @@ def genphir(
             for sub_commands in shard.sub_commands.values():
                 for sc in sub_commands:
                     append_cmd(sc, ops)
-            # add RZ, R1XY and RZZ lists to ops
             append_cmd(shard.primary_command, ops)
+
         if machine_ops:
             ops.append(
                 {
