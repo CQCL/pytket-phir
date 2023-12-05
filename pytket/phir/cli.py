@@ -7,11 +7,9 @@
 ##############################################################################
 
 # mypy: disable-error-code="misc"
-
+import json
 from argparse import ArgumentParser
 from importlib.metadata import version
-
-from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
 
 from phir.model import PHIRModel
 from pytket.qasm.qasm import (
@@ -35,6 +33,13 @@ def main() -> None:
         "qasm_files", nargs="+", default=None, help="One or more QASM files to emulate"
     )
     parser.add_argument(
+        "-p",
+        "--parallel",
+        choices=["True", "False"],
+        default="False",
+        help="Run the circuit with parallel gate execution when possible",
+    )
+    parser.add_argument(
         "-m",
         "--machine",
         choices=["H1-1", "H1-2"],
@@ -48,20 +53,23 @@ def main() -> None:
         version=f'{version("pytket-phir")}',
     )
     args = parser.parse_args()
-
     for file in args.qasm_files:
         print(f"Processing {file}")  # noqa: T201
         c = circuit_from_qasm(file)
         rc = rebase_to_qtm_machine(c, args.machine)
         qasm = circuit_to_qasm_str(rc, header="hqslib1")
         circ = circuit_from_qasm_str(qasm)
-
         match args.machine:
             case "H1-1":
                 machine = QtmMachine.H1_1
             case "H1-2":
                 machine = QtmMachine.H1_2
-        phir = pytket_to_phir(circ, machine)
+        parallel = True if (args.parallel == "True") and bool(args.machine) else False
+        phir = pytket_to_phir(circ, machine, parallel)
         PHIRModel.model_validate_json(phir)
 
-        HybridEngine(qsim="state-vector").run(program=phir, shots=10)
+        j = json.loads(phir)
+        for op in j["ops"]:
+            if "//" not in op:
+                print(op)
+        # HybridEngine(qsim="state-vector").run(program=phir, shots=10)

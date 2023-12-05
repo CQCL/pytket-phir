@@ -15,6 +15,7 @@ from phir.model import PHIRModel
 from pytket.circuit import Circuit
 
 from .phirgen import genphir
+from .phirgen_parallel import genphir_parallel
 from .place_and_route import place_and_route
 from .qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from .rebasing.rebaser import rebase_to_qtm_machine
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
 def pytket_to_phir(
     circuit: Circuit,
     qtm_machine: QtmMachine | None = None,
+    parallel: bool = False,  # noqa: FBT001
 ) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
@@ -59,9 +61,10 @@ def pytket_to_phir(
         # The function is called, but the output is just filled with 0s
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
-
-    phir_json = genphir(placed, machine_ops=bool(machine))
-
+    if parallel:
+        phir_json = genphir_parallel(placed, machine)
+    else:
+        phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:
         print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
     return phir_json

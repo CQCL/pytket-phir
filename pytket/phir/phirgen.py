@@ -268,6 +268,7 @@ def genphir(
                 for sc in sub_commands:
                     append_cmd(sc, ops)
             append_cmd(shard.primary_command, ops)
+
         if machine_ops:
             ops.append(
                 {
