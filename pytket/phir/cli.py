@@ -7,6 +7,7 @@
 ##############################################################################
 
 # mypy: disable-error-code="misc"
+
 from argparse import ArgumentParser
 from importlib.metadata import version
 
@@ -47,12 +48,14 @@ def main() -> None:
         version=f'{version("pytket-phir")}',
     )
     args = parser.parse_args()
+
     for file in args.qasm_files:
         print(f"Processing {file}")  # noqa: T201
         c = circuit_from_qasm(file)
         rc = rebase_to_qtm_machine(c, args.machine)
         qasm = circuit_to_qasm_str(rc, header="hqslib1")
         circ = circuit_from_qasm_str(qasm)
+
         match args.machine:
             case "H1-1":
                 machine = QtmMachine.H1_1
