@@ -12,15 +12,13 @@ from typing import Any
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
-from pytket.unit_id import Qubit, UnitID
+from pytket.unit_id import UnitID
 
 from .machine import Machine
 from .phirgen import append_cmd, arg_to_bit, tket_gate_to_phir
 from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 logger = logging.getLogger(__name__)
-
-UINTMAX = 2**32 - 1
 
 
 def process_sub_commands(
@@ -30,7 +28,7 @@ def process_sub_commands(
     groups: dict[
         int, list[tk.Command]
     ] = {}  # be sure to order by group number into a list when returning
-    qubits2groups = {}  # a dict to track the most recent group in which a qubit was used  # noqa: E501
+    qubits2groups = {}  # track the most recent group in which a qubit was used
     # group numbers for each gate are incremented by 2 so they don't overlap
     # and different gate types don't go in the same group
     # RZ gates go in %3=1 groups, R1XY gates go in %3=1 groups,
@@ -100,8 +98,7 @@ def process_sub_commands(
                     qubits2groups[qubit] = group_number
         index += 1
 
-    groups = dict(sorted(groups.items()))
-    return groups  # noqa: RET504
+    return dict(sorted(groups.items()))
 
 
 def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:  # noqa: PLR0912
@@ -114,10 +111,7 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
             if not qop.op.is_gate():
                 append_cmd(qop, ops)
             else:
-                comment_insert = str(qop.op)
-                arg: UnitID | list[Qubit] = (
-                    qop.qubits[0] if len(qop.qubits) == 1 else qop.qubits
-                )
+                comment_insert = f" {tket_gate_to_phir[qop.op.type]}"
                 angles = qop.op.params
                 if tuple(angles) not in angles2qops:
                     fmt_qop: dict[str, Any] = {
@@ -125,17 +119,17 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
                         "angles": [angles, "pi"],
                     }
                     if len(qop.qubits) == 1:
-                        fmt_qop["args"] = [arg_to_bit(arg)]  # type: ignore[arg-type]
+                        fmt_qop["args"] = [arg_to_bit(qop.qubits[0])]
                     else:
-                        arg = [arg_to_bit(a) for a in arg]  # type: ignore[misc, union-attr]
+                        arg = [arg_to_bit(a) for a in qop.qubits]
                         fmt_qop["args"] = [arg]
                     angles2qops[tuple(angles)] = fmt_qop
                 else:
                     fmt_qop = angles2qops[tuple(angles)]
                     if len(qop.qubits) == 1:
-                        fmt_qop["args"].append(arg_to_bit(arg))  # type: ignore[arg-type]
+                        fmt_qop["args"].append(arg_to_bit(qop.qubits[0]))
                     else:
-                        arg = [arg_to_bit(a) for a in arg]  # type: ignore[misc, union-attr]
+                        arg = [arg_to_bit(a) for a in qop.qubits]
                         fmt_qop["args"].append(arg)
         # in the case where the qop is not a gate (a conditional for example)
         # this branch is skipped because non-gate sub-commands
@@ -145,13 +139,11 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
             for phir_qop in angles2qops.values():
                 pll_block["ops"].append(phir_qop)
             comment = {"//": f"Parallel {comment_insert}"}
-            ops.append(comment)  # noqa: FURB113
-            ops.append(pll_block)
+            ops.extend((comment, pll_block))
         else:
             for phir_qop in angles2qops.values():
                 comment = {"//": comment_insert}  # type: ignore[dict-item]
-                ops.append(comment)  # noqa: FURB113
-                ops.append(phir_qop)
+                ops.extend((comment, phir_qop))
 
 
 def process_shards(
@@ -200,8 +192,7 @@ def process_shards(
             group_tracker += 1
 
     groups = consolidate_sub_commands(groups)
-    groups = dict(sorted(groups.items()))
-    return groups  # noqa: RET504
+    return dict(sorted(groups.items()))
 
 
 def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[Shard]]:
