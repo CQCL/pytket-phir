@@ -20,7 +20,6 @@ from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 logger = logging.getLogger(__name__)
 
-UINTMAX = 2**32 - 1
 
 
 def process_sub_commands(
