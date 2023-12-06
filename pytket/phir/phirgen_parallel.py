@@ -23,28 +23,6 @@ logger = logging.getLogger(__name__)
 
 UINTMAX = 2**32 - 1
 
-gate_num_angles_ref = {
-    "I": 0,
-    "X": 0,
-    "Y": 0,
-    "Z": 0,
-    "RX": 1,
-    "RY": 1,
-    "RZ": 1,
-    "R1XY": 2,
-    "SX": 0,
-    "SXdg": 0,
-    "SY": 0,
-    "SYdg": 0,
-    "SZ": 0,
-    "SZdg": 0,
-    "H": 0,
-    "F": 0,
-    "Fdg": 0,
-    "T": 0,
-    "Tdg": 0,
-}
-
 tket_gate_to_phir = {
     tk.OpType.Reset:    "Init",
     tk.OpType.Measure:  "Measure",
