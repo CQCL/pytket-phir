@@ -8,7 +8,6 @@
 
 import json
 import logging
-from collections.abc import Sequence
 from typing import Any
 
 import pytket.circuit as tk
@@ -16,59 +15,12 @@ from phir.model import PHIRModel
 from pytket.unit_id import Qubit, UnitID
 
 from .machine import Machine
-from .phirgen import append_cmd
+from .phirgen import append_cmd, arg_to_bit, tket_gate_to_phir
 from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 logger = logging.getLogger(__name__)
 
 UINTMAX = 2**32 - 1
-
-tket_gate_to_phir = {
-    tk.OpType.Reset:    "Init",
-    tk.OpType.Measure:  "Measure",
-    tk.OpType.noop:     "I",
-
-    tk.OpType.CX:       "CX",
-    tk.OpType.CY:       "CY",
-    tk.OpType.CZ:       "CZ",
-    tk.OpType.H:        "H",
-    tk.OpType.PhasedX:  "R1XY",
-    tk.OpType.Rx:       "RX",
-    tk.OpType.Ry:       "RY",
-    tk.OpType.Rz:       "RZ",
-    tk.OpType.S:        "SZ",
-    tk.OpType.Sdg:      "SZdg",
-    tk.OpType.SWAP:     "SWAP",
-    tk.OpType.SX:       "SX",
-    tk.OpType.SXdg:     "SXdg",
-    tk.OpType.T:        "T",
-    tk.OpType.Tdg:      "Tdg",
-    tk.OpType.TK2:      "R2XXYYZZ",
-    tk.OpType.U1:       "RZ",
-    tk.OpType.V:        "SX",
-    tk.OpType.Vdg:      "SXdg",
-    tk.OpType.X:        "X",
-    tk.OpType.XXPhase:  "RXX",
-    tk.OpType.Y:        "Y",
-    tk.OpType.YYPhase:  "RYY",
-    tk.OpType.Z:        "Z",
-    tk.OpType.ZZMax:    "SZZ",
-    tk.OpType.ZZPhase:  "RZZ",
-}  # fmt: skip
-
-
-def arg_to_bit(arg: UnitID) -> list[str | int]:
-    """Convert tket arg to Bit."""
-    return [arg.reg_name, arg.index[0]]
-
-
-def assign_cop(into: str | list[str | int], what: Sequence[int]) -> dict[str, Any]:
-    """PHIR for assign classical operation."""
-    return {
-        "cop": "=",
-        "returns": [into],
-        "args": what,
-    }
 
 
 def process_sub_commands(
