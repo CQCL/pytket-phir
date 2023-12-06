@@ -14,7 +14,7 @@ from typing import Any
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
-from pytket.unit_id import UnitID
+from pytket.unit_id import Bit, Qubit, UnitID
 
 from .sharding.shard import Cost, Ordering, ShardLayer
 
@@ -242,6 +242,41 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
             ops.append(op)
 
 
+def get_decls(qbits: set[Qubit], cbits: set[Bit]) -> list[dict[str, str | int]]:
+    """Format the qvar and cvar define PHIR elements."""
+    qvar_dim: dict[str, int] = {}
+    for qbit in qbits:
+        qvar_dim.setdefault(qbit.reg_name, 0)
+        qvar_dim[qbit.reg_name] += 1
+
+    cvar_dim: dict[str, int] = {}
+    for cbit in cbits:
+        cvar_dim.setdefault(cbit.reg_name, 0)
+        cvar_dim[cbit.reg_name] += 1
+
+    decls: list[dict[str, str | int]] = [
+        {
+            "data": "qvar_define",
+            "data_type": "qubits",
+            "variable": qvar,
+            "size": dim,
+        }
+        for qvar, dim in qvar_dim.items()
+    ]
+
+    decls += [
+        {
+            "data": "cvar_define",
+            "data_type": "u32",
+            "variable": cvar,
+            "size": dim,
+        }
+        for cvar, dim in cvar_dim.items()
+    ]
+
+    return decls
+
+
 def genphir(
     inp: list[tuple[Ordering, ShardLayer, Cost]], *, machine_ops: bool = True
 ) -> str:
@@ -278,35 +313,7 @@ def genphir(
 
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
-    qvar_dim: dict[str, int] = {}
-    for qbit in qbits:
-        qvar_dim.setdefault(qbit.reg_name, 0)
-        qvar_dim[qbit.reg_name] += 1
-
-    cvar_dim: dict[str, int] = {}
-    for cbit in cbits:
-        cvar_dim.setdefault(cbit.reg_name, 0)
-        cvar_dim[cbit.reg_name] += 1
-
-    decls: list[dict[str, str | int]] = [
-        {
-            "data": "qvar_define",
-            "data_type": "qubits",
-            "variable": qvar,
-            "size": dim,
-        }
-        for qvar, dim in qvar_dim.items()
-    ]
-
-    decls += [
-        {
-            "data": "cvar_define",
-            "data_type": "u32",
-            "variable": cvar,
-            "size": dim,
-        }
-        for cvar, dim in cvar_dim.items()
-    ]
+    decls = get_decls(qbits, cbits)
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)

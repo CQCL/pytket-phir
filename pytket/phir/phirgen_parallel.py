@@ -15,7 +15,7 @@ from phir.model import PHIRModel
 from pytket.unit_id import UnitID
 
 from .machine import Machine
-from .phirgen import append_cmd, arg_to_bit, tket_gate_to_phir
+from .phirgen import append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
 from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 if TYPE_CHECKING:
@@ -109,12 +109,10 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
     for group_number in groups:
         group = groups[group_number]
         angles2qops: dict[tuple[sympy.Expr | float, ...], dict[str, Any]] = {}
-        comment_insert = None
         for qop in group:
             if not qop.op.is_gate():
                 append_cmd(qop, ops)
             else:
-                comment_insert = f" {tket_gate_to_phir[qop.op.type]}"
                 angles = qop.op.params
                 if tuple(angles) not in angles2qops:
                     fmt_qop: dict[str, Any] = {
@@ -141,16 +139,12 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
             pll_block: dict[str, Any] = {"block": "qparallel", "ops": []}
             for phir_qop in angles2qops.values():
                 pll_block["ops"].append(phir_qop)
-            if comment_insert:
-                comment = {"//": f"Parallel {comment_insert}"}
-                ops.append(comment)
-            ops.append(pll_block)
+            comment = {"//": f"Parallel {tket_gate_to_phir[qop.op.type]}"}
+            ops.extend((comment, pll_block))
         else:
             for phir_qop in angles2qops.values():
-                if comment_insert:
-                    comment = {"//": comment_insert}
-                    ops.append(comment)
-                ops.append(phir_qop)
+                comment = {"//": str(qop).split(" q", maxsplit=1)[0]}
+                ops.extend((comment, phir_qop))
 
 
 def process_shards(
@@ -311,37 +305,7 @@ def genphir_parallel(
             },
         )
 
-    # TODO(kartik): this may not always be accurate
-    # https://github.com/CQCL/pytket-phir/issues/24
-    qvar_dim: dict[str, int] = {}
-    for qbit in qbits:
-        qvar_dim.setdefault(qbit.reg_name, 0)
-        qvar_dim[qbit.reg_name] += 1
-
-    cvar_dim: dict[str, int] = {}
-    for cbit in cbits:
-        cvar_dim.setdefault(cbit.reg_name, 0)
-        cvar_dim[cbit.reg_name] += 1
-
-    decls: list[dict[str, str | int]] = [
-        {
-            "data": "qvar_define",
-            "data_type": "qubits",
-            "variable": qvar,
-            "size": dim,
-        }
-        for qvar, dim in qvar_dim.items()
-    ]
-
-    decls += [
-        {
-            "data": "cvar_define",
-            "data_type": "u32",
-            "variable": cvar,
-            "size": dim,
-        }
-        for cvar, dim in cvar_dim.items()
-    ]
+    decls = get_decls(qbits, cbits)
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)
