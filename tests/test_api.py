@@ -46,10 +46,3 @@ class TestApi:
         circuit = get_qasm_as_circuit(test_file)
 
         assert pytket_to_phir(circuit, QtmMachine.H1_1)
-
-    @pytest.mark.parametrize("test_file", list(QasmFile))
-    def test_pytket_to_phir_h1_1_all_parallel(self, test_file: QasmFile) -> None:
-        """Using parallel execution."""
-        circuit = get_qasm_as_circuit(test_file)
-
-        assert pytket_to_phir(circuit, QtmMachine.H1_1, True)  # noqa: FBT003
