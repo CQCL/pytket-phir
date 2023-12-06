@@ -27,11 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def pytket_to_phir(
-    circuit: Circuit,
-    qtm_machine: QtmMachine | None = None,
-    parallel: bool = False,  # noqa: FBT001, FBT002
-) -> str:
+def pytket_to_phir(circuit: Circuit, qtm_machine: QtmMachine | None = None) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
     This can optionally include rebasing against a Quantinuum machine architecture.
@@ -61,8 +57,8 @@ def pytket_to_phir(
         # The function is called, but the output is just filled with 0s
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
-    if parallel:
-        phir_json = genphir_parallel(placed, machine)  # type: ignore[arg-type]
+    if machine:
+        phir_json = genphir_parallel(placed, machine)
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:

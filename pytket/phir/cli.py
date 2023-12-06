@@ -34,13 +34,6 @@ def main() -> None:
         "qasm_files", nargs="+", default=None, help="One or more QASM files to emulate"
     )
     parser.add_argument(
-        "-p",
-        "--parallel",
-        choices=["True", "False"],
-        default="False",
-        help="Run the circuit with parallel gate execution when possible",
-    )
-    parser.add_argument(
         "-m",
         "--machine",
         choices=["H1-1", "H1-2"],
@@ -65,8 +58,7 @@ def main() -> None:
                 machine = QtmMachine.H1_1
             case "H1-2":
                 machine = QtmMachine.H1_2
-        parallel = bool(args.parallel == "True" and bool(args.machine))
-        phir = pytket_to_phir(circ, machine, parallel)
+        phir = pytket_to_phir(circ, machine)
         PHIRModel.model_validate_json(phir)
 
         HybridEngine(qsim="state-vector").run(program=phir, shots=10)

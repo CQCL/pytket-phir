@@ -282,8 +282,8 @@ def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[S
     for shards in groups.values():
         # stuckee == the shard that gets 'stuck' with all the sub-commands
         stuckee = shards[0]
-        # if the group of shards only contains one element,
-        # do nothing, the sub-commands are already packed into one shard
+        # if the group of shards only contains one element, do nothing,
+        # the sub-commands are already packed into one shard
         if len(shards) > 1:
             for i in range(1, len(shards)):
                 working_shard = shards[i]
