@@ -8,7 +8,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
@@ -17,6 +17,9 @@ from pytket.unit_id import UnitID
 from .machine import Machine
 from .phirgen import append_cmd, arg_to_bit, tket_gate_to_phir
 from .sharding.shard import Cost, Ordering, Shard, ShardLayer
+
+if TYPE_CHECKING:
+    import sympy
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +108,7 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
     """Convert the groups of parallel ops to properly formatted PHIR."""
     for group_number in groups:
         group = groups[group_number]
-        angles2qops: dict[tuple, dict[str, Any]] = {}  # type: ignore[type-arg]
+        angles2qops: dict[tuple[sympy.Expr | float, ...], dict[str, Any]] = {}
         comment_insert = None
         for qop in group:
             if not qop.op.is_gate():
@@ -138,12 +141,16 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
             pll_block: dict[str, Any] = {"block": "qparallel", "ops": []}
             for phir_qop in angles2qops.values():
                 pll_block["ops"].append(phir_qop)
-            comment = {"//": f"Parallel {comment_insert}"}
-            ops.extend((comment, pll_block))
+            if comment_insert:
+                comment = {"//": f"Parallel {comment_insert}"}
+                ops.append(comment)
+            ops.append(pll_block)
         else:
             for phir_qop in angles2qops.values():
-                comment = {"//": comment_insert}  # type: ignore[dict-item]
-                ops.extend((comment, phir_qop))
+                if comment_insert:
+                    comment = {"//": comment_insert}
+                    ops.append(comment)
+                ops.append(phir_qop)
 
 
 def process_shards(
