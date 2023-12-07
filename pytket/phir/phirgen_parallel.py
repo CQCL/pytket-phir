@@ -6,6 +6,8 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import json
 import logging
 from typing import TYPE_CHECKING, Any

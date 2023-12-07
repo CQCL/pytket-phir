@@ -6,8 +6,11 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import json
 import logging
+from typing import Any
 
 from pytket.phir.phirgen_parallel import genphir_parallel
 from pytket.phir.place_and_route import place_and_route
@@ -20,21 +23,22 @@ from .sample_data import QasmFile, get_qasm_as_circuit
 logger = logging.getLogger(__name__)
 
 
-def get_phir_json(qasmfile: QasmFile):  # type: ignore[no-untyped-def]
+def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
     """Get the QASM file for the specified circuit."""
     qtm_machine = QtmMachine.H1_1
     circuit = get_qasm_as_circuit(qasmfile)
     circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
     machine = QTM_MACHINES_MAP.get(qtm_machine)
+    assert machine
     sharder = Sharder(circuit)
     shards = sharder.shard()
     placed = place_and_route(shards, machine)
-    return json.loads(genphir_parallel(placed, machine))  # type: ignore[misc, arg-type]
+    return json.loads(genphir_parallel(placed, machine))  # type: ignore[no-any-return]
 
 
 def test_bv_n10() -> None:
     """Make sure the parallelization is happening properly for the pll_test circuit."""
-    actual = get_phir_json(QasmFile.pll_test)  # type: ignore[misc]
+    actual = get_phir_json(QasmFile.pll_test)
     expected = {
         "format": "PHIR/JSON",
         "version": "0.1.0",
@@ -79,4 +83,4 @@ def test_bv_n10() -> None:
             {"mop": "Transport", "duration": [0.0, "ms"]},
         ],
     }
-    assert actual == expected  # type: ignore[misc]
+    assert actual == expected
