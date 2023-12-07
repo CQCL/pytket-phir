@@ -46,31 +46,31 @@ def process_sub_commands(
         -1  # will be set to 2 when first R1XY gate is assigned (-1 + 3 = 2)
     )
     num_scs_per_qubit = {}
-    index = 0
 
     for qubit in sub_commands:
         num_scs_per_qubit[qubit] = len(sub_commands[qubit])
-        # set every qubits value to be -4
+        # set every qubit's group id to be -4
         # prevents KeyError in check for group number
         # will get set to a valid group number the first time the qubit is used
         qubits2groups[qubit] = -4
     max_len = max(num_scs_per_qubit.values())
 
-    while index < max_len:
+    for index in range(max_len):
         for qubit in sub_commands:
             # check to make sure you are not accessing beyond the end of the list
             if index < num_scs_per_qubit[qubit]:
                 sc = sub_commands[qubit][index]
                 gate = sc.op.type
-                if gate == tk.OpType.Rz:
-                    group_number = rz_group_number
-                    valid_pll_op = True
-                elif gate == tk.OpType.PhasedX:
-                    group_number = r1xy_group_number
-                    valid_pll_op = True
-                else:
-                    group_number = other_group_number
-                    valid_pll_op = False
+                match gate:
+                    case tk.OpType.Rz:
+                        group_number = rz_group_number
+                        valid_pll_op = True
+                    case tk.OpType.PhasedX:
+                        group_number = r1xy_group_number
+                        valid_pll_op = True
+                    case _:
+                        group_number = other_group_number
+                        valid_pll_op = False
                 # does a group exist for that gate type?
                 group_available = group_number in groups
                 # is that group later in execution than the
@@ -90,26 +90,25 @@ def process_sub_commands(
                     qubits2groups[qubit] = group_number
                 else:
                     # make a new group:
-                    if gate == tk.OpType.Rz:
-                        rz_group_number += 3
-                        group_number = rz_group_number
-                    elif gate == tk.OpType.PhasedX:
-                        r1xy_group_number += 3
-                        group_number = r1xy_group_number
-                    else:
-                        other_group_number += 3
-                        group_number = other_group_number
+                    match gate:
+                        case tk.OpType.Rz:
+                            rz_group_number += 3
+                            group_number = rz_group_number
+                        case tk.OpType.PhasedX:
+                            r1xy_group_number += 3
+                            group_number = r1xy_group_number
+                        case _:
+                            other_group_number += 3
+                            group_number = other_group_number
                     groups[group_number] = [sc]
                     qubits2groups[qubit] = group_number
-        index += 1
 
     return dict(sorted(groups.items()))
 
 
 def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:  # noqa: PLR0912
     """Convert the groups of parallel ops to properly formatted PHIR."""
-    for group_number in groups:
-        group = groups[group_number]
+    for group in groups.values():
         angles2qops: dict[tuple[sympy.Expr | float, ...], dict[str, Any]] = {}
         for qop in group:
             if not qop.op.is_gate():
@@ -168,7 +167,8 @@ def process_shards(
     for shard in shard_layer:
         # the gate is a quantum op with a fixed number of arguments and
         # a known machine restriction (i.e. not Barrier, TK2, etc)
-        # add support for barriers later on
+        # TODO(asa): add support for barriers
+        # https://github.com/CQCL/pytket-phir/issues/55
         not_tk2 = shard.primary_command.op.type != tk.OpType.TK2
         eligible_command_type = (
             shard.primary_command.op.type in tket_gate_to_phir
@@ -188,8 +188,7 @@ def process_shards(
                 group_not_full = True
         # if all 3 conditions hold, add the shard to the existing group
         if eligible_command_type and group_available and group_not_full:
-            group_number = types2groups[shard.primary_command.op.type]
-            groups[group_number].append(shard)
+            group.append(shard)
             types2groups[shard.primary_command.op.type] = group_number
         else:
             # otherwise, make a new group
@@ -290,8 +289,7 @@ def genphir_parallel(
         shard_groups = process_shards(
             shard_layer, max_parallel_tq_gates, max_parallel_sq_gates
         )
-        for group_number in sorted(shard_groups.keys()):
-            group = shard_groups[group_number]
+        for group in shard_groups.values():
             for shard in group:
                 qbits |= shard.qubits_used
                 cbits |= shard.bits_read | shard.bits_written
