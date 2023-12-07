@@ -146,7 +146,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    ops.append({"//": str(cmd)})
+    ops.append({"//": str(cmd).split(" q", maxsplit=1)[0].split(" c", maxsplit=1)[0]})
     if cmd.op.is_gate():
         ops.append(convert_subcmd(cmd.op, cmd))
     else:
@@ -244,6 +244,8 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
 
 def get_decls(qbits: set[Qubit], cbits: set[Bit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
+    # TODO(kartik): this may not always be accurate
+    # https://github.com/CQCL/pytket-phir/issues/24
     qvar_dim: dict[str, int] = {}
     for qbit in qbits:
         qvar_dim.setdefault(qbit.reg_name, 0)
@@ -311,8 +313,6 @@ def genphir(
                 },
             )
 
-    # TODO(kartik): this may not always be accurate
-    # https://github.com/CQCL/pytket-phir/issues/24
     decls = get_decls(qbits, cbits)
 
     phir["ops"] = decls + ops
