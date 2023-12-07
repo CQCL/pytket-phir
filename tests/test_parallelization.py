@@ -42,13 +42,13 @@ def test_bv_n10() -> None:
         "ops": [
             {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
             {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
-            {"//": "Rz(1)"},
+            {"//": "Parallel Rz(1)"},
             {
                 "qop": "RZ",
                 "angles": [[1.0], "pi"],
                 "args": [["q", 0], ["q", 1], ["q", 2], ["q", 3]],
             },
-            {"//": "PhasedX(0.5, 0.5)"},
+            {"//": "Parallel PhasedX(0.5, 0.5)"},
             {
                 "qop": "R1XY",
                 "angles": [[0.5, 0.5], "pi"],

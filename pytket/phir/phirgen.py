@@ -146,7 +146,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    ops.append({"//": str(cmd).split(" q", maxsplit=1)[0].split(" c", maxsplit=1)[0]})
+    ops.append({"//": str(cmd)})
     if cmd.op.is_gate():
         ops.append(convert_subcmd(cmd.op, cmd))
     else:

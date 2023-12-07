@@ -143,7 +143,10 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
             ops.extend((comment, pll_block))
         else:
             for phir_qop in angles2qops.values():
-                comment = {"//": str(qop).split(" q", maxsplit=1)[0]}
+                if len(phir_qop["args"]) > 1:
+                    comment = {"//": "Parallel " + str(qop).split(" q", maxsplit=1)[0]}
+                else:
+                    comment = {"//": str(qop)}
                 ops.extend((comment, phir_qop))
 
 
