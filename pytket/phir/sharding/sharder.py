@@ -146,7 +146,7 @@ class Sharder:
             depends_upon,
         )
 
-        self._mark_dependencies(shard.ID, qubits_used, bits_written, bits_read)
+        self._mark_dependencies(shard)
 
         self._shards.append(shard)
         logger.debug("Appended shard: %s", shard)
@@ -203,19 +203,29 @@ class Sharder:
 
     def _mark_dependencies(
         self,
-        shard_id: int,
-        qubits: set[Qubit],
-        bits_written: set[Bit],
-        bits_read: set[Bit],
+        shard: Shard,
     ) -> None:
-        for qubit in qubits:
-            self._qubit_touched_by[qubit] = shard_id
-        for bit in bits_written:
-            self._bit_written_by[bit] = shard_id
-        for bit in bits_read:
-            self._bit_read_by[bit] = shard_id
+        """Marks (updates) the dependency maps.
+
+        This allows subsequent shard dependency resolution to have the right
+        state of everything, updating the shards
+
+        Args:
+            shard: Shard to be updated
+        """
+        for qubit in shard.qubits_used:
+            self._qubit_touched_by[qubit] = shard.ID
+        for bit in shard.bits_written:
+            self._bit_written_by[bit] = shard.ID
+        for bit in shard.bits_read:
+            self._bit_read_by[bit] = shard.ID
 
     def _cleanup_remaining_commands(self) -> None:
+        """Cleans up any remaining subcommands.
+
+        This is done by creating a superfluous Barrier command that serves just
+        to roll up lingering subcommands.
+        """
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
         for qubit in remaining_qubits:
             self._circuit.add_barrier([qubit])
