@@ -16,7 +16,8 @@ from typing import Any, TypeAlias
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
-from pytket.unit_id import Bit, Qubit, UnitID
+from pytket.unit_id import Bit as tkBit
+from pytket.unit_id import Qubit, UnitID
 
 from .sharding.shard import Cost, Ordering, ShardLayer
 
@@ -236,7 +237,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
             ops.append(op)
 
 
-def get_decls(qbits: set[Qubit], cbits: set[Bit]) -> list[dict[str, str | int]]:
+def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
