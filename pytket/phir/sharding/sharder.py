@@ -46,6 +46,10 @@ class Sharder:
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
+        # These dictionaries map qubits/bits to the last shard that modified them
+        self._qubit_touched_by: dict[UnitID, int] = {}
+        self._bit_read_by: dict[UnitID, int] = {}
+        self._bit_written_by: dict[UnitID, int] = {}
 
         logger.debug("Sharder created for circuit %s", self._circuit)
 
@@ -141,6 +145,9 @@ class Sharder:
             bits_read,
             depends_upon,
         )
+
+        self._mark_dependencies(shard.ID, qubits_used, bits_written, bits_read)
+
         self._shards.append(shard)
         logger.debug("Appended shard: %s", shard)
 
@@ -167,33 +174,46 @@ class Sharder:
 
         depends_upon: set[int] = set()
 
-        for shard in self._shards:
-            # Check qubit dependencies (R/W implicitly) since all commands
-            # on a given qubit need to be ordered as the circuit dictated
-            if not shard.qubits_used.isdisjoint(qubits):
-                logger.debug("...adding shard dep %s -> qubit overlap", shard.ID)
-                depends_upon.add(shard.ID)
-            # Check classical dependencies, which depend on writing and reading
-            # hazards: RAW, WAW, WAR
-            # NOTE: bits_read will include bits_written in the current impl
+        for qubit in qubits:
+            if qubit in self._qubit_touched_by:
+                logger.debug(
+                    "...adding shard dep %s -> qubit overlap",
+                    self._qubit_touched_by[qubit],
+                )
+                depends_upon.add(self._qubit_touched_by[qubit])
 
-            # Check for write-after-write (changing order would change final value)
-            # by looking at overlap of bits_written
-            elif not shard.bits_written.isdisjoint(bits_written):
-                logger.debug("...adding shard dep %s -> WAW", shard.ID)
-                depends_upon.add(shard.ID)
+        for bit_read in bits_read:
+            if bit_read in self._bit_written_by:
+                logger.debug("...adding shard dep %s -> RAW")
+                depends_upon.add(self._bit_written_by[bit_read])
 
-            # Check for read-after-write (value seen would change if reordered)
-            elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug("...adding shard dep %s -> RAW", shard.ID)
-                depends_upon.add(shard.ID)
-
-            # Check for write-after-read (no reordering or read is changed)
-            elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug("...adding shard dep %s -> WAR", shard.ID)
-                depends_upon.add(shard.ID)
+        for bit_written in bits_written:
+            if bit_written in self._bit_written_by:
+                logger.debug(
+                    "...adding shard dep %s -> WAW", self._bit_written_by[bit_written]
+                )
+                depends_upon.add(self._bit_written_by[bit_written])
+            elif bit_written in self._bit_read_by:
+                logger.debug(
+                    "...adding shard dep %s -> WAR", self._bit_read_by[bit_written]
+                )
+                depends_upon.add(self._bit_read_by[bit_written])
 
         return depends_upon
+
+    def _mark_dependencies(
+        self,
+        shard_id: int,
+        qubits: set[Qubit],
+        bits_written: set[Bit],
+        bits_read: set[Bit],
+    ) -> None:
+        for qubit in qubits:
+            self._qubit_touched_by[qubit] = shard_id
+        for bit in bits_written:
+            self._bit_written_by[bit] = shard_id
+        for bit in bits_read:
+            self._bit_read_by[bit] = shard_id
 
     def _cleanup_remaining_commands(self) -> None:
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
@@ -201,7 +221,7 @@ class Sharder:
             self._circuit.add_barrier([qubit])
             # Easiest way to get to a command, since there's no constructor. Could
             # create an entire orphan circuit with the matching qubits and the barrier
-            # instead if this has unintended consequences
+            # instead, if this has unintended consequences
             barrier_command = self._circuit.get_commands()[-1]
             self._build_shard(barrier_command)
 
