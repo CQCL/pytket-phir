@@ -98,7 +98,6 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                         [
                             arg_to_bit(cmd.qubits[0]),
                             arg_to_bit(cmd.qubits[1]),
-                            arg_to_bit(cmd.qubits[2]),
                         ]
                     ],
                 }

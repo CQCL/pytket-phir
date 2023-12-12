@@ -169,10 +169,7 @@ def process_shards(
         # a known machine restriction (i.e. not Barrier, TK2, etc)
         # TODO(asa): add support for barriers
         # https://github.com/CQCL/pytket-phir/issues/55
-        not_tk2 = shard.primary_command.op.type != tk.OpType.TK2
-        eligible_command_type = (
-            shard.primary_command.op.type in tket_gate_to_phir
-        ) and not_tk2
+        eligible_command_type = shard.primary_command.op.type in tket_gate_to_phir
         # a group is available for that gate type
         group_available = shard.primary_command.op.type in types2groups
         # the group size does not exceed the max number of parallel gates
@@ -252,9 +249,6 @@ def format_and_add_primary_commands(
                     pc = shard.primary_command
                     fmt_qop["args"].append(arg_to_bit(pc.args[0]))
                 ops.append(fmt_qop)
-        # since RXXYYZZ does not get parallelized,
-        # it will be process by the conditional branch for groups with only one shard
-        # this means we can treat all other angled gates the same
         else:
             fmt_g2q: dict[int, list[tk.Command]] = {0: []}
             for shard in group:

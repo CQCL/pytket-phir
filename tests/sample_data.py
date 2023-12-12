@@ -29,6 +29,7 @@ class QasmFile(Enum):
     oned_brickwork_circuit_n20 = auto()
     qv20_0 = auto()
     pll_test = auto()
+    tk2 = auto()
 
 
 def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
