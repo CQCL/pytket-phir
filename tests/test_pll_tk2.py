@@ -35,8 +35,17 @@ def get_phir_json_no_rebase(qasmfile: QasmFile) -> dict[str, Any]:
 
 
 def test_pll_tk2() -> None:
-    """Make sure the parallelization is happening properly for the pll_test circuit."""
+    """Make sure the parallelization is happening properly for the tk2 circuit."""
+    # the first pair of gates have the same angle arguments
+    # to make sure that the qubit arguments get added to the
+    # same list and the comment is generated with the angle
+    # the second pair of gates have differing angle arguments
+    # to make sure the qops get added to a parallel block
     actual = get_phir_json_no_rebase(QasmFile.tk2)
+    # DO NOT modify the expected json
+    # it is the correct output for the tk2.qasm file
+    # if you change the tk2.qasm file, you just re-generate the correct
+    # phir json and replace the expected or the test will fail
     expected = {
         "format": "PHIR/JSON",
         "version": "0.1.0",
@@ -51,7 +60,7 @@ def test_pll_tk2() -> None:
                     [0.15915494309189535, 0.15915494309189535, 0.15915494309189535],
                     "pi",
                 ],
-                "args": [[["q", 0], ["q", 1]], [["q", 2], ["q", 3]]],
+                "args": [[["q", 2], ["q", 3]], [["q", 0], ["q", 1]]],
             },
             {"mop": "Transport", "duration": [0.0, "ms"]},
             {"//": "Parallel R2XXYYZZ"},
