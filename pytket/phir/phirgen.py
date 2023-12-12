@@ -9,7 +9,7 @@
 import json
 import logging
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, TypeAlias
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
@@ -21,6 +21,9 @@ from .sharding.shard import Cost, Ordering, ShardLayer
 logger = logging.getLogger(__name__)
 
 UINTMAX = 2**32 - 1
+
+Var: TypeAlias = str
+Bit: TypeAlias = list[Var | int]  # e.g. [c, 0] for c[0]
 
 tket_gate_to_phir = {
     tk.OpType.Reset:    "Init",
@@ -56,16 +59,16 @@ tket_gate_to_phir = {
 }  # fmt: skip
 
 
-def arg_to_bit(arg: UnitID) -> list[str | int]:
+def arg_to_bit(arg: UnitID) -> Bit:
     """Convert tket arg to Bit."""
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(into: str | list[str | int], what: Sequence[int]) -> dict[str, Any]:
+def assign_cop(into: list[Var] | list[Bit], what: Sequence[int]) -> dict[str, Any]:
     """PHIR for assign classical operation."""
     return {
         "cop": "=",
-        "returns": [into],
+        "returns": into,
         "args": what,
     }
 
@@ -119,7 +122,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
 
     match op:  # non-quantum op
         case tk.SetBitsOp():
-            return assign_cop(arg_to_bit(cmd.bits[0]), op.values)
+            return assign_cop(
+                [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))], op.values
+            )
 
         case _:
             # TODO(kartik): NYI
@@ -184,7 +189,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                 op = {
                     "block": "if",
                     "condition": cond,
-                    "true_branch": [assign_cop(arg_to_bit(cmd.bits[0]), [1])],
+                    "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
                 }
             case tk.ClassicalExpBox():
                 exp = cmd.op.get_exp()
@@ -266,12 +271,12 @@ def genphir(
 
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
-    qvar_dim: dict[str, int] = {}
+    qvar_dim: dict[Var, int] = {}
     for qbit in qbits:
         qvar_dim.setdefault(qbit.reg_name, 0)
         qvar_dim[qbit.reg_name] += 1
 
-    cvar_dim: dict[str, int] = {}
+    cvar_dim: dict[Var, int] = {}
     for cbit in cbits:
         cvar_dim.setdefault(cbit.reg_name, 0)
         cvar_dim[cbit.reg_name] += 1
