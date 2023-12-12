@@ -37,8 +37,8 @@ def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
 
 
 def test_bv_n10() -> None:
-    """Make sure the parallelization is happening properly for the pll_test circuit."""
-    actual = get_phir_json(QasmFile.pll_test)
+    """Make sure the parallelization is happening properly for the test circuit."""
+    actual = get_phir_json(QasmFile.parallelization_test)
     expected = {
         "format": "PHIR/JSON",
         "version": "0.1.0",

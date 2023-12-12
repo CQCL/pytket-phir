@@ -28,7 +28,7 @@ class QasmFile(Enum):
     bv_n10 = auto()
     oned_brickwork_circuit_n20 = auto()
     qv20_0 = auto()
-    pll_test = auto()
+    parallelization_test = auto()
     tk2 = auto()
 
 
