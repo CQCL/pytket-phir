@@ -92,19 +92,6 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                     "returns": [arg_to_bit(cmd.bits[0])],
                     "args": [arg_to_bit(cmd.args[0])],
                 }
-
-            case "R2XXYYZZ":  # three-qubit gate
-                qop = {
-                    "qop": gate,
-                    "angles": angles,
-                    "args": [
-                        [
-                            arg_to_bit(cmd.qubits[0]),
-                            arg_to_bit(cmd.qubits[1]),
-                        ]
-                    ],
-                }
-
             case (
                 "CX"
                 | "CY"
@@ -112,6 +99,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                 | "RXX"
                 | "RYY"
                 | "RZZ"
+                | "R2XXYYZZ"
                 | "SXX"
                 | "SXXdg"
                 | "SYY"
