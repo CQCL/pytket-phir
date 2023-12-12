@@ -6,6 +6,8 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import json
 import logging
 from collections.abc import Sequence
@@ -14,7 +16,8 @@ from typing import Any, TypeAlias
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
-from pytket.unit_id import UnitID
+from pytket.unit_id import Bit as tkBit
+from pytket.unit_id import Qubit, UnitID
 
 from .sharding.shard import Cost, Ordering, ShardLayer
 
@@ -90,7 +93,6 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                     "returns": [arg_to_bit(cmd.bits[0])],
                     "args": [arg_to_bit(cmd.args[0])],
                 }
-
             case (
                 "CX"
                 | "CY"
@@ -235,6 +237,43 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
             ops.append(op)
 
 
+def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]]:
+    """Format the qvar and cvar define PHIR elements."""
+    # TODO(kartik): this may not always be accurate
+    # https://github.com/CQCL/pytket-phir/issues/24
+    qvar_dim: dict[str, int] = {}
+    for qbit in qbits:
+        qvar_dim.setdefault(qbit.reg_name, 0)
+        qvar_dim[qbit.reg_name] += 1
+
+    cvar_dim: dict[str, int] = {}
+    for cbit in cbits:
+        cvar_dim.setdefault(cbit.reg_name, 0)
+        cvar_dim[cbit.reg_name] += 1
+
+    decls: list[dict[str, str | int]] = [
+        {
+            "data": "qvar_define",
+            "data_type": "qubits",
+            "variable": qvar,
+            "size": dim,
+        }
+        for qvar, dim in qvar_dim.items()
+    ]
+
+    decls += [
+        {
+            "data": "cvar_define",
+            "data_type": "u32",
+            "variable": cvar,
+            "size": dim,
+        }
+        for cvar, dim in cvar_dim.items()
+    ]
+
+    return decls
+
+
 def genphir(
     inp: list[tuple[Ordering, ShardLayer, Cost]], *, machine_ops: bool = True
 ) -> str:
@@ -269,37 +308,7 @@ def genphir(
                 },
             )
 
-    # TODO(kartik): this may not always be accurate
-    # https://github.com/CQCL/pytket-phir/issues/24
-    qvar_dim: dict[Var, int] = {}
-    for qbit in qbits:
-        qvar_dim.setdefault(qbit.reg_name, 0)
-        qvar_dim[qbit.reg_name] += 1
-
-    cvar_dim: dict[Var, int] = {}
-    for cbit in cbits:
-        cvar_dim.setdefault(cbit.reg_name, 0)
-        cvar_dim[cbit.reg_name] += 1
-
-    decls: list[dict[str, str | int]] = [
-        {
-            "data": "qvar_define",
-            "data_type": "qubits",
-            "variable": qvar,
-            "size": dim,
-        }
-        for qvar, dim in qvar_dim.items()
-    ]
-
-    decls += [
-        {
-            "data": "cvar_define",
-            "data_type": "u32",
-            "variable": cvar,
-            "size": dim,
-        }
-        for cvar, dim in cvar_dim.items()
-    ]
+    decls = get_decls(qbits, cbits)
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)
