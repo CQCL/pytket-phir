@@ -10,7 +10,7 @@ import logging
 from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
-from pytket.unit_id import Bit, UnitID
+from pytket.unit_id import Bit, Qubit, UnitID
 
 from .shard import Shard
 
@@ -27,13 +27,6 @@ SHARD_TRIGGER_OP_TYPES = [
 ]
 
 logger = logging.getLogger(__name__)
-
-
-def _is_command_global_phase(command: Command) -> bool:
-    return command.op.type == OpType.Phase or (
-        command.op.type == OpType.Conditional
-        and cast(Conditional, command.op).op.type == OpType.Phase
-    )
 
 
 class Sharder:
@@ -53,6 +46,11 @@ class Sharder:
         self._circuit = circuit
         self._pending_commands: dict[UnitID, list[Command]] = {}
         self._shards: list[Shard] = []
+        # These dictionaries map qubits/bits to the last shard that modified them
+        self._qubit_touched_by: dict[UnitID, int] = {}
+        self._bit_read_by: dict[UnitID, int] = {}
+        self._bit_written_by: dict[UnitID, int] = {}
+
         logger.debug("Sharder created for circuit %s", self._circuit)
 
     def shard(self) -> list[Shard]:
@@ -94,7 +92,7 @@ class Sharder:
             msg = f"OpType {command.op.type} not supported!"
             raise NotImplementedError(msg)
 
-        if _is_command_global_phase(command):
+        if self._is_command_global_phase(command):
             logger.debug("Ignoring global Phase gate")
             return
 
@@ -135,32 +133,9 @@ class Sharder:
             )
 
         # Handle dependency calculations
-        depends_upon: set[int] = set()
-        for shard in self._shards:
-            # Check qubit dependencies (R/W implicitly) since all commands
-            # on a given qubit need to be ordered as the circuit dictated
-            if not shard.qubits_used.isdisjoint(command.qubits):
-                logger.debug("...adding shard dep %s -> qubit overlap", shard.ID)
-                depends_upon.add(shard.ID)
-            # Check classical dependencies, which depend on writing and reading
-            # hazards: RAW, WAW, WAR
-            # NOTE: bits_read will include bits_written in the current impl
-
-            # Check for write-after-write (changing order would change final value)
-            # by looking at overlap of bits_written
-            elif not shard.bits_written.isdisjoint(bits_written):
-                logger.debug("...adding shard dep %s -> WAW", shard.ID)
-                depends_upon.add(shard.ID)
-
-            # Check for read-after-write (value seen would change if reordered)
-            elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug("...adding shard dep %s -> RAW", shard.ID)
-                depends_upon.add(shard.ID)
-
-            # Check for write-after-read (no reordering or read is changed)
-            elif not shard.bits_written.isdisjoint(bits_read):
-                logger.debug("...adding shard dep %s -> WAR", shard.ID)
-                depends_upon.add(shard.ID)
+        depends_upon = self._resolve_shard_dependencies(
+            qubits_used, bits_written, bits_read
+        )
 
         shard = Shard(
             command,
@@ -170,16 +145,93 @@ class Sharder:
             bits_read,
             depends_upon,
         )
+
+        self._mark_dependencies(shard)
+
         self._shards.append(shard)
         logger.debug("Appended shard: %s", shard)
 
+    def _resolve_shard_dependencies(
+        self, qubits: set[Qubit], bits_written: set[Bit], bits_read: set[Bit]
+    ) -> set[int]:
+        """Finds the dependent shards for a given shard.
+
+        This involves checking for qubit interaction and classical hazards of
+        various types.
+
+        Args:
+            shard: Shard to run dependency calculation on
+            qubits: Set of all qubits interacted with in the command/sub-commands
+            bits_written: Classical bits the command/sub-commands write to
+            bits_read: Classical bits the command/sub-commands read from
+        """
+        logger.debug(
+            "Resolving shard dependencies with qubits=%s bits_written=%s bits_read=%s",
+            qubits,
+            bits_written,
+            bits_read,
+        )
+
+        depends_upon: set[int] = set()
+
+        for qubit in qubits:
+            if qubit in self._qubit_touched_by:
+                logger.debug(
+                    "...adding shard dep %s -> qubit overlap",
+                    self._qubit_touched_by[qubit],
+                )
+                depends_upon.add(self._qubit_touched_by[qubit])
+
+        for bit_read in bits_read:
+            if bit_read in self._bit_written_by:
+                logger.debug("...adding shard dep %s -> RAW")
+                depends_upon.add(self._bit_written_by[bit_read])
+
+        for bit_written in bits_written:
+            if bit_written in self._bit_written_by:
+                logger.debug(
+                    "...adding shard dep %s -> WAW", self._bit_written_by[bit_written]
+                )
+                depends_upon.add(self._bit_written_by[bit_written])
+            elif bit_written in self._bit_read_by:
+                logger.debug(
+                    "...adding shard dep %s -> WAR", self._bit_read_by[bit_written]
+                )
+                depends_upon.add(self._bit_read_by[bit_written])
+
+        return depends_upon
+
+    def _mark_dependencies(
+        self,
+        shard: Shard,
+    ) -> None:
+        """Marks (updates) the dependency maps.
+
+        This allows subsequent shard dependency resolution to have the right
+        state of everything, updating the shards
+
+        Args:
+            shard: Shard to be updated
+        """
+        for qubit in shard.qubits_used:
+            self._qubit_touched_by[qubit] = shard.ID
+        for bit in shard.bits_written:
+            self._bit_written_by[bit] = shard.ID
+        for bit in shard.bits_read:
+            self._bit_read_by[bit] = shard.ID
+
     def _cleanup_remaining_commands(self) -> None:
+        """Cleans up any remaining subcommands.
+
+        This is done by creating a superfluous Barrier command that serves just
+        to roll up lingering subcommands.
+        """
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
         for qubit in remaining_qubits:
             self._circuit.add_barrier([qubit])
             # Easiest way to get to a command, since there's no constructor. Could
             # create an entire orphan circuit with the matching qubits and the barrier
-            # instead if this has unintended consequences
+            # instead, if this has unintended consequences
             barrier_command = self._circuit.get_commands()[-1]
             self._build_shard(barrier_command)
 
@@ -217,4 +269,16 @@ class Sharder:
                 and cast(Conditional, op).op.type in (SHARD_TRIGGER_OP_TYPES)
             )
             or (op.is_gate() and op.n_qubits > 1)
+        )
+
+    @staticmethod
+    def _is_command_global_phase(command: Command) -> bool:
+        """Check if an operation related to global phase.
+
+        Args:
+            command: Command to evaluate
+        """
+        return command.op.type == OpType.Phase or (
+            command.op.type == OpType.Conditional
+            and cast(Conditional, command.op).op.type == OpType.Phase
         )
