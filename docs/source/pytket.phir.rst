@@ -21,6 +21,14 @@ pytket.phir.api module
    :undoc-members:
    :show-inheritance:
 
+pytket.phir.cli module
+----------------------
+
+.. automodule:: pytket.phir.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pytket.phir.machine module
 --------------------------
 
@@ -33,6 +41,14 @@ pytket.phir.phirgen module
 --------------------------
 
 .. automodule:: pytket.phir.phirgen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pytket.phir.phirgen\_parallel module
+------------------------------------
+
+.. automodule:: pytket.phir.phirgen_parallel
    :members:
    :undoc-members:
    :show-inheritance:
