@@ -9,10 +9,11 @@
 import io
 from dataclasses import dataclass, field
 from itertools import count
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
-from pytket.circuit import Command
-from pytket.unit_id import Bit, Qubit, UnitID
+if TYPE_CHECKING:
+    from pytket.circuit import Command
+    from pytket.unit_id import Bit, Qubit, UnitID
 
 
 @dataclass(frozen=True)
@@ -27,20 +28,20 @@ class Shard:
     ID: int = field(default_factory=count().__next__, init=False)
 
     # The "schedulable" command of the shard
-    primary_command: Command
+    primary_command: "Command"
 
     # The other commands related to the primary schedulable command, stored
     # as a map of bit-handle (unitID) -> list[Command]
-    sub_commands: dict[UnitID, list[Command]]
+    sub_commands: dict["UnitID", list["Command"]]
 
     # All qubits used by the primary and sub commands
-    qubits_used: set[Qubit]
+    qubits_used: set["Qubit"]
 
     # Set of all classical bits written to by the primary and sub commands
-    bits_written: set[Bit]
+    bits_written: set["Bit"]
 
     # Set of all classical bits read by the primary and sub commands
-    bits_read: set[Bit]
+    bits_read: set["Bit"]
 
     # A set of the identifiers of other shards this particular shard depends upon
     depends_upon: set[int]

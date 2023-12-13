@@ -6,16 +6,17 @@
 #
 ##############################################################################
 
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
-from .shard import Shard, ShardLayer
+if TYPE_CHECKING:
+    from .shard import Shard, ShardLayer
 
 Layer: TypeAlias = list[list[int]]
 
 
 def parse_shards_naive(
-    shards: set[Shard],
-) -> tuple[list[Layer], list[ShardLayer]]:
+    shards: set["Shard"],
+) -> tuple[list[Layer], list["ShardLayer"]]:
     """Parse a set of shards and return a circuit representation for placement."""
     layers: list[Layer] = []
     shards_in_layer: list[ShardLayer] = []

@@ -10,17 +10,20 @@
 
 import json
 import logging
-from collections.abc import Sequence
 from importlib.metadata import version
-from typing import Any, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
-from pytket.unit_id import Bit as tkBit
-from pytket.unit_id import Qubit, UnitID
 
-from .sharding.shard import Cost, Ordering, ShardLayer
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pytket.unit_id import Bit as tkBit
+    from pytket.unit_id import Qubit, UnitID
+
+    from .sharding.shard import Cost, Ordering, ShardLayer
 
 logger = logging.getLogger(__name__)
 
@@ -68,12 +71,12 @@ tket_gate_to_phir = {
 }  # fmt: skip
 
 
-def arg_to_bit(arg: UnitID) -> Bit:
+def arg_to_bit(arg: "UnitID") -> Bit:
     """Convert tket arg to Bit."""
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(into: list[Var] | list[Bit], what: Sequence[int]) -> dict[str, Any]:
+def assign_cop(into: list[Var] | list[Bit], what: "Sequence[int]") -> dict[str, Any]:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -246,7 +249,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
             ops.append(op)
 
 
-def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]]:
+def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
@@ -284,7 +287,7 @@ def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]
 
 
 def genphir(
-    inp: list[tuple[Ordering, ShardLayer, Cost]], *, machine_ops: bool = True
+    inp: list[tuple["Ordering", "ShardLayer", "Cost"]], *, machine_ops: bool = True
 ) -> str:
     """Convert a list of shards to the equivalent PHIR.
 

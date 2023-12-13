@@ -6,15 +6,19 @@
 #
 ##############################################################################
 
-from pytket.circuit import Circuit
+from typing import TYPE_CHECKING
+
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIOffline
 from pytket.extensions.quantinuum.backends.quantinuum import (
     QuantinuumBackend,
 )
 from pytket.passes import DecomposeBoxes
 
+if TYPE_CHECKING:
+    from pytket.circuit import Circuit
 
-def rebase_to_qtm_machine(circuit: Circuit, qtm_machine: str) -> Circuit:
+
+def rebase_to_qtm_machine(circuit: "Circuit", qtm_machine: str) -> "Circuit":
     """Rebases a circuit's gate to the gate set appropriate for the given machine."""
     qapi_offline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(

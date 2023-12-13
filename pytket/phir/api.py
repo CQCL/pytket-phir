@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 from rich import print
 
 from phir.model import PHIRModel
-from pytket.circuit import Circuit
 
 from .phirgen import genphir
 from .phirgen_parallel import genphir_parallel
@@ -22,12 +21,14 @@ from .rebasing.rebaser import rebase_to_qtm_machine
 from .sharding.sharder import Sharder
 
 if TYPE_CHECKING:
+    from pytket.circuit import Circuit
+
     from .machine import Machine
 
 logger = logging.getLogger(__name__)
 
 
-def pytket_to_phir(circuit: Circuit, qtm_machine: QtmMachine | None = None) -> str:
+def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
     This can optionally include rebasing against a Quantinuum machine architecture.
