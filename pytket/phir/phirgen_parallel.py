@@ -17,7 +17,7 @@ from phir.model import PHIRModel
 from pytket.unit_id import UnitID
 
 from .machine import Machine
-from .phirgen import append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
+from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
 from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 if TYPE_CHECKING:
@@ -268,11 +268,8 @@ def genphir_parallel(
     max_parallel_tq_gates = len(machine.tq_options)
     max_parallel_sq_gates = len(machine.sq_options)
 
-    phir: dict[str, Any] = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir", "strict_parallelism": "true"},
-    }
+    phir = PHIR_HEADER
+    phir["metadata"]["strict_parallelism"] = "true"
     ops: list[dict[str, Any]] = []
 
     qbits = set()

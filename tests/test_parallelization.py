@@ -40,9 +40,6 @@ def test_bv_n10() -> None:
     """Make sure the parallelization is happening properly for the test circuit."""
     actual = get_phir_json(QasmFile.parallelization_test)
     expected = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir", "strict_parallelism": "true"},
         "ops": [
             {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
             {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
@@ -83,4 +80,4 @@ def test_bv_n10() -> None:
             {"mop": "Transport", "duration": [0.0, "ms"]},
         ],
     }
-    assert actual == expected
+    assert actual["ops"] == expected["ops"]

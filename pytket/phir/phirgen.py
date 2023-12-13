@@ -11,6 +11,7 @@
 import json
 import logging
 from collections.abc import Sequence
+from importlib.metadata import version
 from typing import Any, TypeAlias
 
 import pytket.circuit as tk
@@ -23,6 +24,11 @@ from .sharding.shard import Cost, Ordering, ShardLayer
 
 logger = logging.getLogger(__name__)
 
+PHIR_HEADER: dict[str, Any] = {
+    "format": "PHIR/JSON",
+    "version": "0.1.0",
+    "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
+}
 UINTMAX = 2**32 - 1
 
 Var: TypeAlias = str
@@ -283,11 +289,7 @@ def genphir(
         inp: list of shards
         machine_ops: whether to include machine ops
     """
-    phir: dict[str, Any] = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir"},
-    }
+    phir = PHIR_HEADER
     ops: list[dict[str, Any]] = []
 
     qbits = set()
