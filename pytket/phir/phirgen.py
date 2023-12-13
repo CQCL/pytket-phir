@@ -76,7 +76,9 @@ def arg_to_bit(arg: "UnitID") -> Bit:
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(into: list[Var] | list[Bit], what: "Sequence[int]") -> dict[str, Any]:
+def assign_cop(
+    into: list[Var] | list[Bit], what: "Sequence[Var | int]"
+) -> dict[str, Any]:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -140,6 +142,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                 [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))], op.values
             )
 
+        case tk.CopyBitsOp():
+            return assign_cop([cmd.bits[0].reg_name], [cmd.args[0].reg_name])
+
         case _:
             # TODO(kartik): NYI
             # https://github.com/CQCL/pytket-phir/issues/25
@@ -159,9 +164,6 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
     else:
         op: dict[str, Any] | None = None
         match cmd.op:
-            case tk.SetBitsOp():
-                op = convert_subcmd(cmd.op, cmd)
-
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
                 # https://github.com/CQCL/phir/blob/main/spec.md
@@ -205,6 +207,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "condition": cond,
                     "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
                 }
+
             case tk.ClassicalExpBox():
                 exp = cmd.op.get_exp()
                 match exp.op:
@@ -243,6 +246,10 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "cop": cop,
                     "args": [arg["name"] for arg in exp.to_dict()["args"]],
                 }
+
+            case tk.ClassicalEvalOp():
+                op = convert_subcmd(cmd.op, cmd)
+
             case m:
                 raise NotImplementedError(m)
         if op:
