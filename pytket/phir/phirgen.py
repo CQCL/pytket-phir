@@ -74,7 +74,7 @@ def arg_to_bit(arg: UnitID) -> Bit:
 
 
 def assign_cop(into: list[Var] | list[Bit], what: Sequence[int]) -> dict[str, Any]:
-    """PHIR for assign classical operation."""
+    """PHIR for classical assign operation."""
     return {
         "cop": "=",
         "returns": into,
@@ -130,6 +130,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
 
     match op:  # non-quantum op
         case tk.SetBitsOp():
+            if len(cmd.bits) != len(op.values):
+                logger.error("LHS and RHS lengths mismatch for classical assignment")
+                raise ValueError
             return assign_cop(
                 [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))], op.values
             )
