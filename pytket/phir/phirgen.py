@@ -143,7 +143,12 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             )
 
         case tk.CopyBitsOp():
-            return assign_cop([cmd.bits[0].reg_name], [cmd.args[0].reg_name])
+            if len(cmd.bits) != len(cmd.args) // 2:
+                logger.warning("LHS and RHS lengths mismatch for CopyBits")
+            return assign_cop(
+                [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))],
+                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
+            )
 
         case _:
             # TODO(kartik): NYI

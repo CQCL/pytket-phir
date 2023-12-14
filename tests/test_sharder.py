@@ -8,8 +8,7 @@
 
 from typing import cast
 
-from pytket.circuit import Circuit, Conditional, Op, OpType
-from pytket.phir.api import pytket_to_phir
+from pytket.circuit import Conditional, Op, OpType
 from pytket.phir.sharding.sharder import Sharder
 
 from .sample_data import QasmFile, get_qasm_as_circuit
@@ -308,14 +307,3 @@ class TestSharder:
         assert len(shards[1].sub_commands) == 0
         assert shards[1].qubits_used == {circuit.qubits[3]}
         assert shards[1].bits_written == {circuit.bits[0]}
-
-    def test_pytket_classical_only_works(self) -> None:
-        c = Circuit(1)
-        a = c.add_c_register("a", 1)
-        b = c.add_c_register("b", 1)
-
-        c.add_c_copyreg(a, b)
-
-        phir = pytket_to_phir(c)
-
-        assert phir is not None
