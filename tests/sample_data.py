@@ -29,7 +29,8 @@ class QasmFile(Enum):
     oned_brickwork_circuit_n20 = auto()
     qv20_0 = auto()
     parallelization_test = auto()
-    tk2 = auto()
+    tk2_diff_angles = auto()
+    tk2_same_angle = auto()
 
 
 def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
