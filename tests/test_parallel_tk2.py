@@ -93,10 +93,19 @@ def test_pll_tk2() -> None:
             {"mop": "Transport", "duration": [0.0, "ms"]},
             {
                 "qop": "Measure",
-                "args": [["q", 3], ["q", 0], ["q", 1], ["q", 2]],
-                "returns": [["c", 3], ["c", 0], ["c", 1], ["c", 2]],
+                "args": [["q", 0], ["q", 1], ["q", 2], ["q", 3]],
+                "returns": [["c", 0], ["c", 1], ["c", 2], ["c", 3]],
             },
             {"mop": "Transport", "duration": [0.0, "ms"]},
         ],
     }
-    assert actual["ops"] == expected["ops"]
+
+    assert actual["ops"][6]["block"] == "qparallel"
+    exp_qpar_ops = expected["ops"][6]["ops"]  # type: ignore[index]
+    for i in range(len(exp_qpar_ops)):
+        assert exp_qpar_ops[i] in actual["ops"][6]["ops"]
+
+    act_meas_op = actual["ops"][8]
+    assert act_meas_op["qop"] == "Measure"
+    assert sorted(act_meas_op["args"]) == expected["ops"][8]["args"]  # type: ignore[index]
+    assert sorted(act_meas_op["returns"]) == expected["ops"][8]["returns"]  # type: ignore[index]

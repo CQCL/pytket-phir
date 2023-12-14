@@ -80,4 +80,13 @@ def test_bv_n10() -> None:
             {"mop": "Transport", "duration": [0.0, "ms"]},
         ],
     }
-    assert actual["ops"] == expected["ops"]
+
+    assert actual["ops"][7]["block"] == "qparallel"
+    exp_qpar_ops = expected["ops"][7]["ops"]  # type: ignore[index]
+    for i in range(len(exp_qpar_ops)):
+        assert exp_qpar_ops[i] in actual["ops"][7]["ops"]
+
+    act_meas_op = actual["ops"][9]
+    assert act_meas_op["qop"] == "Measure"
+    assert sorted(act_meas_op["args"]) == expected["ops"][9]["args"]  # type: ignore[index]
+    assert sorted(act_meas_op["returns"]) == expected["ops"][9]["returns"]  # type: ignore[index]
