@@ -24,6 +24,7 @@ def parse_shards_naive(
 
     while len(scheduled) < num_shards:
         layer: Layer = []
+
         # Iterate the shards, looking for shards whose dependencies have been
         # satisfied, or initially, shards with no dependencies
         to_schedule: ShardLayer = [
