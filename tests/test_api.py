@@ -6,10 +6,12 @@
 #
 ##############################################################################
 
+import json
 import logging
 
 import pytest
 
+from pytket.circuit import Bit, Circuit
 from pytket.phir.api import pytket_to_phir
 from pytket.phir.qtm_machine import QtmMachine
 
@@ -46,3 +48,24 @@ class TestApi:
         circuit = get_qasm_as_circuit(test_file)
 
         assert pytket_to_phir(circuit, QtmMachine.H1_1)
+
+    def test_pytket_classical_only(self) -> None:
+        c = Circuit(1)
+        a = c.add_c_register("a", 2)
+        b = c.add_c_register("b", 3)
+
+        c.add_c_copyreg(a, b)
+        c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
+
+        phir = json.loads(pytket_to_phir(c))  # type: ignore[misc]
+
+        assert phir["ops"][3] == {  # type: ignore[misc]
+            "cop": "=",
+            "returns": [["b", 0], ["b", 1]],
+            "args": [["a", 0], ["a", 1]],
+        }
+        assert phir["ops"][5] == {  # type: ignore[misc]
+            "cop": "=",
+            "returns": [["a", 0], ["b", 0]],
+            "args": [["b", 2], ["a", 1]],
+        }

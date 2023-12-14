@@ -76,12 +76,14 @@ def arg_to_bit(arg: "UnitID") -> Bit:
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(into: list[Var] | list[Bit], what: "Sequence[int]") -> dict[str, Any]:
+def assign_cop(
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]"
+) -> dict[str, Any]:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
-        "returns": into,
-        "args": what,
+        "returns": lhs,
+        "args": rhs,
     }
 
 
@@ -136,8 +138,14 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             if len(cmd.bits) != len(op.values):
                 logger.error("LHS and RHS lengths mismatch for classical assignment")
                 raise ValueError
+            return assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+
+        case tk.CopyBitsOp():
+            if len(cmd.bits) != len(cmd.args) // 2:
+                logger.warning("LHS and RHS lengths mismatch for CopyBits")
             return assign_cop(
-                [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))], op.values
+                [arg_to_bit(bit) for bit in cmd.bits],
+                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
 
         case _:
@@ -159,9 +167,6 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
     else:
         op: dict[str, Any] | None = None
         match cmd.op:
-            case tk.SetBitsOp():
-                op = convert_subcmd(cmd.op, cmd)
-
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
                 # https://github.com/CQCL/phir/blob/main/spec.md
@@ -205,6 +210,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "condition": cond,
                     "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
                 }
+
             case tk.ClassicalExpBox():
                 exp = cmd.op.get_exp()
                 match exp.op:
@@ -243,6 +249,10 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "cop": cop,
                     "args": [arg["name"] for arg in exp.to_dict()["args"]],
                 }
+
+            case tk.ClassicalEvalOp():
+                op = convert_subcmd(cmd.op, cmd)
+
             case m:
                 raise NotImplementedError(m)
         if op:
