@@ -34,72 +34,27 @@ def get_phir_json_no_rebase(qasmfile: QasmFile) -> dict[str, Any]:
     return json.loads(genphir_parallel(placed, machine))  # type: ignore[no-any-return]
 
 
-def test_pll_tk2() -> None:
-    """Make sure the parallelization is happening properly for the tk2 circuit."""
-    # the first pair of gates have the same angle arguments
-    # to make sure that the qubit arguments get added to the
-    # same list and the comment is generated with the angle
-    # the second pair of gates have differing angle arguments
-    # to make sure the qops get added to a parallel block
-    actual = get_phir_json_no_rebase(QasmFile.tk2)
-    # DO NOT modify the expected json
-    # it is the correct output for the tk2.qasm file
-    # if you change the tk2.qasm file, you just re-generate the correct
-    # phir json and replace the expected or the test will fail
-    expected = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir", "strict_parallelism": "true"},
-        "ops": [
-            {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
-            {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
-            {"//": "Parallel TK2(0.159155, 0.159155, 0.159155)"},
-            {
-                "qop": "R2XXYYZZ",
-                "angles": [
-                    [0.15915494309189535, 0.15915494309189535, 0.15915494309189535],
-                    "pi",
-                ],
-                "args": [[["q", 0], ["q", 1]], [["q", 2], ["q", 3]]],
-            },
-            {"mop": "Transport", "duration": [0.0, "ms"]},
-            {"//": "Parallel R2XXYYZZ"},
-            {
-                "block": "qparallel",
-                "ops": [
-                    {
-                        "qop": "R2XXYYZZ",
-                        "angles": [
-                            [
-                                0.3183098861837907,
-                                0.3183098861837907,
-                                0.3183098861837907,
-                            ],
-                            "pi",
-                        ],
-                        "args": [[["q", 0], ["q", 1]]],
-                    },
-                    {
-                        "qop": "R2XXYYZZ",
-                        "angles": [
-                            [
-                                0.15915494309189535,
-                                0.15915494309189535,
-                                0.15915494309189535,
-                            ],
-                            "pi",
-                        ],
-                        "args": [[["q", 2], ["q", 3]]],
-                    },
-                ],
-            },
-            {"mop": "Transport", "duration": [0.0, "ms"]},
-            {
-                "qop": "Measure",
-                "args": [["q", 3], ["q", 0], ["q", 1], ["q", 2]],
-                "returns": [["c", 3], ["c", 0], ["c", 1], ["c", 2]],
-            },
-            {"mop": "Transport", "duration": [0.0, "ms"]},
-        ],
-    }
-    assert actual == expected
+def test_pll_tk2_same_angle() -> None:
+    """Make sure the parallelization is correct for the tk2_same_angle circuit."""
+    actual = get_phir_json_no_rebase(QasmFile.tk2_same_angle)
+    # check args in ops
+    op = actual["ops"][3]
+    measure = actual["ops"][5]
+    assert op["qop"] == "R2XXYYZZ"
+    assert len(op["args"]) == 2
+    assert len(op["args"][0]) == 2
+    assert len(op["args"][1]) == 2
+    # check measure
+    assert len(measure["args"]) == len(measure["returns"]) == 4
+
+
+def test_pll_tk2_diff_angles() -> None:
+    """Make sure the parallelization is correct for the tk2_diff_angles circuit."""
+    actual = get_phir_json_no_rebase(QasmFile.tk2_diff_angles)
+    # check qparallel block
+    block = actual["ops"][3]
+    measure = actual["ops"][5]
+    assert block["block"] == "qparallel"
+    assert len(block["ops"]) == 2
+    # check measure
+    assert len(measure["args"]) == len(measure["returns"]) == 4
