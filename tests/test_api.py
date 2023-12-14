@@ -6,8 +6,6 @@
 #
 ##############################################################################
 
-# mypy: disable-error-code="misc"
-
 import json
 import logging
 
@@ -59,14 +57,14 @@ class TestApi:
         c.add_c_copyreg(a, b)
         c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
 
-        phir = json.loads(pytket_to_phir(c))
+        phir = json.loads(pytket_to_phir(c))  # type: ignore[misc]
 
-        assert phir["ops"][3] == {
+        assert phir["ops"][3] == {  # type: ignore[misc]
             "cop": "=",
             "returns": [["b", 0], ["b", 1]],
             "args": [["a", 0], ["a", 1]],
         }
-        assert phir["ops"][5] == {
+        assert phir["ops"][5] == {  # type: ignore[misc]
             "cop": "=",
             "returns": [["a", 0], ["b", 0]],
             "args": [["b", 2], ["a", 1]],

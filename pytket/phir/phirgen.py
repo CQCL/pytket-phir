@@ -77,13 +77,13 @@ def arg_to_bit(arg: "UnitID") -> Bit:
 
 
 def assign_cop(
-    into: list[Var] | list[Bit], what: "Sequence[Var | int]"
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]"
 ) -> dict[str, Any]:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
-        "returns": into,
-        "args": what,
+        "returns": lhs,
+        "args": rhs,
     }
 
 
