@@ -46,7 +46,7 @@ def test_pll_tk2() -> None:
     # it is the correct output for the tk2.qasm file
     # if you change the tk2.qasm file, you just re-generate the correct
     # phir json and replace the expected or the test will fail
-    expected = {
+    expected: dict[str, Any] = {
         "ops": [
             {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
             {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
@@ -101,11 +101,10 @@ def test_pll_tk2() -> None:
     }
 
     assert actual["ops"][6]["block"] == "qparallel"
-    exp_qpar_ops = expected["ops"][6]["ops"]  # type: ignore[index]
-    for i in range(len(exp_qpar_ops)):
-        assert exp_qpar_ops[i] in actual["ops"][6]["ops"]
+    for op in expected["ops"][6]["ops"]:
+        assert op in actual["ops"][6]["ops"]
 
     act_meas_op = actual["ops"][8]
     assert act_meas_op["qop"] == "Measure"
-    assert sorted(act_meas_op["args"]) == expected["ops"][8]["args"]  # type: ignore[index]
-    assert sorted(act_meas_op["returns"]) == expected["ops"][8]["returns"]  # type: ignore[index]
+    assert sorted(act_meas_op["args"]) == expected["ops"][8]["args"]
+    assert sorted(act_meas_op["returns"]) == expected["ops"][8]["returns"]

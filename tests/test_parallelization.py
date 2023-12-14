@@ -39,7 +39,7 @@ def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
 def test_bv_n10() -> None:
     """Make sure the parallelization is happening properly for the test circuit."""
     actual = get_phir_json(QasmFile.parallelization_test)
-    expected = {
+    expected: dict[str, Any] = {
         "ops": [
             {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
             {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
@@ -82,11 +82,10 @@ def test_bv_n10() -> None:
     }
 
     assert actual["ops"][7]["block"] == "qparallel"
-    exp_qpar_ops = expected["ops"][7]["ops"]  # type: ignore[index]
-    for i in range(len(exp_qpar_ops)):
-        assert exp_qpar_ops[i] in actual["ops"][7]["ops"]
+    for op in expected["ops"][7]["ops"]:
+        assert op in actual["ops"][7]["ops"]
 
     act_meas_op = actual["ops"][9]
     assert act_meas_op["qop"] == "Measure"
-    assert sorted(act_meas_op["args"]) == expected["ops"][9]["args"]  # type: ignore[index]
-    assert sorted(act_meas_op["returns"]) == expected["ops"][9]["returns"]  # type: ignore[index]
+    assert sorted(act_meas_op["args"]) == expected["ops"][9]["args"]
+    assert sorted(act_meas_op["returns"]) == expected["ops"][9]["returns"]
