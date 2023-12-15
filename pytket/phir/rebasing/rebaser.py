@@ -18,7 +18,9 @@ if TYPE_CHECKING:
     from pytket.circuit import Circuit
 
 
-def rebase_to_qtm_machine(circuit: "Circuit", qtm_machine: str) -> "Circuit":
+def rebase_to_qtm_machine(
+    circuit: "Circuit", qtm_machine: str, tket_optimization_level: int
+) -> "Circuit":
     """Rebases a circuit's gate to the gate set appropriate for the given machine."""
     qapi_offline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
@@ -32,4 +34,4 @@ def rebase_to_qtm_machine(circuit: "Circuit", qtm_machine: str) -> "Circuit":
 
     # Optimization level 0 includes rebasing and little else
     # see: https://cqcl.github.io/pytket-quantinuum/api/#default-compilation
-    return backend.get_compiled_circuit(circuit, 0)
+    return backend.get_compiled_circuit(circuit, tket_optimization_level)

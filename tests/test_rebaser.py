@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class TestRebaser:
     def test_rebaser_happy_path_arc1a(self) -> None:
         circ = get_qasm_as_circuit(QasmFile.baby)
-        rebased: Circuit = rebase_to_qtm_machine(circ, "H1-1")
+        rebased: Circuit = rebase_to_qtm_machine(circ, "H1-1", 0)
 
         logger.info(rebased)
         for command in rebased.get_commands():
