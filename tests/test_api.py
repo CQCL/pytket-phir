@@ -10,7 +10,7 @@ import logging
 
 import pytest
 
-from pytket.phir.api import pytket_to_phir
+from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
 
 from .sample_data import QasmFile, get_qasm_as_circuit
@@ -46,3 +46,9 @@ class TestApi:
         circuit = get_qasm_as_circuit(test_file)
 
         assert pytket_to_phir(circuit, QtmMachine.H1_1)
+
+    def test_qasm_to_phir(self) -> None:
+        """Test the qasm string entrypoint works."""
+        qasm = 'OPENQASM 2.0;include "qelib1.inc";qreg q[3];h q; ZZ q[1],q[0];creg cr[3];measure q[0]->cr[0];measure q[1]->cr[0];'  # noqa: E501
+
+        assert qasm_to_phir(qasm, QtmMachine.H1_2)

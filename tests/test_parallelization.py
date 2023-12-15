@@ -27,7 +27,7 @@ def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
     """Get the QASM file for the specified circuit."""
     qtm_machine = QtmMachine.H1_1
     circuit = get_qasm_as_circuit(qasmfile)
-    circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
+    circuit = rebase_to_qtm_machine(circuit, qtm_machine.value, 0)
     machine = QTM_MACHINES_MAP.get(qtm_machine)
     assert machine
     sharder = Sharder(circuit)

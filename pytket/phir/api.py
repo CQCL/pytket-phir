@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from rich import print
 
 from phir.model import PHIRModel
+from pytket.qasm.qasm import circuit_from_qasm_str
 
 from .phirgen import genphir
 from .phirgen_parallel import genphir_parallel
@@ -27,14 +28,22 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TKET_OPT_LEVEL = 0
 
-def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) -> str:
+
+def pytket_to_phir(
+    circuit: "Circuit",
+    qtm_machine: QtmMachine | None = None,
+    tket_optimization_level: int = DEFAULT_TKET_OPT_LEVEL,
+) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
-    This can optionally include rebasing against a Quantinuum machine architecture.
+    This can optionally include rebasing against a Quantinuum machine architecture,
+    and control of the TKET optimization level.
 
     :param circuit: Circuit object to be converted
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
+    :param tket_optimization_level: (Default=0) TKET circuit optimization level
 
     Returns:
         PHIR JSON as a str
@@ -43,7 +52,9 @@ def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) ->
     machine: Machine | None = None
     if qtm_machine:
         logger.info("Rebasing to machine %s", qtm_machine)
-        circuit = rebase_to_qtm_machine(circuit, qtm_machine.value)
+        circuit = rebase_to_qtm_machine(
+            circuit, qtm_machine.value, tket_optimization_level
+        )
         machine = QTM_MACHINES_MAP.get(qtm_machine)
     else:
         machine = None
@@ -65,3 +76,21 @@ def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) ->
     if logger.getEffectiveLevel() <= logging.INFO:
         print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
     return phir_json
+
+
+def qasm_to_phir(
+    qasm: str,
+    qtm_machine: QtmMachine | None = None,
+    tket_optimization_level: int = DEFAULT_TKET_OPT_LEVEL,
+) -> str:
+    """Converts a QASM circuit string into its PHIR representation.
+
+    This can optionally include rebasing against a Quantinuum machine architecture,
+    and control of the TKET optimization level.
+
+    :param circuit: Circuit object to be converted
+    :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
+    :param tket_optimization_level: (Default=0) TKET circuit optimization level
+    """
+    circuit = circuit_from_qasm_str(qasm)
+    return pytket_to_phir(circuit, qtm_machine, tket_optimization_level)
