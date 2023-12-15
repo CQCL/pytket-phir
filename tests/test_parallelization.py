@@ -8,59 +8,46 @@
 
 # mypy: disable-error-code="misc"
 
-import json
 import logging
-from typing import Any
 
-from pytket.phir.phirgen_parallel import genphir_parallel
-from pytket.phir.place_and_route import place_and_route
-from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
-from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
-from pytket.phir.sharding.sharder import Sharder
-
-from .sample_data import QasmFile, get_qasm_as_circuit
+from .test_utils import QasmFile, get_phir_json
 
 logger = logging.getLogger(__name__)
 
 
-def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
-    """Get the QASM file for the specified circuit."""
-    qtm_machine = QtmMachine.H1_1
-    circuit = get_qasm_as_circuit(qasmfile)
-    circuit = rebase_to_qtm_machine(circuit, qtm_machine.value, 0)
-    machine = QTM_MACHINES_MAP.get(qtm_machine)
-    assert machine
-    sharder = Sharder(circuit)
-    shards = sharder.shard()
-    placed = place_and_route(shards, machine)
-    return json.loads(genphir_parallel(placed, machine))  # type: ignore[no-any-return]
-
-
-def test_bv_n10() -> None:
+def test_parallelization() -> None:
     """Make sure the parallelization is happening properly for the test circuit."""
-    actual = get_phir_json(QasmFile.parallelization_test)
-    parallel_rz1 = actual["ops"][3]
+    phir = get_phir_json(QasmFile.parallelization_test, rebase=True)
+
+    # Make sure The parallel RZ and R1XY gates have the correct arguments
+    parallel_rz1 = phir["ops"][3]
     assert parallel_rz1["qop"] == "RZ"
     qubits = [["q", 0], ["q", 1], ["q", 2], ["q", 3]]
     for qubit in qubits:
         assert qubit in parallel_rz1["args"]
-    parallel_phasedx = actual["ops"][5]
+    parallel_phasedx = phir["ops"][5]
     assert parallel_phasedx["qop"] == "R1XY"
     for qubit in qubits:
         assert qubit in parallel_phasedx["args"]
-    block = actual["ops"][7]
+
+    # Make sure the parallel block is properly formatted
+    block = phir["ops"][7]
     assert block["block"] == "qparallel"
     assert len(block["ops"]) == 2
     qop0 = block["ops"][0]
     qop1 = block["ops"][1]
     assert qop0["qop"] == qop1["qop"] == "RZZ"
+
+    # Make sure the ops within the parallel block have the correct arguments
     assert len(qop0["args"][0]) == len(qop1["args"][0]) == 2
     q01_first = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
     q01_second = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
     q23_first = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
     q23_second = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
-    assert (q01_first and q23_second) ^ (q23_first and q01_second)
-    measure = actual["ops"][9]
+    assert (q01_first and q23_second) != (q23_first and q01_second)
+
+    # Make sure the measure op is properly formatted
+    measure = phir["ops"][9]
     measure_args = measure["args"]
     measure_returns = measure["returns"]
     assert len(measure_args) == len(measure_returns) == 4
