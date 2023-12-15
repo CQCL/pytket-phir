@@ -11,7 +11,7 @@ from typing import cast
 from pytket.circuit import Conditional, Op, OpType
 from pytket.phir.sharding.sharder import Sharder
 
-from .sample_data import QasmFile, get_qasm_as_circuit
+from .test_utils import QasmFile, get_qasm_as_circuit
 
 
 class TestSharder:

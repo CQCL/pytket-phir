@@ -15,7 +15,7 @@ from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
 from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.sharding.sharder import Sharder
-from tests.sample_data import QasmFile, get_qasm_as_circuit
+from tests.test_utils import QasmFile, get_qasm_as_circuit
 
 if __name__ == "__main__":
     machine = Machine(

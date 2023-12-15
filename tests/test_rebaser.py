@@ -11,7 +11,7 @@ import logging
 from pytket.circuit import Circuit, OpType
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 
-from .sample_data import QasmFile, get_qasm_as_circuit
+from .test_utils import QasmFile, get_qasm_as_circuit
 
 EXPECTED_GATES = [
     OpType.Measure,
