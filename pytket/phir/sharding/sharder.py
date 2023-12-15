@@ -24,6 +24,7 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
     OpType.RangePredicate,
     OpType.ExplicitPredicate,
+    OpType.CopyBits,
 ]
 
 logger = logging.getLogger(__name__)
