@@ -42,7 +42,7 @@ def main() -> None:
         help="machine name, H1-1 by default",
     )
     parser.add_argument(
-        "-t",
+        "-o",
         "--tket-opt-level",
         choices=["0", "1", "2"],
         default="0",
@@ -60,7 +60,7 @@ def main() -> None:
         print(f"Processing {file}")  # noqa: T201
         c = circuit_from_qasm(file)
         tket_opt_level = int(args.tk)
-        rc = rebase_to_qtm_machine(c, args.machine, tket_level)
+        rc = rebase_to_qtm_machine(c, args.machine, tket_opt_level)
         qasm = circuit_to_qasm_str(rc, header="hqslib1")
         circ = circuit_from_qasm_str(qasm)
 
