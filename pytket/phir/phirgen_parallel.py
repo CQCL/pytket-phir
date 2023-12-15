@@ -14,20 +14,22 @@ from typing import TYPE_CHECKING, Any
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
-from pytket.unit_id import UnitID
 
-from .machine import Machine
-from .phirgen import append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
-from .sharding.shard import Cost, Ordering, Shard, ShardLayer
+from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
 
 if TYPE_CHECKING:
     import sympy
+
+    from pytket.unit_id import UnitID
+
+    from .machine import Machine
+    from .sharding.shard import Cost, Ordering, Shard, ShardLayer
 
 logger = logging.getLogger(__name__)
 
 
 def process_sub_commands(
-    sub_commands: dict[UnitID, list[tk.Command]], max_parallel_sq_gates: int
+    sub_commands: dict["UnitID", list[tk.Command]], max_parallel_sq_gates: int
 ) -> dict[int, list[tk.Command]]:
     """Create parallelizable groups of sub-commands."""
     groups: dict[
@@ -152,8 +154,8 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
 
 
 def process_shards(
-    shard_layer: ShardLayer, max_parallel_tq_gates: int, max_parallel_sq_gates: int
-) -> dict[int, list[Shard]]:
+    shard_layer: "ShardLayer", max_parallel_tq_gates: int, max_parallel_sq_gates: int
+) -> dict[int, list["Shard"]]:
     """Break up the shard layer into parallelizable groups."""
     groups: dict[int, list[Shard]] = {}
     types2groups: dict[
@@ -197,7 +199,9 @@ def process_shards(
     return dict(sorted(groups.items()))
 
 
-def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[Shard]]:
+def consolidate_sub_commands(
+    groups: dict[int, list["Shard"]],
+) -> dict[int, list["Shard"]]:
     """Group all the sub_commands into the first shard in the group.
 
     This allows maximum parallelization of sub-commands across shards.
@@ -216,7 +220,7 @@ def consolidate_sub_commands(groups: dict[int, list[Shard]]) -> dict[int, list[S
 
 
 def format_and_add_primary_commands(
-    group: list[Shard], ops: list[dict[str, Any]]
+    group: list["Shard"], ops: list[dict[str, Any]]
 ) -> None:
     """Create properly formatted PHIR for parallel primary commands."""
     if len(group) == 1:
@@ -257,7 +261,7 @@ def format_and_add_primary_commands(
 
 
 def genphir_parallel(
-    inp: list[tuple[Ordering, ShardLayer, Cost]], machine: Machine
+    inp: list[tuple["Ordering", "ShardLayer", "Cost"]], machine: "Machine"
 ) -> str:
     """Convert a list of shards to the equivalent PHIR with parallel gating.
 
@@ -268,11 +272,8 @@ def genphir_parallel(
     max_parallel_tq_gates = len(machine.tq_options)
     max_parallel_sq_gates = len(machine.sq_options)
 
-    phir: dict[str, Any] = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir", "strict_parallelism": "true"},
-    }
+    phir = PHIR_HEADER
+    phir["metadata"]["strict_parallelism"] = "true"
     ops: list[dict[str, Any]] = []
 
     qbits = set()

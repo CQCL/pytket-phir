@@ -10,19 +10,28 @@
 
 import json
 import logging
-from collections.abc import Sequence
-from typing import Any, TypeAlias
+from importlib.metadata import version
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import RegWiseOp
-from pytket.unit_id import Bit as tkBit
-from pytket.unit_id import Qubit, UnitID
 
-from .sharding.shard import Cost, Ordering, ShardLayer
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pytket.unit_id import Bit as tkBit
+    from pytket.unit_id import Qubit, UnitID
+
+    from .sharding.shard import Cost, Ordering, ShardLayer
 
 logger = logging.getLogger(__name__)
 
+PHIR_HEADER: dict[str, Any] = {
+    "format": "PHIR/JSON",
+    "version": "0.1.0",
+    "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
+}
 UINTMAX = 2**32 - 1
 
 Var: TypeAlias = str
@@ -62,17 +71,19 @@ tket_gate_to_phir = {
 }  # fmt: skip
 
 
-def arg_to_bit(arg: UnitID) -> Bit:
+def arg_to_bit(arg: "UnitID") -> Bit:
     """Convert tket arg to Bit."""
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(into: list[Var] | list[Bit], what: Sequence[int]) -> dict[str, Any]:
-    """PHIR for assign classical operation."""
+def assign_cop(
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]"
+) -> dict[str, Any]:
+    """PHIR for classical assign operation."""
     return {
         "cop": "=",
-        "returns": into,
-        "args": what,
+        "returns": lhs,
+        "args": rhs,
     }
 
 
@@ -124,8 +135,17 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
 
     match op:  # non-quantum op
         case tk.SetBitsOp():
+            if len(cmd.bits) != len(op.values):
+                logger.error("LHS and RHS lengths mismatch for classical assignment")
+                raise ValueError
+            return assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+
+        case tk.CopyBitsOp():
+            if len(cmd.bits) != len(cmd.args) // 2:
+                logger.warning("LHS and RHS lengths mismatch for CopyBits")
             return assign_cop(
-                [arg_to_bit(cmd.bits[i]) for i in range(len(cmd.bits))], op.values
+                [arg_to_bit(bit) for bit in cmd.bits],
+                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
 
         case _:
@@ -147,9 +167,6 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
     else:
         op: dict[str, Any] | None = None
         match cmd.op:
-            case tk.SetBitsOp():
-                op = convert_subcmd(cmd.op, cmd)
-
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
                 # https://github.com/CQCL/phir/blob/main/spec.md
@@ -193,6 +210,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "condition": cond,
                     "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
                 }
+
             case tk.ClassicalExpBox():
                 exp = cmd.op.get_exp()
                 match exp.op:
@@ -231,13 +249,17 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "cop": cop,
                     "args": [arg["name"] for arg in exp.to_dict()["args"]],
                 }
+
+            case tk.ClassicalEvalOp():
+                op = convert_subcmd(cmd.op, cmd)
+
             case m:
                 raise NotImplementedError(m)
         if op:
             ops.append(op)
 
 
-def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]]:
+def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
@@ -275,7 +297,7 @@ def get_decls(qbits: set[Qubit], cbits: set[tkBit]) -> list[dict[str, str | int]
 
 
 def genphir(
-    inp: list[tuple[Ordering, ShardLayer, Cost]], *, machine_ops: bool = True
+    inp: list[tuple["Ordering", "ShardLayer", "Cost"]], *, machine_ops: bool = True
 ) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
@@ -283,11 +305,7 @@ def genphir(
         inp: list of shards
         machine_ops: whether to include machine ops
     """
-    phir: dict[str, Any] = {
-        "format": "PHIR/JSON",
-        "version": "0.1.0",
-        "metadata": {"source": "pytket-phir"},
-    }
+    phir = PHIR_HEADER
     ops: list[dict[str, Any]] = []
 
     qbits = set()

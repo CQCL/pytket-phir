@@ -8,9 +8,12 @@
 
 from enum import Enum, auto
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pytket.circuit import Circuit
 from pytket.qasm.qasm import circuit_from_qasm
+
+if TYPE_CHECKING:
+    from pytket.circuit import Circuit
 
 
 class QasmFile(Enum):
@@ -33,7 +36,7 @@ class QasmFile(Enum):
     tk2_diff_angles = auto()
 
 
-def get_qasm_as_circuit(qasm_file: QasmFile) -> Circuit:
+def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
     """Utility function to convert a QASM file to Circuit.
 
     Args:
