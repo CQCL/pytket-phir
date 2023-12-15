@@ -27,11 +27,11 @@ def test_pll_tk2_same_angle() -> None:
     # Check that the args are properly formatted
     assert len(op["args"]) == 2
     assert len(op["args"][0]) == len(op["args"][1]) == 2
-    q01_first = (["q", 0] in op["args"][0]) and (["q", 1] in op["args"][0])
-    q01_second = (["q", 0] in op["args"][1]) and (["q", 1] in op["args"][1])
-    q23_first = (["q", 2] in op["args"][0]) and (["q", 3] in op["args"][0])
-    q23_second = (["q", 2] in op["args"][1]) and (["q", 3] in op["args"][1])
-    assert (q01_first and q23_second) != (q23_first and q01_second)
+    q01_fst = (["q", 0] in op["args"][0]) and (["q", 1] in op["args"][0])
+    q01_snd = (["q", 0] in op["args"][1]) and (["q", 1] in op["args"][1])
+    q23_fst = (["q", 2] in op["args"][0]) and (["q", 3] in op["args"][0])
+    q23_snd = (["q", 2] in op["args"][1]) and (["q", 3] in op["args"][1])
+    assert (q01_fst and q23_snd) != (q23_fst and q01_snd)
 
     # Check that the measure op is properly formatted
     measure_args = measure["args"]
@@ -54,15 +54,15 @@ def test_pll_tk2_diff_angles() -> None:
     assert len(block["ops"]) == 2
 
     # Check that the individual ops are properly formatted
-    qop0 = block["ops"][0]
-    qop1 = block["ops"][1]
+    qop0, qop1 = block["ops"]
     assert qop0["qop"] == qop1["qop"] == "R2XXYYZZ"
     assert len(qop0["args"][0]) == len(qop1["args"][0]) == 2
-    q01_first = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
-    q01_second = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
-    q23_first = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
-    q23_second = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
-    assert (q01_first and q23_second) != (q23_first and q01_second)
+    # Ensure the args for each op are invalid combinations, irrespecive of order
+    q01_fst = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
+    q01_snd = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
+    q23_fst = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
+    q23_snd = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
+    assert (q01_fst and q23_snd) != (q23_fst and q01_snd)
 
     # Check that the measure op is properly foramtted
     measure_args = measure["args"]

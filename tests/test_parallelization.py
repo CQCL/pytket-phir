@@ -40,11 +40,11 @@ def test_parallelization() -> None:
 
     # Make sure the ops within the parallel block have the correct arguments
     assert len(qop0["args"][0]) == len(qop1["args"][0]) == 2
-    q01_first = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
-    q01_second = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
-    q23_first = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
-    q23_second = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
-    assert (q01_first and q23_second) != (q23_first and q01_second)
+    q01_fst = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
+    q01_snd = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
+    q23_fst = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
+    q23_snd = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
+    assert (q01_fst and q23_snd) != (q23_fst and q01_snd)
 
     # Make sure the measure op is properly formatted
     measure = phir["ops"][9]

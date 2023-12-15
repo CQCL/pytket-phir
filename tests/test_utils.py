@@ -6,8 +6,6 @@
 #
 ##############################################################################
 
-# mypy: disable-error-code="misc"
-
 import json
 from enum import Enum, auto
 from pathlib import Path
@@ -57,7 +55,7 @@ def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
     return circuit_from_qasm(f"{this_dir}/data/qasm/{qasm_file.name}.qasm")
 
 
-def get_phir_json(qasmfile: QasmFile, rebase: bool) -> dict[str, Any]:  # noqa: FBT001
+def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> dict[str, Any]:  # type: ignore[misc]
     """Get the QASM file for the specified circuit."""
     qtm_machine = QtmMachine.H1_1
     circuit = get_qasm_as_circuit(qasmfile)
@@ -68,4 +66,4 @@ def get_phir_json(qasmfile: QasmFile, rebase: bool) -> dict[str, Any]:  # noqa: 
     sharder = Sharder(circuit)
     shards = sharder.shard()
     placed = place_and_route(shards, machine)
-    return json.loads(genphir_parallel(placed, machine))  # type: ignore[no-any-return]
+    return json.loads(genphir_parallel(placed, machine))  # type: ignore[misc, no-any-return]
