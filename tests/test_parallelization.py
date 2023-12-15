@@ -39,53 +39,32 @@ def get_phir_json(qasmfile: QasmFile) -> dict[str, Any]:
 def test_bv_n10() -> None:
     """Make sure the parallelization is happening properly for the test circuit."""
     actual = get_phir_json(QasmFile.parallelization_test)
-    expected: dict[str, Any] = {
-        "ops": [
-            {"data": "qvar_define", "data_type": "qubits", "variable": "q", "size": 4},
-            {"data": "cvar_define", "data_type": "u32", "variable": "c", "size": 4},
-            {"//": "Parallel Rz(1)"},
-            {
-                "qop": "RZ",
-                "angles": [[1.0], "pi"],
-                "args": [["q", 0], ["q", 1], ["q", 2], ["q", 3]],
-            },
-            {"//": "Parallel PhasedX(0.5, 0.5)"},
-            {
-                "qop": "R1XY",
-                "angles": [[0.5, 0.5], "pi"],
-                "args": [["q", 0], ["q", 1], ["q", 2], ["q", 3]],
-            },
-            {"//": "Parallel RZZ"},
-            {
-                "block": "qparallel",
-                "ops": [
-                    {
-                        "qop": "RZZ",
-                        "angles": [[0.125], "pi"],
-                        "args": [[["q", 0], ["q", 1]]],
-                    },
-                    {
-                        "qop": "RZZ",
-                        "angles": [[1.0], "pi"],
-                        "args": [[["q", 2], ["q", 3]]],
-                    },
-                ],
-            },
-            {"mop": "Transport", "duration": [0.0, "ms"]},
-            {
-                "qop": "Measure",
-                "args": [["q", 0], ["q", 1], ["q", 2], ["q", 3]],
-                "returns": [["c", 0], ["c", 1], ["c", 2], ["c", 3]],
-            },
-            {"mop": "Transport", "duration": [0.0, "ms"]},
-        ],
-    }
-
-    assert actual["ops"][7]["block"] == "qparallel"
-    for op in expected["ops"][7]["ops"]:
-        assert op in actual["ops"][7]["ops"]
-
-    act_meas_op = actual["ops"][9]
-    assert act_meas_op["qop"] == "Measure"
-    assert sorted(act_meas_op["args"]) == expected["ops"][9]["args"]
-    assert sorted(act_meas_op["returns"]) == expected["ops"][9]["returns"]
+    parallel_rz1 = actual["ops"][3]
+    assert parallel_rz1["qop"] == "RZ"
+    qubits = [["q", 0], ["q", 1], ["q", 2], ["q", 3]]
+    for qubit in qubits:
+        assert qubit in parallel_rz1["args"]
+    parallel_phasedx = actual["ops"][5]
+    assert parallel_phasedx["qop"] == "R1XY"
+    for qubit in qubits:
+        assert qubit in parallel_phasedx["args"]
+    block = actual["ops"][7]
+    assert block["block"] == "qparallel"
+    assert len(block["ops"]) == 2
+    qop0 = block["ops"][0]
+    qop1 = block["ops"][1]
+    assert qop0["qop"] == qop1["qop"] == "RZZ"
+    assert len(qop0["args"][0]) == len(qop1["args"][0]) == 2
+    q01_first = (["q", 0] in qop0["args"][0]) and (["q", 1] in qop0["args"][0])
+    q01_second = (["q", 0] in qop1["args"][0]) and (["q", 1] in qop1["args"][0])
+    q23_first = (["q", 2] in qop0["args"][0]) and (["q", 3] in qop0["args"][0])
+    q23_second = (["q", 2] in qop1["args"][0]) and (["q", 3] in qop1["args"][0])
+    assert (q01_first and q23_second) ^ (q23_first and q01_second)
+    measure = actual["ops"][9]
+    measure_args = measure["args"]
+    measure_returns = measure["returns"]
+    assert len(measure_args) == len(measure_returns) == 4
+    assert measure_args.index(["q", 0]) == measure_returns.index(["c", 0])
+    assert measure_args.index(["q", 1]) == measure_returns.index(["c", 1])
+    assert measure_args.index(["q", 2]) == measure_returns.index(["c", 2])
+    assert measure_args.index(["q", 3]) == measure_returns.index(["c", 3])
