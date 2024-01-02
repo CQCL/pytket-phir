@@ -81,6 +81,9 @@ ignore = [
     "PLR2004",  # Magic constants
     "PLR6301",  # Method * could be a function, class method, or static method
   ]
+"pytket/phir/cli.py" = [
+    "T201"
+]
 
 [pydocstyle]
 convention = "google"

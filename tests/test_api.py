@@ -8,12 +8,14 @@
 
 import json
 import logging
+from pathlib import Path
 
 import pytest
 
 from pytket.circuit import Bit, Circuit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
+from pytket.wasm.wasm import WasmFileHandler
 
 from .test_utils import QasmFile, get_qasm_as_circuit
 
@@ -85,3 +87,23 @@ class TestApi:
         """
 
         assert qasm_to_phir(qasm, QtmMachine.H1_1)
+
+    def test_pytket_with_wasm(self) -> None:
+        this_dir = Path(Path(__file__).resolve()).parent
+        w = WasmFileHandler(f"{this_dir}/data/wasm/testfile.wasm")
+
+        c = Circuit(6, 6)
+        c0 = c.add_c_register("c0", 3)
+        c1 = c.add_c_register("c1", 4)
+        c2 = c.add_c_register("c2", 5)
+
+        c.add_wasm_to_reg("multi", w, [c0, c1], [c2])
+        c.add_wasm_to_reg("add_one", w, [c2], [c2])
+        c.add_wasm_to_reg("no_return", w, [c2], [])
+        c.add_wasm_to_reg("no_parameters", w, [], [c2])
+
+        c.add_wasm_to_reg("add_one", w, [c0], [c0], condition=c1[0])
+
+        phir = pytket_to_phir(c, QtmMachine.H1_1)
+
+        assert phir

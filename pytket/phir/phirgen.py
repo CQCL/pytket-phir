@@ -27,6 +27,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+StrAnyDict = dict[str, Any]
+
 PHIR_HEADER: dict[str, Any] = {
     "format": "PHIR/JSON",
     "version": "0.1.0",
@@ -76,9 +78,7 @@ def arg_to_bit(arg: "UnitID") -> Bit:
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(
-    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]"
-) -> dict[str, Any]:
+def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> StrAnyDict:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -87,8 +87,8 @@ def assign_cop(
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
-    """Return PHIR dict give op and its arguments."""
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> StrAnyDict:
+    """Return PHIR dict given op and its arguments."""
     if op.is_gate():
         try:
             gate = tket_gate_to_phir[op.type]
@@ -96,7 +96,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             logging.exception("Gate %s unsupported by PHIR", op.get_name())
             raise
         angles = (op.params, "pi") if op.params else None
-        qop: dict[str, Any]
+        qop: StrAnyDict
         match gate:
             case "Measure":
                 qop = {
@@ -148,24 +148,27 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
                 [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
 
-        case _:
+        case tk.WASMOp():
+            return create_wasm_op(cmd, op)
+
+        case m:
             # TODO(kartik): NYI
             # https://github.com/CQCL/pytket-phir/issues/25
-            raise NotImplementedError
+            raise NotImplementedError(m)
 
 
-def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
+def append_cmd(cmd: tk.Command, ops: list[StrAnyDict]) -> None:
     """Convert a pytket command to a PHIR command and append to `ops`.
 
     Args:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    ops.append({"//": str(cmd)})
+    ops.append({"//": make_comment_text(cmd, cmd.op)})
     if cmd.op.is_gate():
         ops.append(convert_subcmd(cmd.op, cmd))
     else:
-        op: dict[str, Any] | None = None
+        op: StrAnyDict | None = None
         match cmd.op:
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
@@ -188,7 +191,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                 }
 
             case tk.RangePredicateOp():  # where the condition is a range
-                cond: dict[str, Any]
+                cond: StrAnyDict
                 match cmd.op.lower, cmd.op.upper:
                     case l, u if l == u:
                         cond = {
@@ -250,13 +253,64 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     "args": [arg["name"] for arg in exp.to_dict()["args"]],
                 }
 
-            case tk.ClassicalEvalOp():
+            case tk.ClassicalEvalOp() | tk.WASMOp():
                 op = convert_subcmd(cmd.op, cmd)
 
             case m:
                 raise NotImplementedError(m)
         if op:
             ops.append(op)
+
+
+def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> StrAnyDict:
+    """Creates a PHIR operation for a WASM command."""
+    args, returns = extract_wasm_args_and_returns(cmd, wasm_op)
+    op = {
+        "cop": "ffcall",
+        "function": wasm_op.func_name,
+        "args": args,
+        "metadata": {
+            "ff_object": f"WASM module uid: {wasm_op.wasm_uid}",
+        },
+    }
+    if cmd.bits:
+        op["returns"] = returns
+
+    return op
+
+
+def extract_wasm_args_and_returns(
+    command: tk.Command, op: tk.WASMOp
+) -> tuple[list[str], list[str]]:
+    """Extract the wasm args and return values as whole register names."""
+    # This slice removes the extra `_w` cregs (wires) that are not part of the
+    # circuit, and the output args which are appended after the input args
+    slice_index = op.num_w + sum(op.output_widths)
+    only_args = command.args[:-slice_index]
+    return (
+        dedupe_bits_to_registers(only_args),
+        dedupe_bits_to_registers(command.bits),
+    )
+
+
+def dedupe_bits_to_registers(bits: "Sequence[UnitID]") -> list[str]:
+    """Dedupes a list of bits to their registers, keeping order intact."""
+    return list(dict.fromkeys([bit.reg_name for bit in bits]))
+
+
+def make_comment_text(command: tk.Command, op: tk.Op) -> str:
+    """Converts a command + op to the PHIR comment spec."""
+    match op:
+        case tk.Conditional():
+            conditional_text = str(command)
+            cleaned = conditional_text[: conditional_text.find("THEN") + 4]
+            return f"{cleaned} {make_comment_text(command, op.op)}"
+
+        case tk.WASMOp():
+            args, returns = extract_wasm_args_and_returns(command, op)
+            return f"WASM function={op.func_name} args={args} returns={returns}"
+        case _:
+            return str(command)
 
 
 def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
@@ -291,6 +345,7 @@ def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | 
             "size": dim,
         }
         for cvar, dim in cvar_dim.items()
+        if cvar != "_w"
     ]
 
     return decls
