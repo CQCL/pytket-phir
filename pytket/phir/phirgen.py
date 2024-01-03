@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-StrAnyDict = dict[str, Any]
+JsonDict = dict[str, Any]
 
 PHIR_HEADER: dict[str, Any] = {
     "format": "PHIR/JSON",
@@ -78,7 +78,7 @@ def arg_to_bit(arg: "UnitID") -> Bit:
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> StrAnyDict:
+def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> JsonDict:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -87,7 +87,7 @@ def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> StrAny
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> StrAnyDict:
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
     """Return PHIR dict given op and its arguments."""
     if op.is_gate():
         try:
@@ -96,7 +96,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> StrAnyDict:
             logging.exception("Gate %s unsupported by PHIR", op.get_name())
             raise
         angles = (op.params, "pi") if op.params else None
-        qop: StrAnyDict
+        qop: JsonDict
         match gate:
             case "Measure":
                 qop = {
@@ -157,7 +157,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> StrAnyDict:
             raise NotImplementedError(m)
 
 
-def append_cmd(cmd: tk.Command, ops: list[StrAnyDict]) -> None:
+def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
     """Convert a pytket command to a PHIR command and append to `ops`.
 
     Args:
@@ -168,7 +168,7 @@ def append_cmd(cmd: tk.Command, ops: list[StrAnyDict]) -> None:
     if cmd.op.is_gate():
         ops.append(convert_subcmd(cmd.op, cmd))
     else:
-        op: StrAnyDict | None = None
+        op: JsonDict | None = None
         match cmd.op:
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
@@ -191,7 +191,7 @@ def append_cmd(cmd: tk.Command, ops: list[StrAnyDict]) -> None:
                 }
 
             case tk.RangePredicateOp():  # where the condition is a range
-                cond: StrAnyDict
+                cond: JsonDict
                 match cmd.op.lower, cmd.op.upper:
                     case l, u if l == u:
                         cond = {
@@ -262,7 +262,7 @@ def append_cmd(cmd: tk.Command, ops: list[StrAnyDict]) -> None:
             ops.append(op)
 
 
-def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> StrAnyDict:
+def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> JsonDict:
     """Creates a PHIR operation for a WASM command."""
     args, returns = extract_wasm_args_and_returns(cmd, wasm_op)
     op = {
