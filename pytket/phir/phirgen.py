@@ -361,7 +361,7 @@ def genphir(
         machine_ops: whether to include machine ops
     """
     phir = PHIR_HEADER
-    ops: list[dict[str, Any]] = []
+    ops: list[JsonDict] = []
 
     qbits = set()
     cbits = set()

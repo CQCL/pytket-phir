@@ -10,12 +10,19 @@
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
 
-from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
+from .phirgen import (
+    PHIR_HEADER,
+    JsonDict,
+    append_cmd,
+    arg_to_bit,
+    get_decls,
+    tket_gate_to_phir,
+)
 
 if TYPE_CHECKING:
     import sympy
@@ -108,17 +115,17 @@ def process_sub_commands(
     return dict(sorted(groups.items()))
 
 
-def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:  # noqa: PLR0912
+def groups2qops(groups: dict[int, list[tk.Command]], ops: list[JsonDict]) -> None:  # noqa: PLR0912
     """Convert the groups of parallel ops to properly formatted PHIR."""
     for group in groups.values():
-        angles2qops: dict[tuple[sympy.Expr | float, ...], dict[str, Any]] = {}
+        angles2qops: dict[tuple[sympy.Expr | float, ...], JsonDict] = {}
         for qop in group:
             if not qop.op.is_gate():
                 append_cmd(qop, ops)
             else:
                 angles = qop.op.params
                 if tuple(angles) not in angles2qops:
-                    fmt_qop: dict[str, Any] = {
+                    fmt_qop: JsonDict = {
                         "qop": tket_gate_to_phir[qop.op.type],
                         "angles": [angles, "pi"],
                     }
@@ -139,7 +146,7 @@ def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) 
         # this branch is skipped because non-gate sub-commands
         # are always the only member of their group (see process_sub_commands)
         if len(angles2qops) > 1:
-            pll_block: dict[str, Any] = {"block": "qparallel", "ops": []}
+            pll_block: JsonDict = {"block": "qparallel", "ops": []}
             for phir_qop in angles2qops.values():
                 pll_block["ops"].append(phir_qop)
             comment = {"//": f"Parallel {tket_gate_to_phir[qop.op.type]}"}
@@ -219,9 +226,7 @@ def consolidate_sub_commands(
     return groups
 
 
-def format_and_add_primary_commands(
-    group: list["Shard"], ops: list[dict[str, Any]]
-) -> None:
+def format_and_add_primary_commands(group: list["Shard"], ops: list[JsonDict]) -> None:
     """Create properly formatted PHIR for parallel primary commands."""
     if len(group) == 1:
         append_cmd(group[0].primary_command, ops)
@@ -236,7 +241,7 @@ def format_and_add_primary_commands(
                     append_cmd(shard.primary_command, ops)
             # for measure, format and include "returns"
             elif gate_type == "Measure":
-                fmt_measure: dict[str, Any] = {
+                fmt_measure: JsonDict = {
                     "qop": "Measure",
                     "args": [],
                     "returns": [],
@@ -248,7 +253,7 @@ def format_and_add_primary_commands(
                 ops.append(fmt_measure)
             # all other gates, treat as standard qops
             else:
-                fmt_qop: dict[str, Any] = {"qop": gate_type, "args": []}
+                fmt_qop: JsonDict = {"qop": gate_type, "args": []}
                 for shard in group:
                     pc = shard.primary_command
                     fmt_qop["args"].append(arg_to_bit(pc.args[0]))
@@ -274,7 +279,7 @@ def genphir_parallel(
 
     phir = PHIR_HEADER
     phir["metadata"]["strict_parallelism"] = "true"
-    ops: list[dict[str, Any]] = []
+    ops: list[JsonDict] = []
 
     qbits = set()
     cbits = set()

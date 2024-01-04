@@ -7,6 +7,7 @@
 ##############################################################################
 
 # mypy: disable-error-code="misc"
+# ruff: noqa: T201
 
 from argparse import ArgumentParser, BooleanOptionalAction
 from importlib.metadata import version
