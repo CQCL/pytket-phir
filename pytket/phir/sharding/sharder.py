@@ -14,7 +14,7 @@ from pytket.unit_id import Bit, Qubit, UnitID
 
 from .shard import Shard
 
-NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
+NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox]
 
 SHARD_TRIGGER_OP_TYPES = [
     OpType.Measure,
@@ -25,6 +25,7 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.RangePredicate,
     OpType.ExplicitPredicate,
     OpType.CopyBits,
+    OpType.WASM,
 ]
 
 logger = logging.getLogger(__name__)
@@ -185,7 +186,9 @@ class Sharder:
 
         for bit_read in bits_read:
             if bit_read in self._bit_written_by:
-                logger.debug("...adding shard dep %s -> RAW")
+                logger.debug(
+                    "...adding shard dep %s -> RAW", self._bit_written_by[bit_read]
+                )
                 depends_upon.add(self._bit_written_by[bit_read])
 
         for bit_written in bits_written:
