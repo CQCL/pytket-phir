@@ -273,7 +273,7 @@ def genphir_parallel(
     max_parallel_sq_gates = len(machine.sq_options)
 
     phir = PHIR_HEADER
-    phir["metadata"]["strict_parallelism"] = "true"
+    phir["metadata"]["strict_parallelism"] = True
     ops: list[dict[str, Any]] = []
 
     qbits = set()
