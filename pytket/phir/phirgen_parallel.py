@@ -36,16 +36,16 @@ def process_sub_commands(
         int, list[tk.Command]
     ] = {}  # be sure to order by group number into a list when returning
     qubits2groups = {}  # track the most recent group in which a qubit was used
-    # group numbers for each gate are incremented by 2 so they don't overlap
+    # group numbers for each gate are incremented by 3 so they don't overlap
     # and different gate types don't go in the same group
-    # RZ gates go in %3=1 groups, R1XY gates go in %3=1 groups,
-    # and all other gates will go in %3=2 groups
+    # RZ gates go in (mod 3)=0 groups, R1XY gates go in (mod 3)=1 groups,
+    # and all other gates will go in (mod 3)=2 groups
     rz_group_number = -3  # will be set to 0 when first RZ gate is assigned (-3 + 3 = 0)
     r1xy_group_number = (
         -2  # will be set to 1 when first R1XY gate is assigned (-2 + 3 = 1)
     )
     other_group_number = (
-        -1  # will be set to 2 when first R1XY gate is assigned (-1 + 3 = 2)
+        -1  # will be set to 2 when first other gate is assigned (-1 + 3 = 2)
     )
     num_scs_per_qubit = {}
 
@@ -105,7 +105,7 @@ def process_sub_commands(
                     groups[group_number] = [sc]
                     qubits2groups[qubit] = group_number
 
-    return dict(sorted(groups.items()))
+    return dict(groups.items())
 
 
 def groups2qops(groups: dict[int, list[tk.Command]], ops: list[dict[str, Any]]) -> None:  # noqa: PLR0912
@@ -273,7 +273,7 @@ def genphir_parallel(
     max_parallel_sq_gates = len(machine.sq_options)
 
     phir = PHIR_HEADER
-    phir["metadata"]["strict_parallelism"] = "true"
+    phir["metadata"]["strict_parallelism"] = True
     ops: list[dict[str, Any]] = []
 
     qbits = set()
