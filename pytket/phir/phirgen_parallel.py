@@ -38,8 +38,8 @@ def process_sub_commands(
     qubits2groups = {}  # track the most recent group in which a qubit was used
     # group numbers for each gate are incremented by 3 so they don't overlap
     # and different gate types don't go in the same group
-    # RZ gates go in %3=0 groups, R1XY gates go in %3=1 groups,
-    # and all other gates will go in %3=2 groups
+    # RZ gates go in (mod 3)=0 groups, R1XY gates go in (mod 3)=1 groups,
+    # and all other gates will go in (mod 3)=2 groups
     rz_group_number = -3  # will be set to 0 when first RZ gate is assigned (-3 + 3 = 0)
     r1xy_group_number = (
         -2  # will be set to 1 when first R1XY gate is assigned (-2 + 3 = 1)
