@@ -6,8 +6,8 @@
 #
 ##############################################################################
 
-
 # mypy: disable-error-code="misc"
+
 from argparse import ArgumentParser
 from importlib.metadata import version
 
