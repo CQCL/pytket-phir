@@ -55,3 +55,22 @@ def test_parallelization() -> None:
     assert measure_args.index(["q", 1]) == measure_returns.index(["c", 1])
     assert measure_args.index(["q", 2]) == measure_returns.index(["c", 2])
     assert measure_args.index(["q", 3]) == measure_returns.index(["c", 3])
+
+
+def test_parallel_subcommand_relative_ordering() -> None:
+    """Make sure the proper relative ordering of sub-commands is preserved."""
+    phir = get_phir_json(QasmFile.rxrz, rebase=True)
+    # make sure it is ordered like the qasm file
+    ops = phir["ops"]
+    frst_sc = ops[3]
+    scnd_sc = ops[5]
+    thrd_sc = ops[7]
+    frth_sc = ops[9]
+    assert frst_sc["qop"] == "RZ"
+    assert frst_sc["angles"] == [[0.5], "pi"]
+    assert scnd_sc["qop"] == "R1XY"
+    assert scnd_sc["angles"] == [[3.5, 0.0], "pi"]
+    assert thrd_sc["qop"] == "R1XY"
+    assert thrd_sc["angles"] == [[0.5, 0.0], "pi"]
+    assert frth_sc["qop"] == "RZ"
+    assert frth_sc["angles"] == [[3.5], "pi"]
