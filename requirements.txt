@@ -5,9 +5,9 @@ phir==0.2.1
 pre-commit==3.6.0
 pydata_sphinx_theme==0.15.1
 pytest==7.4.4
-pytket-quantinuum==0.26.0
-pytket==1.22.0
-ruff==0.1.9
+pytket-quantinuum==0.27.0
+pytket==1.23.0
+ruff==0.1.13
 setuptools_scm==8.0.4
 sphinx==7.2.6
 wheel==0.42.0
