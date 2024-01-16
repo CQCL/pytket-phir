@@ -27,7 +27,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PHIR_HEADER: dict[str, Any] = {
+JsonDict: TypeAlias = dict[str, Any]
+PHIR_HEADER: JsonDict = {
     "format": "PHIR/JSON",
     "version": "0.1.0",
     "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
@@ -77,8 +78,8 @@ def arg_to_bit(arg: "UnitID") -> Bit:
 
 
 def assign_cop(
-    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]"
-) -> dict[str, Any]:
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int | JsonDict]"
+) -> JsonDict:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -87,7 +88,7 @@ def assign_cop(
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
     """Return PHIR dict give op and its arguments."""
     if op.is_gate():
         try:
@@ -96,7 +97,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             logging.exception("Gate %s unsupported by PHIR", op.get_name())
             raise
         angles = (op.params, "pi") if op.params else None
-        qop: dict[str, Any]
+        qop: JsonDict
         match gate:
             case "Measure":
                 qop = {
@@ -154,7 +155,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> dict[str, Any]:
             raise NotImplementedError
 
 
-def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
+def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
     """Convert a pytket command to a PHIR command and append to `ops`.
 
     Args:
@@ -165,7 +166,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
     if cmd.op.is_gate():
         ops.append(convert_subcmd(cmd.op, cmd))
     else:
-        op: dict[str, Any] | None = None
+        op: JsonDict | None = None
         match cmd.op:
             case tk.BarrierOp():
                 # TODO(kartik): confirm with Ciaran/spec
@@ -188,7 +189,7 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                 }
 
             case tk.RangePredicateOp():  # where the condition is a range
-                cond: dict[str, Any]
+                cond: JsonDict
                 match cmd.op.lower, cmd.op.upper:
                     case l, u if l == u:
                         cond = {
@@ -245,10 +246,13 @@ def append_cmd(cmd: tk.Command, ops: list[dict[str, Any]]) -> None:
                     case other:
                         logging.exception("Unsupported classical operator %s", other)
                         raise ValueError
-                op = {
-                    "cop": cop,
-                    "args": [arg["name"] for arg in exp.to_dict()["args"]],
-                }
+                rhs = [
+                    {
+                        "cop": cop,
+                        "args": [arg["name"] for arg in exp.to_dict()["args"]],
+                    }
+                ]
+                op = assign_cop([cmd.bits[0].reg_name], rhs)
 
             case tk.ClassicalEvalOp():
                 op = convert_subcmd(cmd.op, cmd)
@@ -306,7 +310,7 @@ def genphir(
         machine_ops: whether to include machine ops
     """
     phir = PHIR_HEADER
-    ops: list[dict[str, Any]] = []
+    ops: list[JsonDict] = []
 
     qbits = set()
     cbits = set()
