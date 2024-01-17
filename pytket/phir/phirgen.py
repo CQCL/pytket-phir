@@ -20,6 +20,7 @@ from pytket.circuit.logic_exp import RegWiseOp
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pytket.circuit.logic_exp import LogicExp
     from pytket.unit_id import Bit as tkBit
     from pytket.unit_id import Qubit, UnitID
 
@@ -88,7 +89,47 @@ def assign_cop(
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
+def regwise_cop(exp: "LogicExp") -> JsonDict:
+    """PHIR for classical register operations."""
+    match exp.op:
+        case RegWiseOp.XOR:
+            cop = "^"
+        case RegWiseOp.ADD:
+            cop = "+"
+        case RegWiseOp.SUB:
+            cop = "-"
+        case RegWiseOp.MUL:
+            cop = "*"
+        case RegWiseOp.DIV:
+            cop = "/"
+        case RegWiseOp.LSH:
+            cop = "<<"
+        case RegWiseOp.RSH:
+            cop = ">>"
+        case RegWiseOp.EQ:
+            cop = "=="
+        case RegWiseOp.NEQ:
+            cop = "!="
+        case RegWiseOp.LT:
+            cop = "<"
+        case RegWiseOp.GT:
+            cop = ">"
+        case RegWiseOp.LEQ:
+            cop = "<="
+        case RegWiseOp.GEQ:
+            cop = ">="
+        case RegWiseOp.NOT:
+            cop = "~"
+        case other:
+            logging.exception("Unsupported classical operator %s", other)
+            raise ValueError
+    return {
+        "cop": cop,
+        "args": [arg["name"] for arg in exp.to_dict()["args"]],
+    }
+
+
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     """Return PHIR dict give op and its arguments."""
     if op.is_gate():
         try:
@@ -134,17 +175,67 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
                 }
         return qop
 
+    out: JsonDict | None = None
     match op:  # non-quantum op
+        case tk.BarrierOp():
+            # TODO(kartik): confirm with Ciaran/spec
+            # https://github.com/CQCL/phir/blob/main/spec.md
+            logger.debug("Skipping Barrier instruction")
+
+        case tk.Conditional():  # where the condition is equality check
+            out = {
+                "block": "if",
+                "condition": {
+                    "cop": "==",
+                    "args": [
+                        arg_to_bit(cmd.args[0])
+                        if op.width == 1
+                        else cmd.args[0].reg_name,
+                        op.value,
+                    ],
+                },
+                "true_branch": [convert_subcmd(op.op, cmd)],
+            }
+
+        case tk.RangePredicateOp():  # where the condition is a range
+            cond: JsonDict
+            match op.lower, op.upper:
+                case l, u if l == u:
+                    cond = {
+                        "cop": "==",
+                        "args": [cmd.args[0].reg_name, u],
+                    }
+                case l, u if u == UINTMAX:
+                    cond = {
+                        "cop": ">=",
+                        "args": [cmd.args[0].reg_name, l],
+                    }
+                case 0, u:
+                    cond = {
+                        "cop": "<=",
+                        "args": [cmd.args[0].reg_name, u],
+                    }
+            out = {
+                "block": "if",
+                "condition": cond,
+                "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
+            }
+
+        case tk.ClassicalExpBox():
+            exp = op.get_exp()
+            rhs = [regwise_cop(exp)]
+            out = assign_cop([cmd.bits[0].reg_name], rhs)
+
         case tk.SetBitsOp():
             if len(cmd.bits) != len(op.values):
                 logger.error("LHS and RHS lengths mismatch for classical assignment")
                 raise ValueError
-            return assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+            out = assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
 
         case tk.CopyBitsOp():
             if len(cmd.bits) != len(cmd.args) // 2:
                 logger.warning("LHS and RHS lengths mismatch for CopyBits")
-            return assign_cop(
+            out = assign_cop(
                 [arg_to_bit(bit) for bit in cmd.bits],
                 [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
@@ -153,6 +244,8 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
             # TODO(kartik): NYI
             # https://github.com/CQCL/pytket-phir/issues/25
             raise NotImplementedError
+
+    return out
 
 
 def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
@@ -163,104 +256,9 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         ops: the list of ops to append to
     """
     ops.append({"//": str(cmd)})
-    if cmd.op.is_gate():
-        ops.append(convert_subcmd(cmd.op, cmd))
-    else:
-        op: JsonDict | None = None
-        match cmd.op:
-            case tk.BarrierOp():
-                # TODO(kartik): confirm with Ciaran/spec
-                # https://github.com/CQCL/phir/blob/main/spec.md
-                logger.debug("Skipping Barrier instruction")
-
-            case tk.Conditional():  # where the condition is equality check
-                op = {
-                    "block": "if",
-                    "condition": {
-                        "cop": "==",
-                        "args": [
-                            arg_to_bit(cmd.args[0])
-                            if cmd.op.width == 1
-                            else cmd.args[0].reg_name,
-                            cmd.op.value,
-                        ],
-                    },
-                    "true_branch": [convert_subcmd(cmd.op.op, cmd)],
-                }
-
-            case tk.RangePredicateOp():  # where the condition is a range
-                cond: JsonDict
-                match cmd.op.lower, cmd.op.upper:
-                    case l, u if l == u:
-                        cond = {
-                            "cop": "==",
-                            "args": [cmd.args[0].reg_name, u],
-                        }
-                    case l, u if u == UINTMAX:
-                        cond = {
-                            "cop": ">=",
-                            "args": [cmd.args[0].reg_name, l],
-                        }
-                    case 0, u:
-                        cond = {
-                            "cop": "<=",
-                            "args": [cmd.args[0].reg_name, u],
-                        }
-                op = {
-                    "block": "if",
-                    "condition": cond,
-                    "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
-                }
-
-            case tk.ClassicalExpBox():
-                exp = cmd.op.get_exp()
-                match exp.op:
-                    case RegWiseOp.XOR:
-                        cop = "^"
-                    case RegWiseOp.ADD:
-                        cop = "+"
-                    case RegWiseOp.SUB:
-                        cop = "-"
-                    case RegWiseOp.MUL:
-                        cop = "*"
-                    case RegWiseOp.DIV:
-                        cop = "/"
-                    case RegWiseOp.LSH:
-                        cop = "<<"
-                    case RegWiseOp.RSH:
-                        cop = ">>"
-                    case RegWiseOp.EQ:
-                        cop = "=="
-                    case RegWiseOp.NEQ:
-                        cop = "!="
-                    case RegWiseOp.LT:
-                        cop = "<"
-                    case RegWiseOp.GT:
-                        cop = ">"
-                    case RegWiseOp.LEQ:
-                        cop = "<="
-                    case RegWiseOp.GEQ:
-                        cop = ">="
-                    case RegWiseOp.NOT:
-                        cop = "~"
-                    case other:
-                        logging.exception("Unsupported classical operator %s", other)
-                        raise ValueError
-                rhs = [
-                    {
-                        "cop": cop,
-                        "args": [arg["name"] for arg in exp.to_dict()["args"]],
-                    }
-                ]
-                op = assign_cop([cmd.bits[0].reg_name], rhs)
-
-            case tk.ClassicalEvalOp():
-                op = convert_subcmd(cmd.op, cmd)
-
-            case m:
-                raise NotImplementedError(m)
-        if op:
-            ops.append(op)
+    op: JsonDict | None = convert_subcmd(cmd.op, cmd)
+    if op:
+        ops.append(op)
 
 
 def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
