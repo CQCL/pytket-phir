@@ -9,7 +9,9 @@
 import json
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
+
+from wasmtime import wat2wasm  # type: ignore[import-not-found]
 
 from pytket.phir.phirgen_parallel import genphir_parallel
 from pytket.phir.place_and_route import place_and_route
@@ -43,6 +45,11 @@ class QasmFile(Enum):
     rxrz = auto()
 
 
+class WatFile(Enum):
+    add = auto()
+    testfile = auto()
+
+
 def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
     """Utility function to convert a QASM file to Circuit.
 
@@ -68,3 +75,11 @@ def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> dict[str, Any]:  # typ
     shards = sharder.shard()
     placed = place_and_route(shards, machine)
     return json.loads(genphir_parallel(placed, machine))  # type: ignore[misc, no-any-return]
+
+
+def get_wat_as_wasm_bytes(wat_file: WatFile) -> bytes:
+    """Gets a given wat file, converted to WASM bytes by wasmtime."""
+    this_dir = Path(Path(__file__).resolve()).parent
+    return cast(
+        bytes, wat2wasm(Path(f"{this_dir}/data/wasm/{wat_file.name}.wat").read_text())
+    )

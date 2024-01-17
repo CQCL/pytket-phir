@@ -1,0 +1,38 @@
+(module
+  (type $t0 (func))
+  (type $t1 (func (param i32) (result i32)))
+  (type $t2 (func (param i32 i32) (result i32)))
+  (type $t3 (func (param i64) (result i64)))
+  (type $t4 (func (param i32)))
+  (type $t5 (func (result i32)))
+  (func $init (export "init") (type $t0))
+  (func $add_one (export "add_one") (type $t1) (param $p0 i32) (result i32)
+    (i32.add
+      (local.get $p0)
+      (i32.const 1)))
+  (func $multi (export "multi") (type $t2) (param $p0 i32) (param $p1 i32) (result i32)
+    (i32.mul
+      (local.get $p1)
+      (local.get $p0)))
+  (func $add_two (export "add_two") (type $t1) (param $p0 i32) (result i32)
+    (i32.add
+      (local.get $p0)
+      (i32.const 2)))
+  (func $add_something (export "add_something") (type $t3) (param $p0 i64) (result i64)
+    (i64.add
+      (local.get $p0)
+      (i64.const 11)))
+  (func $add_eleven (export "add_eleven") (type $t1) (param $p0 i32) (result i32)
+    (i32.add
+      (local.get $p0)
+      (i32.const 11)))
+  (func $no_return (export "no_return") (type $t4) (param $p0 i32))
+  (func $no_parameters (export "no_parameters") (type $t5) (result i32)
+    (i32.const 11))
+  (func $new_function (export "new_function") (type $t5) (result i32)
+    (i32.const 13))
+  (table $T0 1 1 funcref)
+  (memory $memory (export "memory") 16)
+  (global $__stack_pointer (mut i32) (i32.const 1048576))
+  (global $__data_end (export "__data_end") i32 (i32.const 1048576))
+  (global $__heap_base (export "__heap_base") i32 (i32.const 1048576)))
