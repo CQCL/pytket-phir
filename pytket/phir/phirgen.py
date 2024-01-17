@@ -15,13 +15,13 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
-from pytket.circuit.logic_exp import RegWiseOp
+from pytket.circuit.logic_exp import Constant, LogicExp, RegWiseOp
+from pytket.unit_id import Bit as tkBit
+from pytket.unit_id import BitRegister
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pytket.circuit.logic_exp import LogicExp
-    from pytket.unit_id import Bit as tkBit
     from pytket.unit_id import Qubit, UnitID
 
     from .sharding.shard import Cost, Ordering, ShardLayer
@@ -89,7 +89,7 @@ def assign_cop(
     }
 
 
-def regwise_cop(exp: "LogicExp") -> JsonDict:
+def regwise_cop(exp: LogicExp) -> JsonDict:
     """PHIR for classical register operations."""
     match exp.op:
         case RegWiseOp.XOR:
@@ -123,9 +123,21 @@ def regwise_cop(exp: "LogicExp") -> JsonDict:
         case other:
             logging.exception("Unsupported classical operator %s", other)
             raise ValueError
+
+    args: list[JsonDict | Var | Constant] = []
+    for arg in exp.args:
+        match arg:
+            case LogicExp():
+                args.append(regwise_cop(arg))
+            case BitRegister():
+                args.append(arg.name)
+            case Constant():
+                args.append(arg)
+            case tkBit():
+                args.append(arg.reg_name)
     return {
         "cop": cop,
-        "args": [arg["name"] for arg in exp.to_dict()["args"]],
+        "args": args,
     }
 
 
@@ -261,7 +273,7 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         ops.append(op)
 
 
-def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
+def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
