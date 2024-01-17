@@ -29,3 +29,18 @@ class TestPhirGen:
             "returns": ["c"],
             "args": [{"cop": "+", "args": ["a", "b"]}],
         }
+
+    def test_nested_arith(self) -> None:
+        """From https://github.com/CQCL/pytket-phir/issues/87."""
+        circ = Circuit(1)
+        a = circ.add_c_register("a", 2)
+        b = circ.add_c_register("b", 2)
+        c = circ.add_c_register("c", 3)
+        circ.add_classicalexpbox_register(a + b // c, c.to_list())
+
+        phir = json.loads(pytket_to_phir(circ))
+        assert phir["ops"][4] == {
+            "cop": "=",
+            "returns": ["c"],
+            "args": [{"cop": "+", "args": ["a", {"cop": "/", "args": ["b", "c"]}]}],
+        }
