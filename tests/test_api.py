@@ -98,14 +98,17 @@ class TestApi:
         OPENQASM 2.0;
         include "qelib1.inc";
 
-        qreg q[3];
+        qreg q[2];
         h q;
         ZZ q[1],q[0];
         creg cr[3];
+        creg cs[3];
+        creg co[3];
         measure q[0]->cr[0];
         measure q[1]->cr[1];
 
-        cr[2] = add(cr[0], cr[1])
+        cs = cr;
+        co = add(cr, cs);
         """
 
         wasm_bytes = get_wat_as_wasm_bytes(WatFile.add)
@@ -113,6 +116,21 @@ class TestApi:
         phir_str = qasm_to_phir(qasm, QtmMachine.H1_1, wasm_bytes=wasm_bytes)
         phir = json.loads(phir_str)  # type: ignore[misc]
         assert phir is not None  # type: ignore[misc]
+
+        expected_metadata = {
+            "ff_object": (
+                "WASM module uid: 28c0194b91f1e24d6fc40ec480c026a5874661184"
+                "bcd411a61bd5d5383df5180"
+            )
+        }
+
+        assert phir["ops"][21] == {  # type: ignore[misc]
+            "metadata": expected_metadata,
+            "cop": "ffcall",
+            "function": "add",
+            "args": ["cr", "cs"],
+            "returns": ["co"],
+        }
 
     def test_pytket_with_wasm(self) -> None:
         wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
