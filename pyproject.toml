@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "pytket-phir"
 description = "A circuit analyzer and translator from pytket to PHIR"
 readme = "README.md"
-requires-python = ">=3.10, <3.12"
+requires-python = ">=3.10, <3.13"
 license = {file = "LICENSE"}
 authors = [{name = "Quantinuum"}]
 

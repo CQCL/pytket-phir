@@ -9,7 +9,7 @@
 import json
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from wasmtime import wat2wasm  # type: ignore[import-not-found]
 
@@ -22,6 +22,7 @@ from pytket.qasm.qasm import circuit_from_qasm
 
 if TYPE_CHECKING:
     from pytket.circuit import Circuit
+    from pytket.phir.phirgen import JsonDict
 
 
 class QasmFile(Enum):
@@ -63,7 +64,7 @@ def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
     return circuit_from_qasm(f"{this_dir}/data/qasm/{qasm_file.name}.qasm")
 
 
-def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> dict[str, Any]:  # type: ignore[misc]
+def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
     """Get the QASM file for the specified circuit."""
     qtm_machine = QtmMachine.H1_1
     circuit = get_qasm_as_circuit(qasmfile)
