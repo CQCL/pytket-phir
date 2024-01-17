@@ -44,3 +44,16 @@ class TestPhirGen:
             "returns": ["c"],
             "args": [{"cop": "+", "args": ["a", {"cop": "/", "args": ["b", "c"]}]}],
         }
+
+    def test_arith_with_int(self) -> None:
+        """From https://github.com/CQCL/pytket-phir/issues/88."""
+        circ = Circuit(1)
+        a = circ.add_c_register("a", 2)
+        circ.add_classicalexpbox_register(a << 1, a.to_list())
+
+        phir = json.loads(pytket_to_phir(circ))
+        assert phir["ops"][2] == {
+            "cop": "=",
+            "returns": ["a"],
+            "args": [{"cop": "<<", "args": ["a", 1]}],
+        }
