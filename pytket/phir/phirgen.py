@@ -15,20 +15,20 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytket.circuit as tk
 from phir.model import PHIRModel
-from pytket.circuit.logic_exp import RegWiseOp
+from pytket.circuit.logic_exp import Constant, LogicExp, RegWiseOp
+from pytket.unit_id import Bit as tkBit
+from pytket.unit_id import BitRegister
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pytket.unit_id import Bit as tkBit
     from pytket.unit_id import Qubit, UnitID
 
     from .sharding.shard import Cost, Ordering, ShardLayer
 
 logger = logging.getLogger(__name__)
 
-JsonDict = dict[str, Any]
-
+JsonDict: TypeAlias = dict[str, Any]
 PHIR_HEADER: JsonDict = {
     "format": "PHIR/JSON",
     "version": "0.1.0",
@@ -78,7 +78,9 @@ def arg_to_bit(arg: "UnitID") -> Bit:
     return [arg.reg_name, arg.index[0]]
 
 
-def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> JsonDict:
+def assign_cop(
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int | JsonDict]"
+) -> JsonDict:
     """PHIR for classical assign operation."""
     return {
         "cop": "=",
@@ -87,8 +89,60 @@ def assign_cop(lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int]") -> JsonDi
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
-    """Return PHIR dict given op and its arguments."""
+def regwise_cop(exp: LogicExp) -> JsonDict:
+    """PHIR for classical register operations."""
+    match exp.op:
+        case RegWiseOp.XOR:
+            cop = "^"
+        case RegWiseOp.ADD:
+            cop = "+"
+        case RegWiseOp.SUB:
+            cop = "-"
+        case RegWiseOp.MUL:
+            cop = "*"
+        case RegWiseOp.DIV:
+            cop = "/"
+        case RegWiseOp.LSH:
+            cop = "<<"
+        case RegWiseOp.RSH:
+            cop = ">>"
+        case RegWiseOp.EQ:
+            cop = "=="
+        case RegWiseOp.NEQ:
+            cop = "!="
+        case RegWiseOp.LT:
+            cop = "<"
+        case RegWiseOp.GT:
+            cop = ">"
+        case RegWiseOp.LEQ:
+            cop = "<="
+        case RegWiseOp.GEQ:
+            cop = ">="
+        case RegWiseOp.NOT:
+            cop = "~"
+        case other:
+            logging.exception("Unsupported classical operator %s", other)
+            raise ValueError
+
+    args: list[JsonDict | Var | Constant] = []
+    for arg in exp.args:
+        match arg:
+            case LogicExp():
+                args.append(regwise_cop(arg))
+            case BitRegister():
+                args.append(arg.name)
+            case Constant():
+                args.append(arg)
+            case tkBit():
+                args.append(arg.reg_name)
+    return {
+        "cop": cop,
+        "args": args,
+    }
+
+
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+    """Return PHIR dict give op and its arguments."""
     if op.is_gate():
         try:
             gate = tket_gate_to_phir[op.type]
@@ -133,17 +187,67 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
                 }
         return qop
 
+    out: JsonDict | None = None
     match op:  # non-quantum op
+        case tk.BarrierOp():
+            # TODO(kartik): confirm with Ciaran/spec
+            # https://github.com/CQCL/phir/blob/main/spec.md
+            logger.debug("Skipping Barrier instruction")
+
+        case tk.Conditional():  # where the condition is equality check
+            out = {
+                "block": "if",
+                "condition": {
+                    "cop": "==",
+                    "args": [
+                        arg_to_bit(cmd.args[0])
+                        if op.width == 1
+                        else cmd.args[0].reg_name,
+                        op.value,
+                    ],
+                },
+                "true_branch": [convert_subcmd(op.op, cmd)],
+            }
+
+        case tk.RangePredicateOp():  # where the condition is a range
+            cond: JsonDict
+            match op.lower, op.upper:
+                case l, u if l == u:
+                    cond = {
+                        "cop": "==",
+                        "args": [cmd.args[0].reg_name, u],
+                    }
+                case l, u if u == UINTMAX:
+                    cond = {
+                        "cop": ">=",
+                        "args": [cmd.args[0].reg_name, l],
+                    }
+                case 0, u:
+                    cond = {
+                        "cop": "<=",
+                        "args": [cmd.args[0].reg_name, u],
+                    }
+            out = {
+                "block": "if",
+                "condition": cond,
+                "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
+            }
+
+        case tk.ClassicalExpBox():
+            exp = op.get_exp()
+            rhs = [regwise_cop(exp)]
+            out = assign_cop([cmd.bits[0].reg_name], rhs)
+
         case tk.SetBitsOp():
             if len(cmd.bits) != len(op.values):
                 logger.error("LHS and RHS lengths mismatch for classical assignment")
                 raise ValueError
-            return assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+            out = assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
 
         case tk.CopyBitsOp():
             if len(cmd.bits) != len(cmd.args) // 2:
                 logger.warning("LHS and RHS lengths mismatch for CopyBits")
-            return assign_cop(
+            out = assign_cop(
                 [arg_to_bit(bit) for bit in cmd.bits],
                 [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
@@ -151,10 +255,12 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict:
         case tk.WASMOp():
             return create_wasm_op(cmd, op)
 
-        case m:
+        case _:
             # TODO(kartik): NYI
             # https://github.com/CQCL/pytket-phir/issues/25
-            raise NotImplementedError(m)
+            raise NotImplementedError
+
+    return out
 
 
 def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
@@ -165,101 +271,9 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         ops: the list of ops to append to
     """
     ops.append({"//": make_comment_text(cmd, cmd.op)})
-    if cmd.op.is_gate():
-        ops.append(convert_subcmd(cmd.op, cmd))
-    else:
-        op: JsonDict | None = None
-        match cmd.op:
-            case tk.BarrierOp():
-                # TODO(kartik): confirm with Ciaran/spec
-                # https://github.com/CQCL/phir/blob/main/spec.md
-                logger.debug("Skipping Barrier instruction")
-
-            case tk.Conditional():  # where the condition is equality check
-                op = {
-                    "block": "if",
-                    "condition": {
-                        "cop": "==",
-                        "args": [
-                            arg_to_bit(cmd.args[0])
-                            if cmd.op.width == 1
-                            else cmd.args[0].reg_name,
-                            cmd.op.value,
-                        ],
-                    },
-                    "true_branch": [convert_subcmd(cmd.op.op, cmd)],
-                }
-
-            case tk.RangePredicateOp():  # where the condition is a range
-                cond: JsonDict
-                match cmd.op.lower, cmd.op.upper:
-                    case l, u if l == u:
-                        cond = {
-                            "cop": "==",
-                            "args": [cmd.args[0].reg_name, u],
-                        }
-                    case l, u if u == UINTMAX:
-                        cond = {
-                            "cop": ">=",
-                            "args": [cmd.args[0].reg_name, l],
-                        }
-                    case 0, u:
-                        cond = {
-                            "cop": "<=",
-                            "args": [cmd.args[0].reg_name, u],
-                        }
-                op = {
-                    "block": "if",
-                    "condition": cond,
-                    "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
-                }
-
-            case tk.ClassicalExpBox():
-                exp = cmd.op.get_exp()
-                match exp.op:
-                    case RegWiseOp.XOR:
-                        cop = "^"
-                    case RegWiseOp.ADD:
-                        cop = "+"
-                    case RegWiseOp.SUB:
-                        cop = "-"
-                    case RegWiseOp.MUL:
-                        cop = "*"
-                    case RegWiseOp.DIV:
-                        cop = "/"
-                    case RegWiseOp.LSH:
-                        cop = "<<"
-                    case RegWiseOp.RSH:
-                        cop = ">>"
-                    case RegWiseOp.EQ:
-                        cop = "=="
-                    case RegWiseOp.NEQ:
-                        cop = "!="
-                    case RegWiseOp.LT:
-                        cop = "<"
-                    case RegWiseOp.GT:
-                        cop = ">"
-                    case RegWiseOp.LEQ:
-                        cop = "<="
-                    case RegWiseOp.GEQ:
-                        cop = ">="
-                    case RegWiseOp.NOT:
-                        cop = "~"
-                    case other:
-                        logging.exception("Unsupported classical operator %s", other)
-                        raise ValueError
-                op = {
-                    "cop": cop,
-                    "args": [arg["name"] for arg in exp.to_dict()["args"]],
-                }
-
-            case tk.ClassicalEvalOp() | tk.WASMOp():
-                op = convert_subcmd(cmd.op, cmd)
-
-            case m:
-                raise NotImplementedError(m)
-        if op:
-            ops.append(op)
+    op: JsonDict | None = convert_subcmd(cmd.op, cmd)
+    if op:
+        ops.append(op)
 
 
 def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> JsonDict:
@@ -313,7 +327,7 @@ def make_comment_text(command: tk.Command, op: tk.Op) -> str:
             return str(command)
 
 
-def get_decls(qbits: set["Qubit"], cbits: set["tkBit"]) -> list[dict[str, str | int]]:
+def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
     # TODO(kartik): this may not always be accurate
     # https://github.com/CQCL/pytket-phir/issues/24
