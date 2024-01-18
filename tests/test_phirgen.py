@@ -57,3 +57,19 @@ class TestPhirGen:
             "returns": ["a"],
             "args": [{"cop": "<<", "args": ["a", 1]}],
         }
+
+    def test_bitwise_ops(self) -> None:
+        """From https://github.com/CQCL/pytket-phir/issues/91."""
+        circ = Circuit(1)
+        a = circ.add_c_register("a", 2)
+        b = circ.add_c_register("b", 2)
+        c = circ.add_c_register("c", 1)
+        expr = a[0] ^ b[0]
+        circ.add_classicalexpbox_bit(expr, [c[0]])
+
+        phir = json.loads(pytket_to_phir(circ))
+        assert phir["ops"][4] == {
+            "cop": "=",
+            "returns": [["c", 0]],
+            "args": [{"cop": "^", "args": [["a", 0], ["b", 0]]}],
+        }
