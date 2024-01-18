@@ -92,20 +92,20 @@ def assign_cop(
 def regwise_cop(exp: LogicExp) -> JsonDict:
     """PHIR for classical register operations."""
     match exp.op:
+        # Bitwise
+        case RegWiseOp.AND:
+            cop = "&"
+        case RegWiseOp.OR:
+            cop = "|"
+        case RegWiseOp.NOT:
+            cop = "~"
         case RegWiseOp.XOR:
             cop = "^"
-        case RegWiseOp.ADD:
-            cop = "+"
-        case RegWiseOp.SUB:
-            cop = "-"
-        case RegWiseOp.MUL:
-            cop = "*"
-        case RegWiseOp.DIV:
-            cop = "/"
         case RegWiseOp.LSH:
             cop = "<<"
         case RegWiseOp.RSH:
             cop = ">>"
+        # Comparison
         case RegWiseOp.EQ:
             cop = "=="
         case RegWiseOp.NEQ:
@@ -118,8 +118,17 @@ def regwise_cop(exp: LogicExp) -> JsonDict:
             cop = "<="
         case RegWiseOp.GEQ:
             cop = ">="
-        case RegWiseOp.NOT:
-            cop = "~"
+        # Arithmetic
+        case RegWiseOp.ADD:
+            cop = "+"
+        case RegWiseOp.SUB | RegWiseOp.NEG:
+            cop = "-"
+        case RegWiseOp.MUL:
+            cop = "*"
+        case RegWiseOp.DIV:
+            cop = "/"
+        case RegWiseOp.POW:
+            cop = "**"
         case other:
             logging.exception("Unsupported classical operator %s", other)
             raise ValueError
