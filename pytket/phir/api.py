@@ -7,6 +7,7 @@
 ##############################################################################
 
 import logging
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
@@ -97,15 +98,20 @@ def qasm_to_phir(
     """
     circuit: Circuit
     if wasm_bytes:
-        with (
-            NamedTemporaryFile(suffix=".qasm") as qasm_file,
-            NamedTemporaryFile(suffix=".wasm") as wasm_file,
-        ):
+        try:
+            qasm_file = NamedTemporaryFile(suffix=".qasm", delete=False)
+            wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
             qasm_file.write(qasm.encode())
-            qasm_file.seek(0)
+            qasm_file.flush()
+            qasm_file.close()
             wasm_file.write(wasm_bytes)
-            wasm_file.seek(0)
+            wasm_file.flush()
+            wasm_file.close()
+
             circuit = circuit_from_qasm_wasm(qasm_file.name, wasm_file.name)
+        finally:
+            Path.unlink(Path(qasm_file.name))  # type: ignore[misc]
+            Path.unlink(Path(wasm_file.name))  # type: ignore[misc]
     else:
         circuit = circuit_from_qasm_str(qasm)
     return pytket_to_phir(circuit, qtm_machine, tket_optimization_level)
