@@ -6,6 +6,8 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import json
 import logging
 from tempfile import NamedTemporaryFile
@@ -28,7 +30,7 @@ class TestApi:
         """Test case when no machine is present."""
         circuit = get_qasm_as_circuit(QasmFile.baby)
         phir = pytket_to_phir(circuit)
-        PHIRModel.model_validate_json(phir)  # type: ignore[misc]
+        PHIRModel.model_validate_json(phir)
 
     @pytest.mark.parametrize("test_file", list(QasmFile))
     def test_pytket_to_phir_no_machine_all(self, test_file: QasmFile) -> None:
@@ -44,7 +46,7 @@ class TestApi:
                     assert pytket_to_phir(circuit)
             case _:
                 phir = pytket_to_phir(circuit)
-                PHIRModel.model_validate_json(phir)  # type: ignore[misc]
+                PHIRModel.model_validate_json(phir)
 
     @pytest.mark.parametrize("test_file", list(QasmFile))
     def test_pytket_to_phir_h1_1_all(self, test_file: QasmFile) -> None:
@@ -52,7 +54,7 @@ class TestApi:
         circuit = get_qasm_as_circuit(test_file)
 
         phir = pytket_to_phir(circuit, QtmMachine.H1_1)
-        PHIRModel.model_validate_json(phir)  # type: ignore[misc]
+        PHIRModel.model_validate_json(phir)
 
     def test_pytket_classical_only(self) -> None:
         c = Circuit(1)
@@ -62,14 +64,14 @@ class TestApi:
         c.add_c_copyreg(a, b)
         c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
 
-        phir = json.loads(pytket_to_phir(c))  # type: ignore[misc]
+        phir = json.loads(pytket_to_phir(c))
 
-        assert phir["ops"][3] == {  # type: ignore[misc]
+        assert phir["ops"][3] == {
             "cop": "=",
             "returns": [["b", 0], ["b", 1]],
             "args": [["a", 0], ["a", 1]],
         }
-        assert phir["ops"][5] == {  # type: ignore[misc]
+        assert phir["ops"][5] == {
             "cop": "=",
             "returns": [["a", 0], ["b", 0]],
             "args": [["b", 2], ["a", 1]],
@@ -90,7 +92,7 @@ class TestApi:
         """
 
         phir = qasm_to_phir(qasm, QtmMachine.H1_1)
-        PHIRModel.model_validate_json(phir)  # type: ignore[misc]
+        PHIRModel.model_validate_json(phir)
 
     def test_qasm_to_phir_with_wasm(self) -> None:
         """Test the qasm string entrypoint works with WASM."""
@@ -114,8 +116,8 @@ class TestApi:
         wasm_bytes = get_wat_as_wasm_bytes(WatFile.add)
 
         phir_str = qasm_to_phir(qasm, QtmMachine.H1_1, wasm_bytes=wasm_bytes)
-        phir = json.loads(phir_str)  # type: ignore[misc]
-        assert phir is not None  # type: ignore[misc]
+        phir = json.loads(phir_str)
+        assert phir is not None
 
         expected_metadata = {
             "ff_object": (
@@ -124,7 +126,7 @@ class TestApi:
             )
         }
 
-        assert phir["ops"][21] == {  # type: ignore[misc]
+        assert phir["ops"][21] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "add",
@@ -154,8 +156,8 @@ class TestApi:
 
             phir_str = pytket_to_phir(c, QtmMachine.H1_1)
 
-        PHIRModel.model_validate_json(phir_str)  # type: ignore[misc]
-        phir = json.loads(phir_str)  # type: ignore[misc]
+        PHIRModel.model_validate_json(phir_str)
+        phir = json.loads(phir_str)
 
         expected_metadata = {
             "ff_object": (
@@ -164,21 +166,21 @@ class TestApi:
             )
         }
 
-        assert phir["ops"][4] == {  # type: ignore[misc]
+        assert phir["ops"][4] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "multi",
             "args": ["c0", "c1"],
             "returns": ["c2"],
         }
-        assert phir["ops"][7] == {  # type: ignore[misc]
+        assert phir["ops"][7] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "add_one",
             "args": ["c2"],
             "returns": ["c2"],
         }
-        assert phir["ops"][9] == {  # type: ignore[misc]
+        assert phir["ops"][9] == {
             "block": "if",
             "condition": {"cop": "==", "args": [["c1", 0], 1]},
             "true_branch": [
@@ -191,13 +193,13 @@ class TestApi:
                 }
             ],
         }
-        assert phir["ops"][12] == {  # type: ignore[misc]
+        assert phir["ops"][12] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "no_return",
             "args": ["c2"],
         }
-        assert phir["ops"][14] == {  # type: ignore[misc]
+        assert phir["ops"][14] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "no_parameters",
