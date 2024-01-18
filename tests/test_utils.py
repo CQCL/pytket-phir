@@ -11,7 +11,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from wasmtime import wat2wasm  # type: ignore[import-not-found]
+from wasmtime import wat2wasm
 
 from pytket.phir.phirgen_parallel import genphir_parallel
 from pytket.phir.place_and_route import place_and_route
