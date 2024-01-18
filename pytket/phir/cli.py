@@ -34,9 +34,9 @@ def main() -> None:
     )
     parser.add_argument(
         "-w",
-        "--wasm-file-path",
+        "--wasm-file",
         default=None,
-        help="Optional WASM file path for use by the QASM programs",
+        help="Optional WASM file for use by the QASM programs",
     )
     parser.add_argument(
         "-m",
@@ -64,9 +64,9 @@ def main() -> None:
     for file in args.qasm_files:
         print(f"Processing {file}")
         circuit = None
-        if args.wasm_file_path:
-            print(f"Including WASM from file {args.wasm_file_path}")
-            circuit = circuit_from_qasm_wasm(file, args.wasm_file_path)
+        if args.wasm_file:
+            print(f"Including WASM from file {args.wasm_file}")
+            circuit = circuit_from_qasm_wasm(file, args.wasm_file)
         else:
             circuit = circuit_from_qasm(file)
 

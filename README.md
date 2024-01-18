@@ -37,7 +37,10 @@ options:
   -h, --help            show this help message and exit
   -m {H1-1,H1-2}, --machine {H1-1,H1-2}
                         machine name, H1-1 by default
+  -o, --tket-opt-level  select TKET optimization level (0 to 2, default: 0)
+  -w, --wasm-file       path to an optional WASM file to include
   -v, --version         show program's version number and exit
+
 ```
 
 ## Development

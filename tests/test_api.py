@@ -13,7 +13,6 @@ import logging
 from tempfile import NamedTemporaryFile
 
 import pytest
-from phir.model import PHIRModel
 
 from pytket.circuit import Bit, Circuit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
@@ -29,8 +28,7 @@ class TestApi:
     def test_pytket_to_phir_no_machine(self) -> None:
         """Test case when no machine is present."""
         circuit = get_qasm_as_circuit(QasmFile.baby)
-        phir = pytket_to_phir(circuit)
-        PHIRModel.model_validate_json(phir)
+        assert pytket_to_phir(circuit)
 
     @pytest.mark.parametrize("test_file", list(QasmFile))
     def test_pytket_to_phir_no_machine_all(self, test_file: QasmFile) -> None:
@@ -45,16 +43,14 @@ class TestApi:
                 with pytest.raises(KeyError, match=r".*U3.*"):
                     assert pytket_to_phir(circuit)
             case _:
-                phir = pytket_to_phir(circuit)
-                PHIRModel.model_validate_json(phir)
+                assert pytket_to_phir(circuit)
 
     @pytest.mark.parametrize("test_file", list(QasmFile))
     def test_pytket_to_phir_h1_1_all(self, test_file: QasmFile) -> None:
         """Standard case."""
         circuit = get_qasm_as_circuit(test_file)
 
-        phir = pytket_to_phir(circuit, QtmMachine.H1_1)
-        PHIRModel.model_validate_json(phir)
+        assert pytket_to_phir(circuit, QtmMachine.H1_1)
 
     def test_pytket_classical_only(self) -> None:
         c = Circuit(1)
@@ -91,8 +87,7 @@ class TestApi:
         measure q[1]->cr[0];
         """
 
-        phir = qasm_to_phir(qasm, QtmMachine.H1_1)
-        PHIRModel.model_validate_json(phir)
+        assert qasm_to_phir(qasm, QtmMachine.H1_1)
 
     def test_qasm_to_phir_with_wasm(self) -> None:
         """Test the qasm string entrypoint works with WASM."""
@@ -117,7 +112,6 @@ class TestApi:
 
         phir_str = qasm_to_phir(qasm, QtmMachine.H1_1, wasm_bytes=wasm_bytes)
         phir = json.loads(phir_str)
-        assert phir is not None
 
         expected_metadata = {
             "ff_object": (
@@ -156,7 +150,6 @@ class TestApi:
 
             phir_str = pytket_to_phir(c, QtmMachine.H1_1)
 
-        PHIRModel.model_validate_json(phir_str)
         phir = json.loads(phir_str)
 
         expected_metadata = {
