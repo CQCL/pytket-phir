@@ -194,7 +194,7 @@ class Sharder:
                     "...adding shard dep %s -> WAW", self._bit_written_by[bit_written]
                 )
                 depends_upon.add(self._bit_written_by[bit_written])
-            elif bit_written in self._bit_read_by:
+            if bit_written in self._bit_read_by:
                 logger.debug(
                     "...adding shard dep %s -> WAR", self._bit_read_by[bit_written]
                 )
