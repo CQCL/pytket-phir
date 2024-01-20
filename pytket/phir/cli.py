@@ -59,7 +59,7 @@ def main() -> None:
     for file in args.qasm_files:
         print(f"Processing {file}")  # noqa: T201
         c = circuit_from_qasm(file)
-        tket_opt_level = int(args.tk)
+        tket_opt_level = int(args.tket_opt_level)
         rc = rebase_to_qtm_machine(c, args.machine, tket_opt_level)
         qasm = circuit_to_qasm_str(rc, header="hqslib1")
         circ = circuit_from_qasm_str(qasm)
