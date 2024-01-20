@@ -42,6 +42,7 @@ class QasmFile(Enum):
     tk2_same_angle = auto()
     tk2_diff_angles = auto()
     rxrz = auto()
+    classical_ordering = auto()
 
 
 def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
