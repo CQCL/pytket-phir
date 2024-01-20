@@ -13,6 +13,8 @@ import logging
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, TypeAlias
 
+from typing_extensions import assert_never
+
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import (
@@ -136,6 +138,8 @@ def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
             cop = "/"
         case RegWiseOp.POW:
             cop = "**"
+        case _:
+            assert_never(exp.op)
 
     args: list[JsonDict | Var | Constant | Bit] = []
     for arg in exp.args:
