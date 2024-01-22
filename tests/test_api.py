@@ -8,6 +8,8 @@
 
 # mypy: disable-error-code="misc"
 
+import base64
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -111,15 +113,12 @@ class TestApi:
 
         wasm_bytes = get_wat_as_wasm_bytes(WatFile.add)
 
+        wasm_uid = hashlib.sha256(base64.b64encode(wasm_bytes)).hexdigest()
+
         phir_str = qasm_to_phir(qasm, QtmMachine.H1_1, wasm_bytes=wasm_bytes)
         phir = json.loads(phir_str)
 
-        expected_metadata = {
-            "ff_object": (
-                "WASM module uid: 28c0194b91f1e24d6fc40ec480c026a5874661184"
-                "bcd411a61bd5d5383df5180"
-            )
-        }
+        expected_metadata = {"ff_object": (f"WASM module uid: {wasm_uid}")}
 
         assert phir["ops"][21] == {
             "metadata": expected_metadata,
@@ -158,12 +157,7 @@ class TestApi:
 
         phir = json.loads(phir_str)
 
-        expected_metadata = {
-            "ff_object": (
-                "WASM module uid: 3138ec2df84e13dcee5f3772555e93d4"
-                "3de8f2e2a0937770c5959bca2da4fb10"
-            )
-        }
+        expected_metadata = {"ff_object": (f"WASM module uid: {w!s}")}
 
         assert phir["ops"][4] == {
             "metadata": expected_metadata,
