@@ -7,7 +7,7 @@ pydata_sphinx_theme==0.15.2
 pytest==7.4.4
 pytket-quantinuum==0.27.0
 pytket==1.24.0
-ruff==0.1.13
+ruff==0.1.14
 setuptools_scm==8.0.4
 sphinx==7.2.6
 wheel==0.42.0
