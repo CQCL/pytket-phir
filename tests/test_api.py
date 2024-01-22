@@ -192,7 +192,7 @@ class TestApi:
             "function": "no_return",
             "args": ["c2"],
         }
-        assert phir["ops"][14] == {
+        assert phir["ops"][15] == {
             "metadata": expected_metadata,
             "cop": "ffcall",
             "function": "no_parameters",
