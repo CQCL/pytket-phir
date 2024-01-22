@@ -1,10 +1,13 @@
-.PHONY: install dev tests lint docs clean build
+.PHONY: install dev dev-all tests lint docs clean build
 
 install:
 	pip install .
 
 dev:
 	pip install -e .
+
+dev-all:
+	pip install -e .[phirc]
 
 tests:
 	pytest -s -x -vv tests/test*.py
