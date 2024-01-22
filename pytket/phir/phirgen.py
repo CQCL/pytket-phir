@@ -13,9 +13,18 @@ import logging
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, TypeAlias
 
+from typing_extensions import assert_never
+
 import pytket.circuit as tk
 from phir.model import PHIRModel
-from pytket.circuit.logic_exp import Constant, LogicExp, RegWiseOp
+from pytket.circuit.logic_exp import (
+    BitLogicExp,
+    BitWiseOp,
+    Constant,
+    LogicExp,
+    RegLogicExp,
+    RegWiseOp,
+)
 from pytket.unit_id import Bit as tkBit
 from pytket.unit_id import BitRegister
 
@@ -89,26 +98,26 @@ def assign_cop(
     }
 
 
-def regwise_cop(exp: LogicExp) -> JsonDict:
+def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
     """PHIR for classical register operations."""
     match exp.op:
-        case RegWiseOp.XOR:
+        # Bitwise
+        case RegWiseOp.AND | BitWiseOp.AND:
+            cop = "&"
+        case RegWiseOp.OR | BitWiseOp.OR:
+            cop = "|"
+        case RegWiseOp.XOR | BitWiseOp.XOR:
             cop = "^"
-        case RegWiseOp.ADD:
-            cop = "+"
-        case RegWiseOp.SUB:
-            cop = "-"
-        case RegWiseOp.MUL:
-            cop = "*"
-        case RegWiseOp.DIV:
-            cop = "/"
+        case RegWiseOp.NOT | BitWiseOp.NOT:
+            cop = "~"
         case RegWiseOp.LSH:
             cop = "<<"
         case RegWiseOp.RSH:
             cop = ">>"
-        case RegWiseOp.EQ:
+        # Comparison
+        case RegWiseOp.EQ | BitWiseOp.EQ:
             cop = "=="
-        case RegWiseOp.NEQ:
+        case RegWiseOp.NEQ | BitWiseOp.NEQ:
             cop = "!="
         case RegWiseOp.LT:
             cop = "<"
@@ -118,23 +127,38 @@ def regwise_cop(exp: LogicExp) -> JsonDict:
             cop = "<="
         case RegWiseOp.GEQ:
             cop = ">="
-        case RegWiseOp.NOT:
-            cop = "~"
-        case other:
-            logging.exception("Unsupported classical operator %s", other)
-            raise ValueError
+        # Arithmetic
+        case RegWiseOp.ADD:
+            cop = "+"
+        case RegWiseOp.SUB | RegWiseOp.NEG:
+            cop = "-"
+        case RegWiseOp.MUL:
+            cop = "*"
+        case RegWiseOp.DIV:
+            cop = "/"
+        case RegWiseOp.POW:
+            cop = "**"
+        case _:
+            assert_never(exp.op)
 
-    args: list[JsonDict | Var | Constant] = []
+    args: list[JsonDict | Var | Constant | Bit] = []
     for arg in exp.args:
         match arg:
             case LogicExp():
-                args.append(regwise_cop(arg))
+                args.append(classical_op(arg))
             case BitRegister():
+                if bitwise:
+                    raise TypeError
                 args.append(arg.name)
             case Constant():
+                if bitwise and (arg < 0 or arg > 1):
+                    raise ValueError
                 args.append(arg)
             case tkBit():
-                args.append(arg.reg_name)
+                if bitwise:
+                    args.append(arg_to_bit(arg))
+                else:
+                    args.append(arg.reg_name)
     return {
         "cop": cop,
         "args": args,
@@ -235,8 +259,13 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
 
         case tk.ClassicalExpBox():
             exp = op.get_exp()
-            rhs = [regwise_cop(exp)]
-            out = assign_cop([cmd.bits[0].reg_name], rhs)
+            match exp:
+                case BitLogicExp():
+                    rhs = [classical_op(exp, bitwise=True)]
+                    out = assign_cop([arg_to_bit(cmd.bits[0])], rhs)
+                case RegLogicExp():
+                    rhs = [classical_op(exp)]
+                    out = assign_cop([cmd.bits[0].reg_name], rhs)
 
         case tk.SetBitsOp():
             if len(cmd.bits) != len(op.values):
