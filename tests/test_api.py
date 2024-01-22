@@ -154,7 +154,7 @@ class TestApi:
 
             phir_str = pytket_to_phir(c, QtmMachine.H1_1)
         finally:
-            Path.unlink(Path(wasm_file.name))  # type: ignore[misc]
+            Path.unlink(Path(wasm_file.name))
 
         phir = json.loads(phir_str)
 

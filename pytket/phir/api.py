@@ -6,6 +6,8 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import logging
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -76,7 +78,7 @@ def pytket_to_phir(
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:
-        print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
+        print(PHIRModel.model_validate_json(phir_json))
     return phir_json
 
 
@@ -110,8 +112,8 @@ def qasm_to_phir(
 
             circuit = circuit_from_qasm_wasm(qasm_file.name, wasm_file.name)
         finally:
-            Path.unlink(Path(qasm_file.name))  # type: ignore[misc]
-            Path.unlink(Path(wasm_file.name))  # type: ignore[misc]
+            Path.unlink(Path(qasm_file.name))
+            Path.unlink(Path(wasm_file.name))
     else:
         circuit = circuit_from_qasm_str(qasm)
     return pytket_to_phir(circuit, qtm_machine, tket_optimization_level)
