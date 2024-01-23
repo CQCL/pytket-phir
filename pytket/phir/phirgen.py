@@ -281,6 +281,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                 [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
             )
 
+        case tk.WASMOp():
+            return create_wasm_op(cmd, op)
+
         case _:
             # TODO(kartik): NYI
             # https://github.com/CQCL/pytket-phir/issues/25
@@ -296,10 +299,61 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         cmd: pytket command obtained from pytket-phir
         ops: the list of ops to append to
     """
-    ops.append({"//": str(cmd)})
+    ops.append({"//": make_comment_text(cmd, cmd.op)})
     op: JsonDict | None = convert_subcmd(cmd.op, cmd)
     if op:
         ops.append(op)
+
+
+def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> JsonDict:
+    """Creates a PHIR operation for a WASM command."""
+    args, returns = extract_wasm_args_and_returns(cmd, wasm_op)
+    op = {
+        "cop": "ffcall",
+        "function": wasm_op.func_name,
+        "args": args,
+        "metadata": {
+            "ff_object": f"WASM module uid: {wasm_op.wasm_uid}",
+        },
+    }
+    if cmd.bits:
+        op["returns"] = returns
+
+    return op
+
+
+def extract_wasm_args_and_returns(
+    command: tk.Command, op: tk.WASMOp
+) -> tuple[list[str], list[str]]:
+    """Extract the wasm args and return values as whole register names."""
+    # This slice removes the extra `_w` cregs (wires) that are not part of the
+    # circuit, and the output args which are appended after the input args
+    slice_index = op.num_w + sum(op.output_widths)
+    only_args = command.args[:-slice_index]
+    return (
+        dedupe_bits_to_registers(only_args),
+        dedupe_bits_to_registers(command.bits),
+    )
+
+
+def dedupe_bits_to_registers(bits: "Sequence[UnitID]") -> list[str]:
+    """Dedupes a list of bits to their registers, keeping order intact."""
+    return list(dict.fromkeys([bit.reg_name for bit in bits]))
+
+
+def make_comment_text(command: tk.Command, op: tk.Op) -> str:
+    """Converts a command + op to the PHIR comment spec."""
+    match op:
+        case tk.Conditional():
+            conditional_text = str(command)
+            cleaned = conditional_text[: conditional_text.find("THEN") + 4]
+            return f"{cleaned} {make_comment_text(command, op.op)}"
+
+        case tk.WASMOp():
+            args, returns = extract_wasm_args_and_returns(command, op)
+            return f"WASM function={op.func_name} args={args} returns={returns}"
+        case _:
+            return str(command)
 
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
@@ -334,6 +388,7 @@ def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | in
             "size": dim,
         }
         for cvar, dim in cvar_dim.items()
+        if cvar != "_w"
     ]
 
     return decls

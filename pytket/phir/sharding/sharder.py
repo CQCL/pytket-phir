@@ -14,7 +14,7 @@ from pytket.unit_id import Bit, Qubit, UnitID
 
 from .shard import Shard
 
-NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox, OpType.WASM]
+NOT_IMPLEMENTED_OP_TYPES = [OpType.CircBox]
 
 SHARD_TRIGGER_OP_TYPES = [
     OpType.Measure,
@@ -25,6 +25,7 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.RangePredicate,
     OpType.ExplicitPredicate,
     OpType.CopyBits,
+    OpType.WASM,
 ]
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,6 @@ class Sharder:
             return
 
         if self.should_op_create_shard(command.op):
-            logger.debug("Building shard for command: %s", command)
             self._build_shard(command)
         else:
             self._add_pending_sub_command(command)
@@ -112,6 +112,7 @@ class Sharder:
         Args:
             command: tket command (operation, bits, etc)
         """
+        logger.debug("Building shard for command: %s", command)
         # Rollup any sub commands (SQ gates) that interact with the same qubits
         sub_commands: dict[UnitID, list[Command]] = {}
         for key in (
@@ -123,6 +124,7 @@ class Sharder:
         for sub_command_list in sub_commands.values():
             all_commands.extend(sub_command_list)
 
+        logger.debug("All shard commands: %s", all_commands)
         qubits_used = set(command.qubits)
         bits_written = set(command.bits)
         bits_read: set[Bit] = set()
@@ -185,7 +187,9 @@ class Sharder:
 
         for bit_read in bits_read:
             if bit_read in self._bit_written_by:
-                logger.debug("...adding shard dep %s -> RAW")
+                logger.debug(
+                    "...adding shard dep %s -> RAW", self._bit_written_by[bit_read]
+                )
                 depends_upon.add(self._bit_written_by[bit_read])
 
         for bit_written in bits_written:
@@ -220,6 +224,7 @@ class Sharder:
             self._bit_written_by[bit] = shard.ID
         for bit in shard.bits_read:
             self._bit_read_by[bit] = shard.ID
+        logger.debug("... dependencies marked")
 
     def _cleanup_remaining_commands(self) -> None:
         """Cleans up any remaining subcommands.
@@ -228,7 +233,11 @@ class Sharder:
         to roll up lingering subcommands.
         """
         remaining_qubits = [k for k, v in self._pending_commands.items() if v]
+        logger.debug(
+            "Cleaning up remaining subcommands for qubits %s", remaining_qubits
+        )
         for qubit in remaining_qubits:
+            logger.debug("Adding barrier for subcommands for qubit %s", qubit)
             self._circuit.add_barrier([qubit])
             # Easiest way to get to a command, since there's no constructor. Could
             # create an entire orphan circuit with the matching qubits and the barrier
@@ -249,7 +258,7 @@ class Sharder:
         if qubit_key not in self._pending_commands:
             self._pending_commands[qubit_key] = []
         self._pending_commands[qubit_key].append(command)
-        logger.debug("Adding pending command %s", command)
+        logger.debug("Added pending sub-command %s", command)
 
     @staticmethod
     def should_op_create_shard(op: Op) -> bool:

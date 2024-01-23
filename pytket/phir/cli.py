@@ -7,22 +7,21 @@
 ##############################################################################
 
 # mypy: disable-error-code="misc"
+# ruff: noqa: T201
 
 from argparse import ArgumentParser
 from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
+from pecos.foreign_objects.wasmtime import WasmtimeObj  # type:ignore [import-not-found]
 
-from phir.model import PHIRModel
 from pytket.qasm.qasm import (
     circuit_from_qasm,
-    circuit_from_qasm_str,
-    circuit_to_qasm_str,
+    circuit_from_qasm_wasm,
 )
 
 from .api import pytket_to_phir
 from .qtm_machine import QtmMachine
-from .rebasing.rebaser import rebase_to_qtm_machine
 
 
 def main() -> None:
@@ -35,11 +34,17 @@ def main() -> None:
         "qasm_files", nargs="+", default=None, help="One or more QASM files to emulate"
     )
     parser.add_argument(
+        "-w",
+        "--wasm-file",
+        default=None,
+        help="Optional WASM file for use by the QASM programs",
+    )
+    parser.add_argument(
         "-m",
         "--machine",
         choices=["H1-1", "H1-2"],
         default="H1-1",
-        help="machine name, H1-1 by default",
+        help="Machine name, H1-1 by default",
     )
     parser.add_argument(
         "-o",
@@ -48,8 +53,8 @@ def main() -> None:
         default="0",
         help="TKET optimization level, 0 by default",
     )
+    parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
-        "-v",
         "--version",
         action="version",
         version=f'{version("pytket-phir")}',
@@ -57,19 +62,31 @@ def main() -> None:
     args = parser.parse_args()
 
     for file in args.qasm_files:
-        print(f"Processing {file}")  # noqa: T201
-        c = circuit_from_qasm(file)
-        tket_opt_level = int(args.tket_opt_level)
-        rc = rebase_to_qtm_machine(c, args.machine, tket_opt_level)
-        qasm = circuit_to_qasm_str(rc, header="hqslib1")
-        circ = circuit_from_qasm_str(qasm)
+        print(f"Processing {file}")
+        circuit = None
+        if args.wasm_file:
+            print(f"Including WASM from file {args.wasm_file}")
+            circuit = circuit_from_qasm_wasm(file, args.wasm_file)
+            wasm_pecos_obj = WasmtimeObj(args.wasm_file)
+        else:
+            circuit = circuit_from_qasm(file)
 
         match args.machine:
             case "H1-1":
                 machine = QtmMachine.H1_1
             case "H1-2":
                 machine = QtmMachine.H1_2
-        phir = pytket_to_phir(circ, machine)
-        PHIRModel.model_validate_json(phir)
 
-        HybridEngine(qsim="state-vector").run(program=phir, shots=10)
+        phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
+        if args.verbose:
+            print("\nPHIR to be simulated:")
+            print(phir)
+
+        print("\nPECOS results:")
+        print(
+            HybridEngine(qsim="state-vector").run(
+                program=phir,
+                shots=10,
+                foreign_object=wasm_pecos_obj if args.wasm_file else None,
+            )
+        )

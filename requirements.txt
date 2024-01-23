@@ -10,4 +10,5 @@ pytket==1.24.0
 ruff==0.1.14
 setuptools_scm==8.0.4
 sphinx==7.2.6
+wasmtime==15.0.0
 wheel==0.42.0

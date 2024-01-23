@@ -6,13 +6,17 @@
 #
 ##############################################################################
 
+# mypy: disable-error-code="misc"
+
 import logging
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
 from rich import print
 
 from phir.model import PHIRModel
-from pytket.qasm.qasm import circuit_from_qasm_str
+from pytket.qasm.qasm import circuit_from_qasm_str, circuit_from_qasm_wasm
 
 from .phirgen import genphir
 from .phirgen_parallel import genphir_parallel
@@ -74,7 +78,7 @@ def pytket_to_phir(
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:
-        print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
+        print(PHIRModel.model_validate_json(phir_json))
     return phir_json
 
 
@@ -82,6 +86,7 @@ def qasm_to_phir(
     qasm: str,
     qtm_machine: QtmMachine | None = None,
     tket_optimization_level: int = DEFAULT_TKET_OPT_LEVEL,
+    wasm_bytes: bytes | None = None,
 ) -> str:
     """Converts a QASM circuit string into its PHIR representation.
 
@@ -91,6 +96,24 @@ def qasm_to_phir(
     :param circuit: Circuit object to be converted
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
     :param tket_optimization_level: (Default=0) TKET circuit optimization level
+    :param wasm_bytes (Optional) WASM as bytes to include as part of circuit
     """
-    circuit = circuit_from_qasm_str(qasm)
+    circuit: Circuit
+    if wasm_bytes:
+        try:
+            qasm_file = NamedTemporaryFile(suffix=".qasm", delete=False)
+            wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+            qasm_file.write(qasm.encode())
+            qasm_file.flush()
+            qasm_file.close()
+            wasm_file.write(wasm_bytes)
+            wasm_file.flush()
+            wasm_file.close()
+
+            circuit = circuit_from_qasm_wasm(qasm_file.name, wasm_file.name)
+        finally:
+            Path.unlink(Path(qasm_file.name))
+            Path.unlink(Path(wasm_file.name))
+    else:
+        circuit = circuit_from_qasm_str(qasm)
     return pytket_to_phir(circuit, qtm_machine, tket_optimization_level)

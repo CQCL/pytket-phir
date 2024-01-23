@@ -27,6 +27,7 @@ dependencies = [
   "phir>=0.2.1",
   "pytket-quantinuum>=0.25.0",
   "pytket>=1.21.0",
+  "wasmtime>=15.0.0",
   ]
 
 [project.optional-dependencies]
@@ -55,8 +56,9 @@ pythonpath = [
 ]
 log_cli = true
 log_cli_level = "INFO"
+log_level = "DEBUG"
 filterwarnings = ["ignore:::lark.s*"]
-log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s"
+log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.setuptools_scm]

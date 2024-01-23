@@ -43,4 +43,5 @@ repos:
         pytket-quantinuum,
         pytket,
         types-setuptools,
+        wasmtime,
       ]
