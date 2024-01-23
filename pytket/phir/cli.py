@@ -9,7 +9,7 @@
 # mypy: disable-error-code="misc"
 # ruff: noqa: T201
 
-from argparse import ArgumentParser, BooleanOptionalAction
+from argparse import ArgumentParser
 from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
@@ -43,7 +43,7 @@ def main() -> None:
         "--machine",
         choices=["H1-1", "H1-2"],
         default="H1-1",
-        help="machine name, H1-1 by default",
+        help="Machine name, H1-1 by default",
     )
     parser.add_argument(
         "-o",
@@ -52,9 +52,8 @@ def main() -> None:
         default="0",
         help="TKET optimization level, 0 by default",
     )
-    parser.add_argument("--verbose", action=BooleanOptionalAction)
+    parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
-        "-v",
         "--version",
         action="version",
         version=f'{version("pytket-phir")}',
