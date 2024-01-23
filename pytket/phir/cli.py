@@ -13,6 +13,10 @@ from argparse import ArgumentParser
 from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
+from pecos.foreign_objects.wasmtime import (  # type:ignore [import-not-found]
+    ForeignObject,
+    WasmtimeObj,
+)
 
 from pytket.qasm.qasm import (
     circuit_from_qasm,
@@ -63,9 +67,11 @@ def main() -> None:
     for file in args.qasm_files:
         print(f"Processing {file}")
         circuit = None
+        wasm_pecos_obj: ForeignObject | None = None  # type:ignore [no-any-unimported]
         if args.wasm_file:
             print(f"Including WASM from file {args.wasm_file}")
             circuit = circuit_from_qasm_wasm(file, args.wasm_file)
+            wasm_pecos_obj = WasmtimeObj(args.wasm_file)
         else:
             circuit = circuit_from_qasm(file)
 
@@ -81,4 +87,8 @@ def main() -> None:
             print(phir)
 
         print("\nPECOS results:")
-        print(HybridEngine(qsim="state-vector").run(program=phir, shots=10))
+        print(
+            HybridEngine(qsim="state-vector").run(
+                program=phir, shots=10, foreign_object=wasm_pecos_obj
+            )
+        )
