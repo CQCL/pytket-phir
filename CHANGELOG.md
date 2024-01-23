@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0]
+## [0.3.0] - 2024-01-23
 
 ### Added
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * sharder: issue with classical ordering in https://github.com/CQCL/pytket-phir/pull/96
 
-## [0.2.1]
+## [0.2.1] - 2024-01-17
 
 ### Added
 
@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `KeyError: 'name'` raised by `pytket_to_phir` with arithmetic operation https://github.com/CQCL/pytket-phir/issues/87
   * `TypeError: 'int' object is not subscriptable` raised by `pytket_to_phir` with arithmetic operation https://github.com/CQCL/pytket-phir/issues/88
 
-## [0.2.0]
+## [0.2.0] - 2023-12-18
 
 ### Added
 

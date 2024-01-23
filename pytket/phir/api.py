@@ -93,10 +93,10 @@ def qasm_to_phir(
     This can optionally include rebasing against a Quantinuum machine architecture,
     and control of the TKET optimization level.
 
-    :param circuit: Circuit object to be converted
+    :param qasm: QASM input to be converted
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
     :param tket_optimization_level: (Default=0) TKET circuit optimization level
-    :param wasm_bytes (Optional) WASM as bytes to include as part of circuit
+    :param wasm_bytes: (Optional) WASM as bytes to include as part of circuit
     """
     circuit: Circuit
     if wasm_bytes:
