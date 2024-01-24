@@ -63,3 +63,6 @@ log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.setuptools_scm]
 version_scheme = "python-simplified-semver"
+
+[tool.refurb]
+python_version = "3.10"

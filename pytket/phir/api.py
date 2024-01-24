@@ -64,8 +64,7 @@ def pytket_to_phir(
         machine = None
 
     logger.debug("Sharding input circuit...")
-    sharder = Sharder(circuit)
-    shards = sharder.shard()
+    shards = Sharder(circuit).shard()
 
     if machine:
         # Only print message if a machine object is passed

@@ -73,8 +73,7 @@ def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
         circuit = rebase_to_qtm_machine(circuit, qtm_machine.value, 0)
     machine = QTM_MACHINES_MAP.get(qtm_machine)
     assert machine
-    sharder = Sharder(circuit)
-    shards = sharder.shard()
+    shards = Sharder(circuit).shard()
     placed = place_and_route(shards, machine)
     return json.loads(genphir_parallel(placed, machine))  # type: ignore[misc, no-any-return]
 

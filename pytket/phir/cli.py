@@ -57,7 +57,7 @@ def main() -> None:
     parser.add_argument(
         "--version",
         action="version",
-        version=f'{version("pytket-phir")}',
+        version=str(version("pytket-phir")),
     )
     args = parser.parse_args()
 
