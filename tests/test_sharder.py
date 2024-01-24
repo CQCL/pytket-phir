@@ -17,8 +17,7 @@ from .test_utils import QasmFile, get_qasm_as_circuit
 class TestSharder:
     def test_shard_hashing(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.baby)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         shard_set = set(shards)
         assert len(shard_set) == 3
@@ -47,8 +46,7 @@ class TestSharder:
 
     def test_with_baby_circuit(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.baby)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 3
 
@@ -70,8 +68,7 @@ class TestSharder:
 
     def test_rollup_behavior(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.baby_with_rollup)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 5
 
@@ -106,8 +103,7 @@ class TestSharder:
 
     def test_simple_conditional(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.simple_cond)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 4
 
@@ -153,8 +149,7 @@ class TestSharder:
 
     def test_complex_barriers(self) -> None:  # noqa: PLR0915
         circuit = get_qasm_as_circuit(QasmFile.barrier_complex)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 7
 
@@ -238,8 +233,7 @@ class TestSharder:
 
     def test_classical_hazards(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 5
 
@@ -286,8 +280,7 @@ class TestSharder:
 
     def test_with_big_gate(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.big_gate)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 2
 
@@ -310,8 +303,7 @@ class TestSharder:
 
     def test_classical_ordering_breaking_circuit(self) -> None:
         circuit = get_qasm_as_circuit(QasmFile.classical_ordering)
-        sharder = Sharder(circuit)
-        shards = sharder.shard()
+        shards = Sharder(circuit).shard()
 
         assert len(shards) == 4
 

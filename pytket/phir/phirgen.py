@@ -352,8 +352,8 @@ def make_comment_text(command: tk.Command, op: tk.Op) -> str:
         case tk.WASMOp():
             args, returns = extract_wasm_args_and_returns(command, op)
             return f"WASM function={op.func_name} args={args} returns={returns}"
-        case _:
-            return str(command)
+
+    return str(command)
 
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
