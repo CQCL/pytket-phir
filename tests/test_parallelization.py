@@ -78,31 +78,53 @@ def test_parallel_subcommand_relative_ordering() -> None:
 
 def test_single_qubit_circuit_with_parallel() -> None:
     """Make sure there are no parallel blocks present in the 1qubit circuit."""
-    phir_parallel = get_phir_json(QasmFile.single_qubit_parallel_test, rebase=True)
-    phir_no_parallel = get_phir_json(QasmFile.single_qubit_parallel_test, rebase=False)
-    assert len(phir_parallel) == len(phir_no_parallel)
+    phir_with_parallel_phirgen = get_phir_json(
+        QasmFile.single_qubit_parallel_test, rebase=True
+    )
+    phir_with_standard_phirgen = get_phir_json(
+        QasmFile.single_qubit_parallel_test, rebase=False
+    )
+    assert len(phir_with_parallel_phirgen) == len(phir_with_standard_phirgen)
     # since the rebasing converts to the native gate set,
     # the names and angle foramts of the qops will not match.
     # for example Ry gets converted to R1XY
     # compare angles and args instead
 
-    assert phir_parallel["ops"][3]["qop"] == "R1XY"
-    assert phir_parallel["ops"][5]["qop"] == "RZ"
-    assert phir_parallel["ops"][7]["qop"] == "R1XY"
-    assert phir_parallel["ops"][11]["qop"] == "R1XY"
-    assert phir_parallel["ops"][13]["qop"] == "RZ"
-    assert phir_parallel["ops"][15]["qop"] == "R1XY"
+    assert phir_with_parallel_phirgen["ops"][3]["qop"] == "R1XY"
+    assert phir_with_parallel_phirgen["ops"][5]["qop"] == "RZ"
+    assert phir_with_parallel_phirgen["ops"][7]["qop"] == "R1XY"
+    assert phir_with_parallel_phirgen["ops"][11]["qop"] == "R1XY"
+    assert phir_with_parallel_phirgen["ops"][13]["qop"] == "RZ"
+    assert phir_with_parallel_phirgen["ops"][15]["qop"] == "R1XY"
 
-    assert phir_no_parallel["ops"][3]["qop"] == "RY"
-    assert phir_no_parallel["ops"][5]["qop"] == "RZ"
-    assert phir_no_parallel["ops"][7]["qop"] == "RY"
-    assert phir_no_parallel["ops"][11]["qop"] == "RY"
-    assert phir_no_parallel["ops"][13]["qop"] == "RZ"
-    assert phir_no_parallel["ops"][15]["qop"] == "RY"
+    assert phir_with_standard_phirgen["ops"][3]["qop"] == "RY"
+    assert phir_with_standard_phirgen["ops"][5]["qop"] == "RZ"
+    assert phir_with_standard_phirgen["ops"][7]["qop"] == "RY"
+    assert phir_with_standard_phirgen["ops"][11]["qop"] == "RY"
+    assert phir_with_standard_phirgen["ops"][13]["qop"] == "RZ"
+    assert phir_with_standard_phirgen["ops"][15]["qop"] == "RY"
 
-    assert phir_parallel["ops"][3]["args"] == phir_no_parallel["ops"][3]["args"]
-    assert phir_parallel["ops"][5]["args"] == phir_no_parallel["ops"][5]["args"]
-    assert phir_parallel["ops"][7]["args"] == phir_no_parallel["ops"][7]["args"]
-    assert phir_parallel["ops"][11]["args"] == phir_no_parallel["ops"][11]["args"]
-    assert phir_parallel["ops"][13]["args"] == phir_no_parallel["ops"][13]["args"]
-    assert phir_parallel["ops"][15]["args"] == phir_no_parallel["ops"][15]["args"]
+    assert (
+        phir_with_parallel_phirgen["ops"][3]["args"]
+        == phir_with_standard_phirgen["ops"][3]["args"]
+    )
+    assert (
+        phir_with_parallel_phirgen["ops"][5]["args"]
+        == phir_with_standard_phirgen["ops"][5]["args"]
+    )
+    assert (
+        phir_with_parallel_phirgen["ops"][7]["args"]
+        == phir_with_standard_phirgen["ops"][7]["args"]
+    )
+    assert (
+        phir_with_parallel_phirgen["ops"][11]["args"]
+        == phir_with_standard_phirgen["ops"][11]["args"]
+    )
+    assert (
+        phir_with_parallel_phirgen["ops"][13]["args"]
+        == phir_with_standard_phirgen["ops"][13]["args"]
+    )
+    assert (
+        phir_with_parallel_phirgen["ops"][15]["args"]
+        == phir_with_standard_phirgen["ops"][15]["args"]
+    )
