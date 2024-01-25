@@ -46,13 +46,6 @@ def main() -> None:
         default="H1-1",
         help="Machine name, H1-1 by default",
     )
-    parser.add_argument(
-        "-o",
-        "--tket-opt-level",
-        choices=["0", "1", "2"],
-        default="0",
-        help="TKET optimization level, 0 by default",
-    )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
         "--version",
@@ -77,7 +70,7 @@ def main() -> None:
             case "H1-2":
                 machine = QtmMachine.H1_2
 
-        phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
+        phir = pytket_to_phir(circuit, machine)
         if args.verbose:
             print("\nPHIR to be simulated:")
             print(phir)

@@ -8,30 +8,24 @@
 
 from typing import TYPE_CHECKING
 
-from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIOffline
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    QuantinuumBackend,
-)
+from pytket.circuit import OpType
 from pytket.passes import DecomposeBoxes
+from pytket.passes.auto_rebase import auto_rebase_pass
+from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 
 if TYPE_CHECKING:
     from pytket.circuit import Circuit
 
 
-def rebase_to_qtm_machine(
-    circuit: "Circuit", qtm_machine: str, tket_optimization_level: int
-) -> "Circuit":
+def rebase_to_qtm_machine(circuit: "Circuit", qtm_machine: QtmMachine) -> "Circuit":
     """Rebases a circuit's gate to the gate set appropriate for the given machine."""
-    qapi_offline = QuantinuumAPIOffline()
-    backend = QuantinuumBackend(
-        device_name=qtm_machine,
-        machine_debug=False,
-        api_handler=qapi_offline,  # type: ignore [arg-type]
+    machine = QTM_MACHINES_MAP.get(qtm_machine)
+    gateset = (
+        {OpType.Rz, OpType.PhasedX, OpType.ZZPhase}
+        if machine is None
+        else machine.gateset
     )
-
-    # Decompose boxes to ensure no problematic phase gates
-    DecomposeBoxes().apply(circuit)
-
-    # Optimization level 0 includes rebasing and little else
-    # see: https://cqcl.github.io/pytket-quantinuum/api/#default-compilation
-    return backend.get_compiled_circuit(circuit, tket_optimization_level)
+    c = circuit.copy()
+    DecomposeBoxes().apply(c)
+    auto_rebase_pass(gateset, allow_swaps=True).apply(c)
+    return c

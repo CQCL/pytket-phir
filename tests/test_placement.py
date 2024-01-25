@@ -10,7 +10,8 @@
 
 import pytest
 
-from pytket.phir.machine import Machine
+from pytket.circuit import OpType
+from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
@@ -18,9 +19,9 @@ from pytket.phir.placement import (
     placement_check,
 )
 
-m = Machine(4, {1}, 10, 2, 2)
-m2 = Machine(6, {1, 3}, 10, 2, 2)
-m3 = Machine(8, {0, 6}, 10, 2, 2)
+m = Machine(4, {OpType.TK1, OpType.TK2}, {1}, MachineTimings(10, 2, 2))
+m2 = Machine(6, {OpType.TK1, OpType.TK2}, {1, 3}, MachineTimings(10, 2, 2))
+m3 = Machine(8, {OpType.TK1, OpType.TK2}, {0, 6}, MachineTimings(10, 2, 2))
 
 
 def test_placement_check() -> None:
