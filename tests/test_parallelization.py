@@ -90,41 +90,16 @@ def test_single_qubit_circuit_with_parallel() -> None:
     # for example Ry gets converted to R1XY
     # compare angles and args instead
 
-    assert phir_with_parallel_phirgen["ops"][3]["qop"] == "R1XY"
-    assert phir_with_parallel_phirgen["ops"][5]["qop"] == "RZ"
-    assert phir_with_parallel_phirgen["ops"][7]["qop"] == "R1XY"
-    assert phir_with_parallel_phirgen["ops"][11]["qop"] == "R1XY"
-    assert phir_with_parallel_phirgen["ops"][13]["qop"] == "RZ"
-    assert phir_with_parallel_phirgen["ops"][15]["qop"] == "R1XY"
+    ops = (3, 5, 7, 11, 13, 15)
 
-    assert phir_with_standard_phirgen["ops"][3]["qop"] == "RY"
-    assert phir_with_standard_phirgen["ops"][5]["qop"] == "RZ"
-    assert phir_with_standard_phirgen["ops"][7]["qop"] == "RY"
-    assert phir_with_standard_phirgen["ops"][11]["qop"] == "RY"
-    assert phir_with_standard_phirgen["ops"][13]["qop"] == "RZ"
-    assert phir_with_standard_phirgen["ops"][15]["qop"] == "RY"
+    for i, qop in zip(ops, ("R1XY", "RZ", "R1XY", "R1XY", "RZ", "R1XY"), strict=True):
+        assert phir_with_parallel_phirgen["ops"][i]["qop"] == qop
 
-    assert (
-        phir_with_parallel_phirgen["ops"][3]["args"]
-        == phir_with_standard_phirgen["ops"][3]["args"]
-    )
-    assert (
-        phir_with_parallel_phirgen["ops"][5]["args"]
-        == phir_with_standard_phirgen["ops"][5]["args"]
-    )
-    assert (
-        phir_with_parallel_phirgen["ops"][7]["args"]
-        == phir_with_standard_phirgen["ops"][7]["args"]
-    )
-    assert (
-        phir_with_parallel_phirgen["ops"][11]["args"]
-        == phir_with_standard_phirgen["ops"][11]["args"]
-    )
-    assert (
-        phir_with_parallel_phirgen["ops"][13]["args"]
-        == phir_with_standard_phirgen["ops"][13]["args"]
-    )
-    assert (
-        phir_with_parallel_phirgen["ops"][15]["args"]
-        == phir_with_standard_phirgen["ops"][15]["args"]
-    )
+    for i, qop in zip(ops, ("RY", "RZ", "RY", "RY", "RZ", "RY"), strict=True):
+        assert phir_with_standard_phirgen["ops"][i]["qop"] == qop
+
+    for i in ops:
+        assert (
+            phir_with_parallel_phirgen["ops"][i]["args"]
+            == phir_with_standard_phirgen["ops"][i]["args"]
+        )
