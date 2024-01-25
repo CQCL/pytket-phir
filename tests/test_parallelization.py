@@ -76,10 +76,10 @@ def test_parallel_subcommand_relative_ordering() -> None:
     assert frth_sc["angles"] == [[3.5], "pi"]
 
 
-def test_106_1qubit() -> None:
+def test_single_qubit_circuit_with_parallel() -> None:
     """Make sure there are no parallel blocks present in the 1qubit circuit."""
-    phir_parallel = get_phir_json(QasmFile.issue106_1qubit, rebase=True)
-    phir_no_parallel = get_phir_json(QasmFile.issue106_1qubit, rebase=False)
+    phir_parallel = get_phir_json(QasmFile.single_qubit_parallel_test, rebase=True)
+    phir_no_parallel = get_phir_json(QasmFile.single_qubit_parallel_test, rebase=False)
     assert len(phir_parallel) == len(phir_no_parallel)
     # since the rebasing converts to the native gate set,
     # the names and angle foramts of the qops will not match.

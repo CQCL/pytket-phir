@@ -73,7 +73,7 @@ def pytket_to_phir(
         logger.debug("Performing placement and routing...")
     placed = place_and_route(shards, machine)
     # safety check: never run with parallelization on a 1 qubit circuit
-    if machine and (len(circuit.qubits) > 1):
+    if machine and len(circuit.qubits) > 1:
         phir_json = genphir_parallel(placed, machine)
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
