@@ -104,7 +104,13 @@ def process_sub_commands(
                             other_group_number += 3
                             group_number = other_group_number
                     groups[group_number] = [sc]
-                    qubits2groups[qubit] = group_number
+                    # this check prevents the group number from ever decrementing
+                    # decrementing happened when there were 2 gates of different types
+                    # acting on the same qubit within the same set of subcommands
+                    # this caused a bug where there were more than one
+                    # parallel operations acting on the same qubit
+                    if group_number > qubits2groups[qubit]:
+                        qubits2groups[qubit] = group_number
 
     return dict(groups.items())
 

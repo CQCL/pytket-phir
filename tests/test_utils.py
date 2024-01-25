@@ -45,6 +45,7 @@ class QasmFile(Enum):
     tk2_diff_angles = auto()
     rxrz = auto()
     classical_ordering = auto()
+    issue106_1qubit = auto()
 
 
 class WatFile(Enum):

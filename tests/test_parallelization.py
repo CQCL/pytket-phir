@@ -74,3 +74,35 @@ def test_parallel_subcommand_relative_ordering() -> None:
     assert thrd_sc["angles"] == [[0.5, 0.0], "pi"]
     assert frth_sc["qop"] == "RZ"
     assert frth_sc["angles"] == [[3.5], "pi"]
+
+
+def test_106_1qubit() -> None:
+    """Make sure there are no parallel blocks present in the 1qubit circuit."""
+    phir_parallel = get_phir_json(QasmFile.issue106_1qubit, rebase=True)
+    phir_no_parallel = get_phir_json(QasmFile.issue106_1qubit, rebase=False)
+    assert len(phir_parallel) == len(phir_no_parallel)
+    # since the rebasing converts to the native gate set,
+    # the names and angle foramts of the qops will not match.
+    # for example Ry gets converted to R1XY
+    # compare angles and args instead
+
+    assert phir_parallel["ops"][3]["qop"] == "R1XY"
+    assert phir_parallel["ops"][5]["qop"] == "RZ"
+    assert phir_parallel["ops"][7]["qop"] == "R1XY"
+    assert phir_parallel["ops"][11]["qop"] == "R1XY"
+    assert phir_parallel["ops"][13]["qop"] == "RZ"
+    assert phir_parallel["ops"][15]["qop"] == "R1XY"
+
+    assert phir_no_parallel["ops"][3]["qop"] == "RY"
+    assert phir_no_parallel["ops"][5]["qop"] == "RZ"
+    assert phir_no_parallel["ops"][7]["qop"] == "RY"
+    assert phir_no_parallel["ops"][11]["qop"] == "RY"
+    assert phir_no_parallel["ops"][13]["qop"] == "RZ"
+    assert phir_no_parallel["ops"][15]["qop"] == "RY"
+
+    assert phir_parallel["ops"][3]["args"] == phir_no_parallel["ops"][3]["args"]
+    assert phir_parallel["ops"][5]["args"] == phir_no_parallel["ops"][5]["args"]
+    assert phir_parallel["ops"][7]["args"] == phir_no_parallel["ops"][7]["args"]
+    assert phir_parallel["ops"][11]["args"] == phir_no_parallel["ops"][11]["args"]
+    assert phir_parallel["ops"][13]["args"] == phir_no_parallel["ops"][13]["args"]
+    assert phir_parallel["ops"][15]["args"] == phir_no_parallel["ops"][15]["args"]
