@@ -10,7 +10,6 @@
 
 import pytest
 
-from pytket.circuit import OpType
 from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.placement import (
     GateOpportunitiesError,
@@ -18,12 +17,11 @@ from pytket.phir.placement import (
     place,
     placement_check,
 )
+from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET
 
-tk_gateset = {OpType.TK1, OpType.TK2}
-
-m = Machine(4, tk_gateset, {1}, MachineTimings(10, 2, 2))
-m2 = Machine(6, tk_gateset, {1, 3}, MachineTimings(10, 2, 2))
-m3 = Machine(8, tk_gateset, {0, 6}, MachineTimings(10, 2, 2))
+m = Machine(4, QTM_DEFAULT_GATESET, {1}, MachineTimings(10, 2, 2))
+m2 = Machine(6, QTM_DEFAULT_GATESET, {1, 3}, MachineTimings(10, 2, 2))
+m3 = Machine(8, QTM_DEFAULT_GATESET, {0, 6}, MachineTimings(10, 2, 2))
 
 
 def test_placement_check() -> None:
