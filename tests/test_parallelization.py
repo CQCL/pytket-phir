@@ -111,14 +111,16 @@ def test_two_qubit_exec_order_preserved() -> None:
     # for this test, verify that the RX gates are NOT parallelized
     # in the following section of the qasm file (lines 11-13):
     # rx(3.5*pi) q[0];
-    assert phir["ops"][18]["qop"] == "R1XY"
-    assert phir["ops"][18]["angles"] == [[3.5, 0.0], "pi"]
-    assert phir["ops"][18]["args"] == [["q", 0]]
+    assert phir["ops"][18] == {
+        "qop": "R1XY",
+        "angles": [[3.5, 0.0], "pi"],
+        "args": [["q", 0]],
+    }
     # rz(3.5*pi) q[1];
-    assert phir["ops"][20]["qop"] == "RZ"
-    assert phir["ops"][20]["angles"] == [[3.5], "pi"]
-    assert phir["ops"][20]["args"] == [["q", 1]]
+    assert phir["ops"][20] == {"qop": "RZ", "angles": [[3.5], "pi"], "args": [["q", 1]]}
     # rx(1.0*pi) q[1];
-    assert phir["ops"][24]["qop"] == "R1XY"
-    assert phir["ops"][24]["angles"] == [[1.0, 0.0], "pi"]
-    assert phir["ops"][24]["args"] == [["q", 1]]
+    assert phir["ops"][24] == {
+        "qop": "R1XY",
+        "angles": [[1.0, 0.0], "pi"],
+        "args": [["q", 1]],
+    }
