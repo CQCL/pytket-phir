@@ -44,7 +44,7 @@ def exec_order_preserved_helper(
             order_preserved = False
             break
         if group == group_number:
-            order_preserved = True and group_eligible
+            order_preserved = True
             break
     return order_preserved
 
