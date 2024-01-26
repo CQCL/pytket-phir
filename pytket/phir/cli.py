@@ -9,6 +9,7 @@
 # mypy: disable-error-code="misc"
 # ruff: noqa: T201
 
+import logging
 from argparse import ArgumentParser
 from importlib.metadata import version
 
@@ -70,10 +71,9 @@ def main() -> None:
             case "H1-2":
                 machine = QtmMachine.H1_2
 
-        phir = pytket_to_phir(circuit, machine)
         if args.verbose:
-            print("\nPHIR to be simulated:")
-            print(phir)
+            logging.basicConfig(level=logging.INFO)
+        phir = pytket_to_phir(circuit, machine)
 
         print("\nPECOS results:")
         print(

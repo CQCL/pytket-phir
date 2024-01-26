@@ -69,6 +69,7 @@ def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) ->
     else:
         phir_json = genphir(placed, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:
+        print("PHIR JSON:")
         print(PHIRModel.model_validate_json(phir_json))
     return phir_json
 

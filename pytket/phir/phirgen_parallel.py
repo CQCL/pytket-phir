@@ -10,6 +10,7 @@
 
 import json
 import logging
+from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 import pytket.circuit as tk
@@ -29,6 +30,25 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def exec_order_preserved_helper(
+    ordered_dict: OrderedDict["UnitID", int], group_number: int, qubit_last_group: int
+) -> bool:
+    """A helper to determine whether order is preserved when adding qubits to groups."""
+    # determine whether the current group number is later in execution
+    # than the last group in which a qubit was used
+    group_eligible = group_number > qubit_last_group
+    if not group_eligible:
+        return False
+    for group in ordered_dict.values():
+        if group == qubit_last_group:
+            order_preserved = False
+            break
+        if group == group_number:
+            order_preserved = True
+            break
+    return order_preserved
+
+
 def process_sub_commands(
     sub_commands: dict["UnitID", list[tk.Command]], max_parallel_sq_gates: int
 ) -> dict[int, list[tk.Command]]:
@@ -36,7 +56,7 @@ def process_sub_commands(
     groups: dict[
         int, list[tk.Command]
     ] = {}  # be sure to order by group number into a list when returning
-    qubits2groups = {}  # track the most recent group in which a qubit was used
+    qubits2groups = OrderedDict()  # the most recent group in which a qubit was used
     # group numbers for each gate are incremented by 3 so they don't overlap
     # and different gate types don't go in the same group
     # RZ gates go in (mod 3)=0 groups, R1XY gates go in (mod 3)=1 groups,
@@ -78,7 +98,9 @@ def process_sub_commands(
                 group_available = group_number in groups
                 # is that group later in execution than the
                 # most recent group for an op on that qubit?
-                order_preserved = group_number > qubits2groups[qubit]
+                order_preserved = exec_order_preserved_helper(
+                    qubits2groups, group_number, qubits2groups[qubit]
+                )
                 # is the group size still under the maximum allowed parallel ops?
                 group_size = len(groups[group_number]) if group_number in groups else 0
                 group_not_too_large = group_size < max_parallel_sq_gates
