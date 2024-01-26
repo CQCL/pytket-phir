@@ -9,12 +9,12 @@
 # mypy: disable-error-code="misc"
 # ruff: noqa: T201
 
-import json
 from argparse import ArgumentParser
 from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
 from pecos.foreign_objects.wasmtime import WasmtimeObj  # type:ignore [import-not-found]
+from rich import print
 
 from pytket.qasm.qasm import (
     circuit_from_qasm,
@@ -80,9 +80,7 @@ def main() -> None:
 
         phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
         if args.verbose:
-            print("\nPHIR to be simulated:")
-            for op in json.loads(phir)["ops"]:
-                print(op)
+            print(phir)
 
         print("\nPECOS results:")
         print(
