@@ -9,6 +9,7 @@
 # mypy: disable-error-code="misc"
 # ruff: noqa: T201
 
+import json
 from argparse import ArgumentParser
 from importlib.metadata import version
 
@@ -80,7 +81,8 @@ def main() -> None:
         phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
         if args.verbose:
             print("\nPHIR to be simulated:")
-            print(phir)
+            for op in json.loads(phir)["ops"]:
+                print(op)
 
         print("\nPECOS results:")
         print(
