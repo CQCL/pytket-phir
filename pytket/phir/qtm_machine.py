@@ -8,7 +8,9 @@
 
 from enum import Enum
 
-from .machine import Machine
+from pytket.circuit import OpType
+
+from .machine import Machine, MachineTimings
 
 
 class QtmMachine(Enum):
@@ -18,23 +20,23 @@ class QtmMachine(Enum):
     H1_2 = "H1-2"
 
 
+QTM_DEFAULT_GATESET = {OpType.Rz, OpType.PhasedX, OpType.ZZPhase}
+
 QTM_MACHINES_MAP = {
     QtmMachine.H1_1: Machine(
         size=20,
+        gateset=QTM_DEFAULT_GATESET,
         tq_options={0, 2, 4, 6, 8, 10, 12, 14, 16, 18},
         # need to get better timing values for below
         # but will have to look them up in hqcompiler
-        tq_time=3.0,
-        sq_time=1.0,
-        qb_swap_time=2.0,
+        timings=MachineTimings(tq_time=3.0, sq_time=1.0, qb_swap_time=2.0),
     ),
     QtmMachine.H1_2: Machine(
         size=12,
+        gateset=QTM_DEFAULT_GATESET,
         tq_options={0, 2, 4, 6, 8, 10},
         # need to get better timing values for below
         # but will have to look them up in hqcompiler
-        tq_time=3.0,
-        sq_time=1.0,
-        qb_swap_time=2.0,
+        timings=MachineTimings(tq_time=3.0, sq_time=1.0, qb_swap_time=2.0),
     ),
 }

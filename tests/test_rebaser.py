@@ -9,6 +9,7 @@
 import logging
 
 from pytket.circuit import Circuit, OpType
+from pytket.phir.qtm_machine import QtmMachine
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 
 from .test_utils import QasmFile, get_qasm_as_circuit
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 class TestRebaser:
     def test_rebaser_happy_path_arc1a(self) -> None:
         circ = get_qasm_as_circuit(QasmFile.baby)
-        rebased: Circuit = rebase_to_qtm_machine(circ, "H1-1", 0)
+        rebased: Circuit = rebase_to_qtm_machine(circ, QtmMachine.H1_1)
 
         logger.info(rebased)
         for command in rebased.get_commands():

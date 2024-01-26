@@ -9,22 +9,16 @@
 from phir.model import PHIRModel
 from rich import print
 
-from pytket.phir.machine import Machine
+from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.phirgen import genphir
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.placement import placement_check
-from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
+from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET, QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.sharding.sharder import Sharder
 from tests.test_utils import QasmFile, get_qasm_as_circuit
 
 if __name__ == "__main__":
-    machine = Machine(
-        3,
-        {1},
-        3.0,
-        1.0,
-        2.0,
-    )
+    machine = Machine(3, QTM_DEFAULT_GATESET, {1}, MachineTimings(3.0, 1.0, 2.0))
     # force machine options for this test
     # machines normally don't like odd numbers of qubits
     machine.sq_options = {0, 1, 2}

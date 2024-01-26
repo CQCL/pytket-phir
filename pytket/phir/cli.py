@@ -47,13 +47,6 @@ def main() -> None:
         default="H1-1",
         help="Machine name, H1-1 by default",
     )
-    parser.add_argument(
-        "-o",
-        "--tket-opt-level",
-        choices=["0", "1", "2"],
-        default="0",
-        help="TKET optimization level, 0 by default",
-    )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
         "--version",
@@ -80,7 +73,7 @@ def main() -> None:
 
         if args.verbose:
             logging.basicConfig(level=logging.INFO)
-        phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
+        phir = pytket_to_phir(circuit, machine)
 
         print("\nPECOS results:")
         print(

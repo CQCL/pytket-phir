@@ -32,14 +32,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TKET_OPT_LEVEL = 0
 
-
-def pytket_to_phir(
-    circuit: "Circuit",
-    qtm_machine: QtmMachine | None = None,
-    tket_optimization_level: int = DEFAULT_TKET_OPT_LEVEL,
-) -> str:
+def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) -> str:
     """Converts a pytket circuit into its PHIR representation.
 
     This can optionally include rebasing against a Quantinuum machine architecture,
@@ -47,7 +41,6 @@ def pytket_to_phir(
 
     :param circuit: Circuit object to be converted
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
-    :param tket_optimization_level: (Default=0) TKET circuit optimization level
 
     Returns:
         PHIR JSON as a str
@@ -56,9 +49,7 @@ def pytket_to_phir(
     machine: Machine | None = None
     if qtm_machine:
         logger.info("Rebasing to machine %s", qtm_machine)
-        circuit = rebase_to_qtm_machine(
-            circuit, qtm_machine.value, tket_optimization_level
-        )
+        circuit = rebase_to_qtm_machine(circuit, qtm_machine)
         machine = QTM_MACHINES_MAP.get(qtm_machine)
     else:
         machine = None
@@ -86,7 +77,6 @@ def pytket_to_phir(
 def qasm_to_phir(
     qasm: str,
     qtm_machine: QtmMachine | None = None,
-    tket_optimization_level: int = DEFAULT_TKET_OPT_LEVEL,
     wasm_bytes: bytes | None = None,
 ) -> str:
     """Converts a QASM circuit string into its PHIR representation.
@@ -96,7 +86,6 @@ def qasm_to_phir(
 
     :param qasm: QASM input to be converted
     :param qtm_machine: (Optional) Quantinuum machine architecture to rebase against
-    :param tket_optimization_level: (Default=0) TKET circuit optimization level
     :param wasm_bytes: (Optional) WASM as bytes to include as part of circuit
     """
     circuit: Circuit
@@ -117,4 +106,4 @@ def qasm_to_phir(
             Path.unlink(Path(wasm_file.name))
     else:
         circuit = circuit_from_qasm_str(qasm)
-    return pytket_to_phir(circuit, qtm_machine, tket_optimization_level)
+    return pytket_to_phir(circuit, qtm_machine)
