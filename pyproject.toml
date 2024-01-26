@@ -25,7 +25,6 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "phir>=0.2.1",
-  "pytket-quantinuum>=0.25.0",
   "pytket>=1.21.0",
   "wasmtime>=15.0.0",
   ]

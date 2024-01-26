@@ -10,17 +10,18 @@
 
 import pytest
 
-from pytket.phir.machine import Machine
+from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
     place,
     placement_check,
 )
+from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET
 
-m = Machine(4, {1}, 10, 2, 2)
-m2 = Machine(6, {1, 3}, 10, 2, 2)
-m3 = Machine(8, {0, 6}, 10, 2, 2)
+m = Machine(4, QTM_DEFAULT_GATESET, {1}, MachineTimings(10, 2, 2))
+m2 = Machine(6, QTM_DEFAULT_GATESET, {1, 3}, MachineTimings(10, 2, 2))
+m3 = Machine(8, QTM_DEFAULT_GATESET, {0, 6}, MachineTimings(10, 2, 2))
 
 
 def test_placement_check() -> None:
