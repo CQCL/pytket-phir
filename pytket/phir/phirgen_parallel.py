@@ -104,7 +104,9 @@ def process_sub_commands(
                             other_group_number += 3
                             group_number = other_group_number
                     groups[group_number] = [sc]
-                    qubits2groups[qubit] = group_number
+                    # prevent the group number from ever decrementing
+                    if group_number > qubits2groups[qubit]:
+                        qubits2groups[qubit] = group_number
 
     return dict(groups.items())
 

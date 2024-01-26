@@ -74,3 +74,32 @@ def test_parallel_subcommand_relative_ordering() -> None:
     assert thrd_sc["angles"] == [[0.5, 0.0], "pi"]
     assert frth_sc["qop"] == "RZ"
     assert frth_sc["angles"] == [[3.5], "pi"]
+
+
+def test_single_qubit_circuit_with_parallel() -> None:
+    """Make sure there are no parallel blocks present in the 1qubit circuit."""
+    phir_with_parallel_phirgen = get_phir_json(
+        QasmFile.single_qubit_parallel_test, rebase=True
+    )
+    phir_with_standard_phirgen = get_phir_json(
+        QasmFile.single_qubit_parallel_test, rebase=False
+    )
+    assert len(phir_with_parallel_phirgen) == len(phir_with_standard_phirgen)
+    # since the rebasing converts to the native gate set,
+    # the names and angle foramts of the qops will not match.
+    # for example Ry gets converted to R1XY
+    # compare angles and args instead
+
+    ops = (3, 5, 7, 11, 13, 15)
+
+    for i, qop in zip(ops, ("R1XY", "RZ", "R1XY", "R1XY", "RZ", "R1XY"), strict=True):
+        assert phir_with_parallel_phirgen["ops"][i]["qop"] == qop
+
+    for i, qop in zip(ops, ("RY", "RZ", "RY", "RY", "RZ", "RY"), strict=True):
+        assert phir_with_standard_phirgen["ops"][i]["qop"] == qop
+
+    for i in ops:
+        assert (
+            phir_with_parallel_phirgen["ops"][i]["args"]
+            == phir_with_standard_phirgen["ops"][i]["args"]
+        )
