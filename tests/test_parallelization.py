@@ -104,7 +104,6 @@ def test_single_qubit_circuit_with_parallel() -> None:
             == phir_with_standard_phirgen["ops"][i]["args"]
         )
 
-
 def test_two_qubit_exec_order_preserved() -> None:
     """Test that the order of gating in preserved in a 2 qubit circuit."""
     phir = get_phir_json(QasmFile.exec_order_two_qubits, rebase=True)

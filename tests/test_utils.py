@@ -49,6 +49,7 @@ class QasmFile(Enum):
     exec_order_two_qubits = auto()
 
 
+
 class WatFile(Enum):
     add = auto()
     testfile = auto()
