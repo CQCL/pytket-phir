@@ -9,12 +9,12 @@
 # mypy: disable-error-code="misc"
 # ruff: noqa: T201
 
+import logging
 from argparse import ArgumentParser
 from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
 from pecos.foreign_objects.wasmtime import WasmtimeObj  # type:ignore [import-not-found]
-from rich import print
 
 from pytket.qasm.qasm import (
     circuit_from_qasm,
@@ -47,13 +47,6 @@ def main() -> None:
         default="H1-1",
         help="Machine name, H1-1 by default",
     )
-    parser.add_argument(
-        "-o",
-        "--tket-opt-level",
-        choices=["0", "1", "2"],
-        default="0",
-        help="TKET optimization level, 0 by default",
-    )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
         "--version",
@@ -78,10 +71,9 @@ def main() -> None:
             case "H1-2":
                 machine = QtmMachine.H1_2
 
-        phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
         if args.verbose:
-            print("\nPHIR to be simulated:")
-            print(phir)
+            logging.basicConfig(level=logging.INFO)
+        phir = pytket_to_phir(circuit, machine)
 
         print("\nPECOS results:")
         print(
