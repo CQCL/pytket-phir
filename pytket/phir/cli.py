@@ -80,6 +80,7 @@ def main() -> None:
 
         phir = pytket_to_phir(circuit, machine, int(args.tket_opt_level))
         if args.verbose:
+            print("\nPHIR to be simulated:")
             print(phir)
 
         print("\nPECOS results:")
