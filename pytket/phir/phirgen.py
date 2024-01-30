@@ -88,7 +88,7 @@ def arg_to_bit(arg: "UnitID") -> Bit:
 
 
 def assign_cop(
-    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int | JsonDict]"
+    lhs: list[Var] | list[Bit], rhs: "Sequence[Var | int | JsonDict | Bit]"
 ) -> JsonDict:
     """PHIR for classical assign operation."""
     return {

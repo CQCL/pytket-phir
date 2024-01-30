@@ -10,6 +10,7 @@ dev-all:
 	pip install -e .[phirc]
 
 tests:
+	python tests/e2e_test.py
 	pytest -s -x -vv tests/test*.py
 
 lint:
