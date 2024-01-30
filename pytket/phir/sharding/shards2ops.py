@@ -6,7 +6,6 @@
 #
 ##############################################################################
 
-import logging
 from typing import TYPE_CHECKING, TypeAlias
 
 if TYPE_CHECKING:
@@ -15,8 +14,6 @@ if TYPE_CHECKING:
     from .shard import Shard, ShardLayer
 
 Layer: TypeAlias = list[list[int]]
-
-logger = logging.getLogger(__name__)
 
 
 def parse_shards_naive(
