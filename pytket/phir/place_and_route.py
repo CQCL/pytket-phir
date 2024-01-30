@@ -6,6 +6,7 @@
 #
 ##############################################################################
 
+import logging
 from typing import TYPE_CHECKING
 
 from .placement import optimized_place
@@ -15,6 +16,8 @@ from .sharding.shards2ops import parse_shards_naive
 if TYPE_CHECKING:
     from .machine import Machine
     from .sharding.shard import Cost, Ordering, Shard, ShardLayer
+
+logger = logging.getLogger(__name__)
 
 
 def place_and_route(

@@ -6,12 +6,17 @@
 #
 ##############################################################################
 
+import logging
 from typing import TYPE_CHECKING, TypeAlias
 
 if TYPE_CHECKING:
+    from pytket.unit_id import UnitID
+
     from .shard import Shard, ShardLayer
 
 Layer: TypeAlias = list[list[int]]
+
+logger = logging.getLogger(__name__)
 
 
 def parse_shards_naive(
@@ -22,6 +27,8 @@ def parse_shards_naive(
     shards_in_layer: list[ShardLayer] = []
     scheduled: set[int] = set()
     num_shards: int = len(shards)
+    qubit_id: int = 0
+    qubits2ids: dict["UnitID", int] = {}
 
     while len(scheduled) < num_shards:
         layer: Layer = []
@@ -39,13 +46,23 @@ def parse_shards_naive(
             # if there are more than 2 qubits used, treat them all as parallel sq ops
             # one qubit will just be a single sq op
             # 3 or more will be 3 or more parallel sq ops
+            # when iterating through qubits,
+            # map all the qubits to a unique id to prevent duplicates in placement
             if len(shard.qubits_used) != 2:  # noqa: PLR2004
                 for qubit in shard.qubits_used:
-                    op = qubit.index
+                    if qubit not in qubits2ids:
+                        qubits2ids[qubit] = qubit_id
+                        qubit_id += 1
+                    qid = qubits2ids[qubit]
+                    op = [qid]
                     layer.append(op)
             else:
                 for qubit in shard.qubits_used:
-                    op.append(qubit.index[0])
+                    if qubit not in qubits2ids:
+                        qubits2ids[qubit] = qubit_id
+                        qubit_id += 1
+                    qid = qubits2ids[qubit]
+                    op.append(qid)
                 layer.append(op)
 
             scheduled.add(shard.ID)

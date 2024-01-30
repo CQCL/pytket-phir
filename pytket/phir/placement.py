@@ -7,9 +7,12 @@
 ##############################################################################
 
 import bisect
+import logging
 import math
 
 from .routing import inverse
+
+logger = logging.getLogger(__name__)
 
 
 class GateOpportunitiesError(Exception):
