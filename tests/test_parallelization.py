@@ -90,7 +90,12 @@ def test_single_qubit_circuit_with_parallel() -> None:
     # for example Ry gets converted to R1XY
     # compare angles and args instead
 
-    ops = (3, 5, 7, 11, 13, 15)
+    ops = (3, 5, 7, 12, 14, 16)
+
+    assert phir_with_parallel_phirgen["ops"][9] == {
+        "meta": "barrier",
+        "args": [["q", 0]],
+    }
 
     for i, qop in zip(ops, ("R1XY", "RZ", "R1XY", "R1XY", "RZ", "R1XY"), strict=True):
         assert phir_with_parallel_phirgen["ops"][i]["qop"] == qop
@@ -108,18 +113,20 @@ def test_single_qubit_circuit_with_parallel() -> None:
 def test_two_qubit_exec_order_preserved() -> None:
     """Test that the order of gating in preserved in a 2 qubit circuit."""
     phir = get_phir_json(QasmFile.exec_order_two_qubits, rebase=True)
+
+    assert phir["ops"][16] == {"meta": "barrier", "args": [["q", 0], ["q", 1]]}
     # for this test, verify that the RX gates are NOT parallelized
     # in the following section of the qasm file (lines 11-13):
     # rx(3.5*pi) q[0];
-    assert phir["ops"][18] == {
+    assert phir["ops"][19] == {
         "qop": "R1XY",
         "angles": [[3.5, 0.0], "pi"],
         "args": [["q", 0]],
     }
     # rz(3.5*pi) q[1];
-    assert phir["ops"][20] == {"qop": "RZ", "angles": [[3.5], "pi"], "args": [["q", 1]]}
+    assert phir["ops"][21] == {"qop": "RZ", "angles": [[3.5], "pi"], "args": [["q", 1]]}
     # rx(1.0*pi) q[1];
-    assert phir["ops"][24] == {
+    assert phir["ops"][25] == {
         "qop": "R1XY",
         "angles": [[1.0, 0.0], "pi"],
         "args": [["q", 1]],
