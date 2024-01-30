@@ -80,7 +80,7 @@ def test_bitwise_ops() -> None:
 
 
 def test_conditional_barrier() -> None:
-    """From https://github.com/CQCL/phir/issues/53 ."""
+    """From https://github.com/CQCL/pytket-phir/issues/119 ."""
     circ = get_qasm_as_circuit(QasmFile.cond_barrier)
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][5] == {
