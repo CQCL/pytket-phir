@@ -47,18 +47,16 @@ def parse_shards_naive(
             # map all the qubits to a unique id to prevent duplicates in placement
             if len(shard.qubits_used) != 2:  # noqa: PLR2004
                 for qubit in shard.qubits_used:
-                    if qubit not in qubits2ids:
-                        qubits2ids[qubit] = qubit_id
-                        qubit_id += 1
-                    qid = qubits2ids[qubit]
+                    qid, qubits2ids, qubit_id = qubit_id_helper(
+                        qubit, qubits2ids, qubit_id
+                    )
                     op = [qid]
                     layer.append(op)
             else:
                 for qubit in shard.qubits_used:
-                    if qubit not in qubits2ids:
-                        qubits2ids[qubit] = qubit_id
-                        qubit_id += 1
-                    qid = qubits2ids[qubit]
+                    qid, qubits2ids, qubit_id = qubit_id_helper(
+                        qubit, qubits2ids, qubit_id
+                    )
                     op.append(qid)
                 layer.append(op)
 
@@ -67,3 +65,14 @@ def parse_shards_naive(
         layers.append(layer)
 
     return layers, shards_in_layer
+
+
+def qubit_id_helper(
+    qubit: "UnitID", qubits2ids: dict["UnitID", int], qubit_id: int
+) -> tuple[int, dict["UnitID", int], int]:
+    """A helper function for managing qubit ids."""
+    if qubit not in qubits2ids:
+        qubits2ids[qubit] = qubit_id
+        qubit_id += 1
+    qid = qubits2ids[qubit]
+    return qid, qubits2ids, qubit_id
