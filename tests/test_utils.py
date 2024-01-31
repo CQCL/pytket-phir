@@ -47,6 +47,7 @@ class QasmFile(Enum):
     classical_ordering = auto()
     single_qubit_parallel_test = auto()
     exec_order_two_qubits = auto()
+    arbitrary_qreg_names = auto()
 
 
 class WatFile(Enum):
