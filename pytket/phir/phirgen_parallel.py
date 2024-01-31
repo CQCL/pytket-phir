@@ -31,25 +31,26 @@ logger = logging.getLogger(__name__)
 
 
 def exec_order_preserved_helper(
-    ordered_dict: OrderedDict["UnitID", int], group_number: int, qubit_last_group: int
+    group_exec_order: list[int], group_number: int, qubit_last_group: int
 ) -> bool:
     """A helper to determine whether order is preserved when adding qubits to groups."""
     # determine whether the current group number is later in execution
     # than the last group in which a qubit was used
+    if (group_number not in group_exec_order) or (
+        qubit_last_group not in group_exec_order
+    ):
+        return True
     group_eligible = group_number > qubit_last_group
     if not group_eligible:
         return False
-    for group in ordered_dict.values():
-        if group == qubit_last_group:
-            order_preserved = False
-            break
-        if group == group_number:
-            order_preserved = True
-            break
-    return order_preserved
+    # if the group that the qubit is eligible for is later in the exec_order list than
+    # the last group in which it was used, it can be parallelized
+    return group_exec_order.index(group_number) > group_exec_order.index(
+        qubit_last_group
+    )
 
 
-def process_sub_commands(
+def process_sub_commands(  # noqa: PLR0914
     sub_commands: dict["UnitID", list[tk.Command]], max_parallel_sq_gates: int
 ) -> dict[int, list[tk.Command]]:
     """Create parallelizable groups of sub-commands."""
@@ -61,25 +62,29 @@ def process_sub_commands(
     # and different gate types don't go in the same group
     # RZ gates go in (mod 3)=0 groups, R1XY gates go in (mod 3)=1 groups,
     # and all other gates will go in (mod 3)=2 groups
-    rz_group_number = -3  # will be set to 0 when first RZ gate is assigned (-3 + 3 = 0)
-    r1xy_group_number = (
-        -2  # will be set to 1 when first R1XY gate is assigned (-2 + 3 = 1)
+    rz_group_number: int = -3  # set to 0 when first RZ gate is assigned (-3 + 3 = 0)
+    r1xy_group_number: int = (
+        -2  # set to 1 when first R1XY gate is assigned (-2 + 3 = 1)
     )
-    other_group_number = (
-        -1  # will be set to 2 when first other gate is assigned (-1 + 3 = 2)
+    other_group_number: int = (
+        -1  # set to 2 when first other gate is assigned (-1 + 3 = 2)
     )
-    num_scs_per_qubit = {}
+    num_scs_per_qubit: dict["UnitID", int] = {}
+    group_exec_order: list[int] = []
 
     for qubit in sub_commands:
         num_scs_per_qubit[qubit] = len(sub_commands[qubit])
         # set every qubit's group id to be -4
         # prevents KeyError in check for group number
         # will get set to a valid group number the first time the qubit is used
-        qubits2groups[qubit] = -4
     max_len = max(num_scs_per_qubit.values())
 
     for index in range(max_len):
         for qubit in sub_commands:
+            # make sure the qubits are inserted into
+            # qubits2groups in the order in which they appear
+            if qubit not in qubits2groups:
+                qubits2groups[qubit] = -4
             # check to make sure you are not accessing beyond the end of the list
             if index < num_scs_per_qubit[qubit]:
                 sc = sub_commands[qubit][index]
@@ -99,7 +104,7 @@ def process_sub_commands(
                 # is that group later in execution than the
                 # most recent group for an op on that qubit?
                 order_preserved = exec_order_preserved_helper(
-                    qubits2groups, group_number, qubits2groups[qubit]
+                    group_exec_order, group_number, qubits2groups[qubit]
                 )
                 # is the group size still under the maximum allowed parallel ops?
                 group_size = len(groups[group_number]) if group_number in groups else 0
@@ -126,6 +131,7 @@ def process_sub_commands(
                             other_group_number += 3
                             group_number = other_group_number
                     groups[group_number] = [sc]
+                    group_exec_order.append(group_number)
                     # prevent the group number from ever decrementing
                     if group_number > qubits2groups[qubit]:
                         qubits2groups[qubit] = group_number
