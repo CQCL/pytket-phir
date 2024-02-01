@@ -13,8 +13,8 @@ import logging
 from argparse import ArgumentParser
 from importlib.metadata import version
 
-from pecos.engines.hybrid_engine import HybridEngine  # type:ignore [import-not-found]
-from pecos.foreign_objects.wasmtime import WasmtimeObj  # type:ignore [import-not-found]
+from pecos.engines.hybrid_engine import HybridEngine
+from pecos.foreign_objects.wasmtime import WasmtimeObj
 
 from pytket.qasm.qasm import (
     circuit_from_qasm,
@@ -80,6 +80,6 @@ def main() -> None:
             HybridEngine(qsim="state-vector").run(
                 program=phir,
                 shots=10,
-                foreign_object=wasm_pecos_obj if args.wasm_file else None,
+                foreign_object=wasm_pecos_obj if args.wasm_file else None,  # type: ignore[arg-type]
             )
         )
