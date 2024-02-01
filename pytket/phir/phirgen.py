@@ -214,9 +214,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     out: JsonDict | None = None
     match op:  # non-quantum op
         case tk.BarrierOp():
-            # TODO(kartik): confirm with Ciaran/spec
-            # https://github.com/CQCL/phir/blob/main/spec.md
-            logger.debug("Skipping Barrier instruction")
+            out = {"meta": "barrier", "args": [arg_to_bit(qbit) for qbit in cmd.qubits]}
 
         case tk.Conditional():  # where the condition is equality check
             out = {

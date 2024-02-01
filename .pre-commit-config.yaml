@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.17.2
+    rev: v1.18.0
     hooks:
       - id: typos
 
@@ -47,6 +47,7 @@ repos:
         pytest,
         pytket-quantinuum,
         pytket,
+        quantum-pecos>=0.5.0.dev8,
         types-setuptools,
         wasmtime,
       ]
