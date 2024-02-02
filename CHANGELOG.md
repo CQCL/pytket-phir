@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-02-02
+
+### Added
+
+* emit barrier instructions during phirgen in https://github.com/CQCL/pytket-phir/pull/118
+
+### Fixed
+
+* minor typing/linting issues in https://github.com/CQCL/pytket-phir/pull/116
+* bug in sharding that assumed only one qreg declaration in https://github.com/CQCL/pytket-phir/pull/120
+
 ## [0.4.0] - 2024-01-26
 
 ### Removed
@@ -86,6 +97,7 @@ First release.
 [0.2.1]: https://github.com/CQCL/pytket-phir/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/CQCL/pytket-phir/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/CQCL/pytket-phir/compare/v0.3.0...v0.4.0
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.4.0...HEAD
+[0.4.1]: https://github.com/CQCL/pytket-phir/compare/v0.4.0...v0.4.1
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.4.1...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
