@@ -4,12 +4,12 @@ target-version = "py310"
 line-length = 88
 preview = true
 
-select = [
+lint.select = [
   "E",    # pycodestyle Errors
   "W",    # pycodestyle Warnings
 
   "A",    # flake8-builtins
-  # "ANN",  # flake8-annotations
+  "ANN",  # flake8-annotations
   "ARG",  # flake8-unused-arguments
   "B",    # flake8-Bugbear
   "BLE",  # flake8-blind-except
@@ -61,7 +61,7 @@ select = [
   "YTT",  # flake8-2020
 ]
 
-ignore = [
+lint.ignore = [
   "FIX002", # Allow todos (4)
   "D100",   # Missing docstring in public module (18)
   "D107",   # Missing docstring in `__init__` (5)
@@ -69,7 +69,7 @@ ignore = [
   "COM812", "ISC001"  # required for `ruff format`
 ]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "__init__.py" = ["F401", "D104", "CPY001"]  # module imported but unused; Missing docstring in public package
 "docs/*"      = [
     "INP001",   # File * is part of an implicit namespace package. Add an `__init__.py`.
@@ -82,16 +82,19 @@ ignore = [
     "PLR6301",  # Method * could be a function, class method, or static method
   ]
 
-[pydocstyle]
+[lint.pydocstyle]
 convention = "google"
 
-[pylint]
+[lint.pylint]
 max-args = 6
 
-[flake8-copyright]
+[lint.flake8-annotations]
+mypy-init-return = true
+
+[lint.flake8-copyright]
 author = "Quantinuum LLC"
 
-[flake8-type-checking]
+[lint.flake8-type-checking]
 quote-annotations = true
 
 [format]
