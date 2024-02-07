@@ -33,15 +33,12 @@ logger = logging.getLogger(__name__)
 def exec_order_preserved(
     group_exec_order: list[int], group_number: int, qubit_last_group: int
 ) -> bool:
-    """A helper to determine whether current group number a qubit is eligible
-    or is later in execution than the last group in which a qubit was used.
-    """  # noqa: D205
+    """Determine whether order is preserved when adding qubits to groups."""
     if (group_number not in group_exec_order) or (
         qubit_last_group not in group_exec_order
     ):
         return True
-    group_eligible = group_number > qubit_last_group
-    if not group_eligible:
+    if group_number <= qubit_last_group:
         return False
     # if the group that the qubit is eligible for is later in the exec_order list than
     # the last group in which it was used, it can be parallelized
