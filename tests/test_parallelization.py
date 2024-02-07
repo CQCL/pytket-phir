@@ -110,6 +110,29 @@ def test_single_qubit_circuit_with_parallel() -> None:
         )
 
 
+def test_three_qubit_rz_exec_order_preserved() -> None:
+    """Test that the order of gating is preserved in a 3 qubit circuit with RZ gates."""
+    phir = get_phir_json(QasmFile.rz_exec_order_three_qubits, rebase=True)
+    # verify that the parallel RZ gates are executed before the second R1XY gate
+    assert phir["ops"][8] == {
+        "qop": "R1XY",
+        "angles": [[0.5, 0.5], "pi"],
+        "args": [["q", 0]],
+    }
+    assert phir["ops"][10] == {
+        "block": "qparallel",
+        "ops": [
+            {"qop": "RZ", "angles": [[0.5], "pi"], "args": [["q", 1]]},
+            {"qop": "RZ", "angles": [[1.5], "pi"], "args": [["q", 2]]},
+        ],
+    }
+    assert phir["ops"][12] == {
+        "qop": "R1XY",
+        "angles": [[0.5, 0.5], "pi"],
+        "args": [["q", 2]],
+    }
+
+
 def test_two_qubit_exec_order_preserved() -> None:
     """Test that the order of gating in preserved in a 2 qubit circuit."""
     phir = get_phir_json(QasmFile.exec_order_two_qubits, rebase=True)
