@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.17.2
+    rev: v1.18.0
     hooks:
       - id: typos
 
@@ -25,7 +25,7 @@ repos:
         - black==23.10.1
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.15
+    rev: v0.2.0
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -47,6 +47,7 @@ repos:
         pytest,
         pytket-quantinuum,
         pytket,
+        quantum-pecos>=0.5.0.dev8,
         types-setuptools,
         wasmtime,
       ]

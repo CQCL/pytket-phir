@@ -24,14 +24,14 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "phir>=0.2.1",
+  "phir>=0.3.0",
   "pytket>=1.21.0",
   "wasmtime>=15.0.0",
   ]
 
 [project.optional-dependencies]
 docs = ["sphinx", "pydata_sphinx_theme"]
-phirc = ["projectq", "quantum-pecos>=0.5.0.dev4"]
+phirc = ["projectq", "quantum-pecos>=0.5.0.dev8"]
 tests = ["pytest"]
 
 [project.scripts]
