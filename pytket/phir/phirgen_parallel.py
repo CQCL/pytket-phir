@@ -38,7 +38,7 @@ def exec_order_preserved(
         qubit_last_group not in group_exec_order
     ):
         return True
-    if group_number <= qubit_last_group:
+    if group_number < qubit_last_group:
         return False
     # if the group that the qubit is eligible for is later in the exec_order list than
     # the last group in which it was used, it can be parallelized
@@ -123,9 +123,7 @@ def process_sub_commands(
                             group_number = other_group_number
                     groups[group_number] = [sc]
                     group_exec_order.append(group_number)
-                    # prevent the group number from ever decrementing
-                    if group_number > qubits2groups[qubit]:
-                        qubits2groups[qubit] = group_number
+                    qubits2groups[qubit] = group_number
 
     return dict(groups.items())
 

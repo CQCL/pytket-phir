@@ -154,3 +154,31 @@ def test_two_qubit_exec_order_preserved() -> None:
         "angles": [[1.0, 0.0], "pi"],
         "args": [["q", 1]],
     }
+
+
+def test_group_ordering() -> None:
+    """Test that groups are in the right order when the group number can decrement."""
+    phir = get_phir_json(QasmFile.group_ordering, rebase=True)
+    block = phir["ops"][3]
+    assert block["block"] == "qparallel"
+    assert block["ops"][0] == {
+        "qop": "R1XY",
+        "angles": [[0.5, 0.0], "pi"],
+        "args": [["q", 0]],
+    }
+    assert block["ops"][1] == {
+        "qop": "R1XY",
+        "angles": [[3.5, 0.5], "pi"],
+        "args": [["q", 1]],
+    }
+    assert phir["ops"][5] == {
+        "qop": "R1XY",
+        "angles": [[0.5, 0.0], "pi"],
+        "args": [["q", 0]],
+    }
+    assert phir["ops"][7] == {"qop": "RZ", "angles": [[1.0], "pi"], "args": [["q", 1]]}
+    assert phir["ops"][9] == {
+        "qop": "R1XY",
+        "angles": [[3.5, 0.5], "pi"],
+        "args": [["q", 1]],
+    }
