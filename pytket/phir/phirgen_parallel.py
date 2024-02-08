@@ -38,7 +38,7 @@ def exec_order_preserved(
         qubit_last_group not in group_exec_order
     ):
         return True
-    if group_number < qubit_last_group:
+    if group_number <= qubit_last_group:
         return False
     # if the group that the qubit is eligible for is later in the exec_order list than
     # the last group in which it was used, it can be parallelized
