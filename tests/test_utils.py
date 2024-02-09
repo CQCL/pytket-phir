@@ -50,6 +50,7 @@ class QasmFile(Enum):
     rz_exec_order_three_qubits = auto()
     cond_barrier = auto()
     arbitrary_qreg_names = auto()
+    group_ordering = auto()
 
 
 class WatFile(Enum):
