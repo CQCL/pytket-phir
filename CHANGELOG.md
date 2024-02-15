@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2024-02-15
+
+### Removed
+
+* An unnecessary ordering check exposed by an edge case in https://github.com/CQCL/pytket-phir/pull/125
+
+## [0.4.2] - 2024-02-07
+
+### Fixed
+
+* Bugs in execution order of subcommands in https://github.com/CQCL/pytket-phir/pull/124
+
 ## [0.4.1] - 2024-02-02
 
 ### Added
@@ -98,6 +110,8 @@ First release.
 [0.3.0]: https://github.com/CQCL/pytket-phir/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/CQCL/pytket-phir/compare/v0.3.0...v0.4.0
 [0.4.1]: https://github.com/CQCL/pytket-phir/compare/v0.4.0...v0.4.1
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.4.1...HEAD
+[0.4.2]: https://github.com/CQCL/pytket-phir/compare/v0.4.1...v0.4.2
+[0.4.3]: https://github.com/CQCL/pytket-phir/compare/v0.4.2...v0.4.3
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.4.3...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
