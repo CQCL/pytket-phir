@@ -79,6 +79,32 @@ def test_bitwise_ops() -> None:
     }
 
 
+def test_nested_bitwise_op() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/133 ."""
+    circ = Circuit(4)
+    a = circ.add_c_register("a", 4)
+    b = circ.add_c_register("b", 1)
+    circ.add_classicalexpbox_bit(a[0] ^ a[1] ^ a[2] ^ a[3], [b[0]])
+
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][3] == {
+        "cop": "=",
+        "returns": [["b", 0]],
+        "args": [
+            {
+                "cop": "^",
+                "args": [
+                    {
+                        "cop": "^",
+                        "args": [{"cop": "^", "args": [["a", 0], ["a", 1]]}, ["a", 2]],
+                    },
+                    ["a", 3],
+                ],
+            }
+        ],
+    }
+
+
 def test_conditional_barrier() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/119 ."""
     circ = get_qasm_as_circuit(QasmFile.cond_barrier)
