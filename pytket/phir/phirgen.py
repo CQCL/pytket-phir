@@ -144,6 +144,8 @@ def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
     args: list[JsonDict | Var | Constant | Bit] = []
     for arg in exp.args:
         match arg:
+            case BitLogicExp():
+                args.append(classical_op(arg, bitwise=True))
             case LogicExp():
                 args.append(classical_op(arg))
             case BitRegister():
@@ -159,6 +161,8 @@ def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
                     args.append(arg_to_bit(arg))
                 else:
                     args.append(arg.reg_name)
+            case _:
+                assert_never(arg)
     return {
         "cop": cop,
         "args": args,
