@@ -1,0 +1,2193 @@
+{
+    "bits": [
+        [
+            "index",
+            [0]
+        ],
+        [
+            "index",
+            [1]
+        ],
+        [
+            "meas_0",
+            [0]
+        ],
+        [
+            "meas_1",
+            [0]
+        ],
+        [
+            "meas_2",
+            [0]
+        ],
+        [
+            "meas_3",
+            [0]
+        ],
+        [
+            "x_corr_0",
+            [0]
+        ],
+        [
+            "x_corr_1",
+            [0]
+        ],
+        [
+            "x_corr_2",
+            [0]
+        ],
+        [
+            "x_corr_3",
+            [0]
+        ],
+        [
+            "z_corr_0",
+            [0]
+        ],
+        [
+            "z_corr_1",
+            [0]
+        ],
+        [
+            "z_corr_2",
+            [0]
+        ],
+        [
+            "z_corr_3",
+            [0]
+        ]
+    ],
+    "commands": [
+        {
+            "args": [
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "init_corrections",
+                    "n": 0,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [],
+                    "width_o_parameter": [],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_0",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_1",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_2",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_0",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_1",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_2",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "type": "Reset"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "type": "Reset"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["0.5"],
+                "type": "ZZPhase"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["0.5"],
+                "type": "ZZPhase"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2"],
+                "type": "Rz"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false,false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_z_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "q",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1","0"],
+                        "type": "PhasedX"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_0",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "q",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1"],
+                        "type": "Rz"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_0",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "Measure"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false,true]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "update_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [1,2],
+                    "width_o_parameter": [],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [true,false]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_z_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1","0"],
+                        "type": "PhasedX"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_1",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1"],
+                        "type": "Rz"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_1",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "params": ["1/2","-1/2"],
+                "type": "PhasedX"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "Measure"
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [true,true]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "update_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [1,2],
+                    "width_o_parameter": [],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "q",
+                    [0]
+                ],
+                [
+                    "q",
+                    [1]
+                ],
+                [
+                    "q",
+                    [2]
+                ],
+                [
+                    "q",
+                    [3]
+                ],
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "meas_0",
+                    [0]
+                ],
+                [
+                    "meas_1",
+                    [0]
+                ],
+                [
+                    "meas_2",
+                    [0]
+                ],
+                [
+                    "meas_3",
+                    [0]
+                ],
+                [
+                    "x_corr_0",
+                    [0]
+                ],
+                [
+                    "x_corr_1",
+                    [0]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "z_corr_0",
+                    [0]
+                ],
+                [
+                    "z_corr_1",
+                    [0]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "data": "",
+                "signature": ["Q","Q","Q","Q","C","C","C","C","C","C","C","C","C","C","C","C","C","C"],
+                "type": "Barrier"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [false,true]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_z_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_2",
+                    [0]
+                ],
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1","0"],
+                        "type": "PhasedX"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_2",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ]
+            ],
+            "op":
+            {
+                "classical":
+                {
+                    "values": [true,true]
+                },
+                "type": "SetBits"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_2",
+                    [0]
+                ],
+                [
+                    "q",
+                    [2]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1"],
+                        "type": "Rz"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_2",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_x_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "index",
+                    [0]
+                ],
+                [
+                    "index",
+                    [1]
+                ],
+                [
+                    "z_corr_3",
+                    [0]
+                ],
+                [
+                    "_w",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "type": "WASM",
+                "wasm":
+                {
+                    "func_name": "get_z_correction",
+                    "n": 3,
+                    "wasm_file_uid": "89f01a2184dfa21ffb64388bd441a12e545c0e177d8312fd5780b51d501f1b4c",
+                    "width_i_parameter": [2],
+                    "width_o_parameter": [1],
+                    "ww_n": 1
+                }
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_3",
+                    [0]
+                ],
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1","0"],
+                        "type": "PhasedX"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "x_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_3",
+                    [0]
+                ],
+                [
+                    "q",
+                    [3]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["1"],
+                        "type": "Rz"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        },
+        {
+            "args": [
+                [
+                    "z_corr_3",
+                    [0]
+                ]
+            ],
+            "op":
+            {
+                "conditional":
+                {
+                    "op":
+                    {
+                        "params": ["0.5"],
+                        "type": "Phase"
+                    },
+                    "value": 1,
+                    "width": 1
+                },
+                "type": "Conditional"
+            }
+        }
+    ],
+    "created_qubits": [],
+    "discarded_qubits": [],
+    "implicit_permutation": [
+        [
+            [
+                "q",
+                [0]
+            ],
+            [
+                "q",
+                [0]
+            ]
+        ],
+        [
+            [
+                "q",
+                [1]
+            ],
+            [
+                "q",
+                [1]
+            ]
+        ],
+        [
+            [
+                "q",
+                [2]
+            ],
+            [
+                "q",
+                [2]
+            ]
+        ],
+        [
+            [
+                "q",
+                [3]
+            ],
+            [
+                "q",
+                [3]
+            ]
+        ]
+    ],
+    "number_of_ws": 1,
+    "phase": "0.5",
+    "qubits": [
+        [
+            "q",
+            [0]
+        ],
+        [
+            "q",
+            [1]
+        ],
+        [
+            "q",
+            [2]
+        ],
+        [
+            "q",
+            [3]
+        ]
+    ]
+}

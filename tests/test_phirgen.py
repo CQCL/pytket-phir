@@ -9,6 +9,7 @@
 # mypy: disable-error-code="misc"
 
 import json
+from pathlib import Path
 
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
@@ -79,6 +80,17 @@ def test_bitwise_ops() -> None:
     }
 
 
+def test_conditional_barrier() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/119 ."""
+    circ = get_qasm_as_circuit(QasmFile.cond_barrier)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][5] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": ["m", 0]},
+        "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],
+    }
+
+
 def test_nested_bitwise_op() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/133 ."""
     circ = Circuit(4)
@@ -105,12 +117,11 @@ def test_nested_bitwise_op() -> None:
     }
 
 
-def test_conditional_barrier() -> None:
-    """From https://github.com/CQCL/pytket-phir/issues/119 ."""
-    circ = get_qasm_as_circuit(QasmFile.cond_barrier)
+def test_global_phase() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/136 ."""
+    this_dir = Path(Path(__file__).resolve()).parent
+    with Path(f"{this_dir}/data/phase.json").open() as fp:
+        circ = Circuit.from_dict(json.load(fp))
+
     phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][5] == {
-        "block": "if",
-        "condition": {"cop": "==", "args": ["m", 0]},
-        "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],
-    }
+    assert phir["ops"][-7]["true_branch"] == [{"mop": "Skip"}]
