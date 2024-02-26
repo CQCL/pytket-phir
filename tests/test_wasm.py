@@ -15,6 +15,8 @@ import logging
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+import pytest
+
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
@@ -62,6 +64,7 @@ class TestWASM:
             "returns": ["co"],
         }
 
+    @pytest.mark.order("first")
     def test_pytket_with_wasm(self) -> None:
         wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
         phir_str: str

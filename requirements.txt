@@ -5,6 +5,7 @@ phir==0.3.0
 pre-commit==3.6.2
 pydata_sphinx_theme==0.15.2
 pytest==8.0.2
+pytest-order==1.2.0
 pytket==1.25.0
 ruff==0.2.2
 setuptools_scm==8.0.4
