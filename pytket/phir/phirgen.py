@@ -175,6 +175,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
         try:
             gate = tket_gate_to_phir[op.type]
         except KeyError:
+            if op.type == tk.OpType.Phase:
+                # ignore global phase
+                return {"mop": "Skip"}
             logging.exception("Gate %s unsupported by PHIR", op.get_name())
             raise
         angles = (op.params, "pi") if op.params else None
@@ -186,8 +189,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                     "returns": [arg_to_bit(cmd.bits[0])],
                     "args": [arg_to_bit(cmd.args[0])],
                 }
-            case (
-                "CX"
+            case ("CX"
                 | "CY"
                 | "CZ"
                 | "RXX"
@@ -201,7 +203,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                 | "SZZ"
                 | "SZZdg"
                 | "SWAP"
-            ):  # two-qubit gates
+            ):  # two-qubit gates  # fmt: skip
                 qop = {
                     "qop": gate,
                     "angles": angles,
