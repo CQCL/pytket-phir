@@ -226,7 +226,25 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     out: JsonDict | None = None
     match op:  # non-quantum op
         case tk.BarrierOp():
-            out = {"meta": "barrier", "args": [arg_to_bit(qbit) for qbit in cmd.qubits]}
+            if op.data:
+                # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
+                match op.data[0:5]:
+                    case "sleep":
+                        dur = op.data.removeprefix("sleep(").removesuffix(")")
+                        out = {
+                            "mop": "Idle",
+                            "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                            "duration": (dur, "s"),
+                        }
+                    case "order" | "group":
+                        raise NotImplementedError(op.data)
+                    case _:
+                        raise TypeError(op.data)
+            else:
+                out = {
+                    "meta": "barrier",
+                    "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                }
 
         case tk.Conditional():  # where the condition is equality check
             out = {
@@ -351,19 +369,24 @@ def dedupe_bits_to_registers(bits: "Sequence[UnitID]") -> list[str]:
     return list(dict.fromkeys([bit.reg_name for bit in bits]))
 
 
-def make_comment_text(command: tk.Command, op: tk.Op) -> str:
+def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     """Converts a command + op to the PHIR comment spec."""
     match op:
         case tk.Conditional():
-            conditional_text = str(command)
+            conditional_text = str(cmd)
             cleaned = conditional_text[: conditional_text.find("THEN") + 4]
-            return f"{cleaned} {make_comment_text(command, op.op)}"
+            return f"{cleaned} {make_comment_text(cmd, op.op)}"
 
         case tk.WASMOp():
-            args, returns = extract_wasm_args_and_returns(command, op)
+            args, returns = extract_wasm_args_and_returns(cmd, op)
             return f"WASM function={op.func_name} args={args} returns={returns}"
 
-    return str(command)
+        case tk.BarrierOp():
+            if op.data:
+                return op.data + " " + str(cmd.args[0]) + ";"
+            return str(cmd)
+
+    return str(cmd)
 
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:

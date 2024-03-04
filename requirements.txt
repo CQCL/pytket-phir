@@ -1,7 +1,7 @@
-build==1.0.3
+build==1.1.1
 mypy==1.8.0
 networkx==2.8.8
-phir==0.3.0
+phir==0.3.1
 pre-commit==3.6.2
 pydata_sphinx_theme==0.15.2
 pytest==8.0.2
@@ -10,5 +10,5 @@ pytket==1.25.0
 ruff==0.2.2
 setuptools_scm==8.0.4
 sphinx==7.2.6
-wasmtime==18.0.0
+wasmtime==18.0.2
 wheel==0.42.0
