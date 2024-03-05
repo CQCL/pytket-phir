@@ -169,53 +169,59 @@ def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
     }
 
 
+def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+    """Return PHIR dict for a tket gate op."""
+    try:
+        gate = tket_gate_to_phir[op.type]
+    except KeyError:
+        if op.type == tk.OpType.Phase:
+            # ignore global phase
+            return {"mop": "Skip"}
+        logging.exception("Gate %s unsupported by PHIR", op.get_name())
+        raise
+
+    angles = (op.params, "pi") if op.params else None
+    qop: JsonDict
+    match gate:
+        case "Measure":
+            qop = {
+                "qop": gate,
+                "returns": [arg_to_bit(cmd.bits[0])],
+                "args": [arg_to_bit(cmd.args[0])],
+            }
+        case ("CX"
+            | "CY"
+            | "CZ"
+            | "RXX"
+            | "RYY"
+            | "RZZ"
+            | "R2XXYYZZ"
+            | "SXX"
+            | "SXXdg"
+            | "SYY"
+            | "SYYdg"
+            | "SZZ"
+            | "SZZdg"
+            | "SWAP"
+        ):  # two-qubit gates  # fmt: skip
+            qop = {
+                "qop": gate,
+                "angles": angles,
+                "args": [[arg_to_bit(cmd.qubits[0]), arg_to_bit(cmd.qubits[1])]],
+            }
+        case _:  # single-qubit gates
+            qop = {
+                "qop": gate,
+                "angles": angles,
+                "args": [arg_to_bit(cmd.qubits[0])],
+            }
+    return qop
+
+
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
-    """Return PHIR dict give op and its arguments."""
+    """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
-        try:
-            gate = tket_gate_to_phir[op.type]
-        except KeyError:
-            if op.type == tk.OpType.Phase:
-                # ignore global phase
-                return {"mop": "Skip"}
-            logging.exception("Gate %s unsupported by PHIR", op.get_name())
-            raise
-        angles = (op.params, "pi") if op.params else None
-        qop: JsonDict
-        match gate:
-            case "Measure":
-                qop = {
-                    "qop": gate,
-                    "returns": [arg_to_bit(cmd.bits[0])],
-                    "args": [arg_to_bit(cmd.args[0])],
-                }
-            case ("CX"
-                | "CY"
-                | "CZ"
-                | "RXX"
-                | "RYY"
-                | "RZZ"
-                | "R2XXYYZZ"
-                | "SXX"
-                | "SXXdg"
-                | "SYY"
-                | "SYYdg"
-                | "SZZ"
-                | "SZZdg"
-                | "SWAP"
-            ):  # two-qubit gates  # fmt: skip
-                qop = {
-                    "qop": gate,
-                    "angles": angles,
-                    "args": [[arg_to_bit(cmd.qubits[0]), arg_to_bit(cmd.qubits[1])]],
-                }
-            case _:  # single-qubit gates
-                qop = {
-                    "qop": gate,
-                    "angles": angles,
-                    "args": [arg_to_bit(cmd.qubits[0])],
-                }
-        return qop
+        return convert_gate(op, cmd)
 
     out: JsonDict | None = None
     match op:  # non-quantum op
