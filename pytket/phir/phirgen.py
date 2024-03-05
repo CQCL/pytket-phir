@@ -371,22 +371,29 @@ def dedupe_bits_to_registers(bits: "Sequence[UnitID]") -> list[str]:
 
 def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     """Converts a command + op to the PHIR comment spec."""
+    comment = str(cmd)
     match op:
         case tk.Conditional():
             conditional_text = str(cmd)
             cleaned = conditional_text[: conditional_text.find("THEN") + 4]
-            return f"{cleaned} {make_comment_text(cmd, op.op)}"
+            comment = f"{cleaned} {make_comment_text(cmd, op.op)}"
 
         case tk.WASMOp():
             args, returns = extract_wasm_args_and_returns(cmd, op)
-            return f"WASM function={op.func_name} args={args} returns={returns}"
+            comment = f"WASM function={op.func_name} args={args} returns={returns}"
 
         case tk.BarrierOp():
-            if op.data:
-                return op.data + " " + str(cmd.args[0]) + ";"
-            return str(cmd)
+            comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
 
-    return str(cmd)
+        case tk.ClassicalExpBox():
+            exp = op.get_exp()
+            match exp:
+                case BitLogicExp():
+                    comment = str(cmd.bits[0]) + " = " + str(op.get_exp())
+                case RegLogicExp():
+                    comment = str(cmd.bits[0].reg_name) + " = " + str(op.get_exp())
+
+    return comment
 
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
