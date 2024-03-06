@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
+from pytket.qasm.qasm import circuit_from_qasm_str
 
 from .test_utils import QasmFile, get_qasm_as_circuit
 
@@ -125,3 +126,27 @@ def test_global_phase() -> None:
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][-7]["true_branch"] == [{"mop": "Skip"}]
+
+
+def test_sleep_idle() -> None:
+    """Ensure sleep from qasm gets converted to PHIR Idle Mop."""
+    circ = get_qasm_as_circuit(QasmFile.sleep)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][7] == {"mop": "Idle", "args": [["q", 0]], "duration": ["1", "s"]}
+
+
+def test_multiple_sleep() -> None:
+    """Ensure multiple sleep ops get converted correctly."""
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1_dev.inc";
+
+    qreg q[2];
+
+    sleep(1) q[0];
+    sleep(2) q[1];
+    """
+    circ = circuit_from_qasm_str(qasm)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": ["1", "s"]}
+    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": ["2", "s"]}

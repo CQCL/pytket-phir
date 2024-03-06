@@ -10,6 +10,8 @@
 
 import logging
 
+import pytest
+
 from .test_utils import QasmFile, get_phir_json
 
 logger = logging.getLogger(__name__)
@@ -156,6 +158,7 @@ def test_two_qubit_exec_order_preserved() -> None:
     }
 
 
+@pytest.mark.order("first")
 def test_group_ordering() -> None:
     """Test that groups are in the right order when the group number can decrement."""
     phir = get_phir_json(QasmFile.group_ordering, rebase=True)

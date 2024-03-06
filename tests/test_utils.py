@@ -51,6 +51,7 @@ class QasmFile(Enum):
     cond_barrier = auto()
     arbitrary_qreg_names = auto()
     group_ordering = auto()
+    sleep = auto()
 
 
 class WatFile(Enum):
