@@ -10,7 +10,8 @@ Fixes #<!-- issue number -->
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 
-# Checklist:
+# Checklist
 
 - [ ] I have performed a self-review of my code
 - [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] I have updated the changelog with any user-facing changes
