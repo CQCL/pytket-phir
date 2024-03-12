@@ -56,14 +56,14 @@ class TestSharder:
         assert len(shards[0].sub_commands) == 2
         sub_commands = list(shards[0].sub_commands.items())
         assert sub_commands[0][1][0].op.type == OpType.H
-        assert len(shards[0].depends_upon) == 0
+        assert not shards[0].depends_upon
 
         assert shards[1].primary_command.op.type == OpType.Measure
-        assert len(shards[1].sub_commands) == 0
+        assert not shards[1].sub_commands
         assert shards[1].depends_upon == {shards[0].ID}
 
         assert shards[2].primary_command.op.type == OpType.Measure
-        assert len(shards[2].sub_commands) == 0
+        assert not shards[2].sub_commands
         assert shards[2].depends_upon == {shards[0].ID}
 
     def test_rollup_behavior(self) -> None:
@@ -79,16 +79,16 @@ class TestSharder:
         assert len(shards[0].sub_commands) == 2
         sub_commands = list(shards[0].sub_commands.items())
         assert sub_commands[0][1][0].op.type == OpType.H
-        assert len(shards[0].depends_upon) == 0
+        assert not shards[0].depends_upon
 
         # Shard 1: Measure q[0] -> c[0] (TKET splits q->c)
         assert shards[1].primary_command.op.type == OpType.Measure
-        assert len(shards[1].sub_commands) == 0
+        assert not shards[1].sub_commands
         assert shards[1].depends_upon == {shards[0].ID}
 
         # shard 2: Measure q[1] -> c[1]
         assert shards[2].primary_command.op.type == OpType.Measure
-        assert len(shards[2].sub_commands) == 0
+        assert not shards[2].sub_commands
         assert shards[2].depends_upon == {shards[0].ID}
 
         # Shard 3: Rollup barrier for a lingering hadamard on q[0]
@@ -111,7 +111,7 @@ class TestSharder:
         assert shards[0].primary_command.op.type == OpType.Measure
         assert shards[0].qubits_used == {circuit.qubits[0]}
         assert shards[0].bits_written == {circuit.bits[0]}
-        assert shards[0].depends_upon == set()
+        assert not shards[0].depends_upon
         assert len(shards[0].sub_commands.items()) == 1
         s0_qubit, s0_sub_cmds = next(iter(shards[0].sub_commands.items()))
         assert s0_qubit == circuit.qubits[0]
@@ -122,14 +122,14 @@ class TestSharder:
         assert len(shards[1].sub_commands.items()) == 0
         assert shards[1].qubits_used == {circuit.qubits[0]}
         assert shards[1].depends_upon == {shards[0].ID}
-        assert shards[1].bits_written == set()
-        assert shards[1].bits_read == set()
+        assert not shards[1].bits_written
+        assert not shards[1].bits_read
 
         # shard 2: if (c==1) z=1;
         assert shards[2].primary_command.op.type == OpType.Conditional
         assert cast(Conditional, shards[2].primary_command.op).op.type == OpType.SetBits
-        assert len(shards[2].sub_commands.keys()) == 0
-        assert shards[2].qubits_used == set()
+        assert not shards[2].sub_commands
+        assert not shards[2].qubits_used
         assert shards[2].bits_written == {circuit.bits[1]}
         assert shards[2].bits_read == {circuit.bits[0], circuit.bits[1]}
         assert shards[2].depends_upon == {shards[0].ID}
@@ -156,10 +156,10 @@ class TestSharder:
         # shard 0: [], c[3] = 1
         assert shards[0].primary_command.op.type == OpType.SetBits
         assert len(shards[0].sub_commands.items()) == 0
-        assert shards[0].qubits_used == set()
+        assert not shards[0].qubits_used
         assert shards[0].bits_written == {circuit.bits[3]}
         assert shards[0].bits_read == {circuit.bits[3]}  # bits written are always read
-        assert shards[0].depends_upon == set()
+        assert not shards[0].depends_upon
 
         # shard 1: [h q[0]; h q[1];] barrier q[0], q[1], c[3];
         assert shards[1].primary_command.op.type == OpType.Barrier
@@ -181,8 +181,8 @@ class TestSharder:
         assert shards[2].primary_command.op.type == OpType.CX
         assert len(shards[2].sub_commands.items()) == 0
         assert shards[2].qubits_used == {circuit.qubits[0], circuit.qubits[1]}
-        assert shards[2].bits_written == set()
-        assert shards[2].bits_read == set()
+        assert not shards[2].bits_written
+        assert not shards[2].bits_read
         assert shards[2].depends_upon == {shards[1].ID}
 
         # shard 3: measure q[0]->c[0];
@@ -211,16 +211,16 @@ class TestSharder:
         assert shard_4_q3_cmds[2].op.type == OpType.X
         assert shard_4_q3_cmds[2].qubits == [circuit.qubits[3]]
         assert shards[4].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
-        assert shards[4].bits_written == set()
-        assert shards[4].bits_read == set()
-        assert shards[4].depends_upon == set()
+        assert not shards[4].bits_written
+        assert not shards[4].bits_read
+        assert not shards[4].depends_upon
 
         # shard 5: [] CX q[2], q[3];
         assert shards[5].primary_command.op.type == OpType.CX
         assert len(shards[5].sub_commands.items()) == 0
         assert shards[5].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
-        assert shards[5].bits_written == set()
-        assert shards[5].bits_read == set()
+        assert not shards[5].bits_written
+        assert not shards[5].bits_read
         assert shards[5].depends_upon == {shards[4].ID}
 
         # shard 6: measure q[2]->c[2];
@@ -243,7 +243,7 @@ class TestSharder:
         assert shards[0].qubits_used == {circuit.qubits[0]}
         assert shards[0].bits_written == {circuit.bits[0]}
         assert shards[0].bits_read == {circuit.bits[0]}
-        assert shards[0].depends_upon == set()
+        assert not shards[0].depends_upon
 
         # shard 1: [H q[1];] measure q[1]->c[2];
         # NOTE: pytket reorganizes circuits to be efficiently ordered
@@ -252,28 +252,28 @@ class TestSharder:
         assert shards[1].qubits_used == {circuit.qubits[1]}
         assert shards[1].bits_written == {circuit.bits[2]}
         assert shards[1].bits_read == {circuit.bits[2]}
-        assert shards[1].depends_upon == set()
+        assert not shards[1].depends_upon
 
         # shard 2: [] if(c[0]==1) c[1]=1;
         assert shards[2].primary_command.op.type == OpType.Conditional
-        assert len(shards[2].sub_commands) == 0
-        assert shards[2].qubits_used == set()
+        assert not shards[2].sub_commands
+        assert not shards[2].qubits_used
         assert shards[2].bits_written == {circuit.bits[1]}
         assert shards[2].bits_read == {circuit.bits[1], circuit.bits[0]}
         assert shards[2].depends_upon == {shards[0].ID}
 
         # shard 3: [] c[0]=0;
         assert shards[3].primary_command.op.type == OpType.SetBits
-        assert len(shards[2].sub_commands) == 0
-        assert shards[3].qubits_used == set()
+        assert not shards[2].sub_commands
+        assert not shards[3].qubits_used
         assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
         assert shards[3].depends_upon == {shards[0].ID, shards[2].ID}
 
         # shard 4: [] if(c[2]==1) c[0]=1;
         assert shards[4].primary_command.op.type == OpType.Conditional
-        assert len(shards[4].sub_commands) == 0
-        assert shards[4].qubits_used == set()
+        assert not shards[4].sub_commands
+        assert not shards[4].qubits_used
         assert shards[4].bits_written == {circuit.bits[0]}
         assert shards[4].bits_read == {circuit.bits[0], circuit.bits[2]}
         assert shards[4].depends_upon == {shards[1].ID, shards[3].ID}
@@ -293,11 +293,11 @@ class TestSharder:
             circuit.qubits[2],
             circuit.qubits[3],
         }
-        assert shards[0].bits_written == set()
+        assert not shards[0].bits_written
 
         # shard 1: [] measure q[3]->[c0]
         assert shards[1].primary_command.op.type == OpType.Measure
-        assert len(shards[1].sub_commands) == 0
+        assert not shards[1].sub_commands
         assert shards[1].qubits_used == {circuit.qubits[3]}
         assert shards[1].bits_written == {circuit.bits[0]}
 
@@ -310,7 +310,7 @@ class TestSharder:
         # shard 0
         assert shards[0].primary_command.op.type == OpType.SetBits
         assert len(shards[0].sub_commands.items()) == 0
-        assert shards[0].qubits_used == set()
+        assert not shards[0].qubits_used
         assert shards[0].bits_written == {
             circuit.bits[0],
             circuit.bits[1],
@@ -323,12 +323,12 @@ class TestSharder:
             circuit.bits[2],
             circuit.bits[3],
         }
-        assert shards[0].depends_upon == set()
+        assert not shards[0].depends_upon
 
         # shard 1
         assert shards[1].primary_command.op.type == OpType.CopyBits
         assert len(shards[1].sub_commands.items()) == 0
-        assert shards[1].qubits_used == set()
+        assert not shards[1].qubits_used
         assert shards[1].bits_written == {
             circuit.bits[4],
             circuit.bits[5],
@@ -350,7 +350,7 @@ class TestSharder:
         # shard 2
         assert shards[2].primary_command.op.type == OpType.ClassicalExpBox
         assert len(shards[2].sub_commands.items()) == 0
-        assert shards[2].qubits_used == set()
+        assert not shards[2].qubits_used
         assert shards[2].bits_written == {
             circuit.bits[8],
             circuit.bits[9],
@@ -376,7 +376,7 @@ class TestSharder:
         # shard 2
         assert shards[3].primary_command.op.type == OpType.ClassicalExpBox
         assert len(shards[3].sub_commands.items()) == 0
-        assert shards[3].qubits_used == set()
+        assert not shards[3].qubits_used
         assert shards[3].bits_written == {
             circuit.bits[0],
             circuit.bits[1],
