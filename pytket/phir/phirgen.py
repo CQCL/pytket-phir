@@ -234,7 +234,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                         out = {
                             "mop": "Idle",
                             "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
-                            "duration": (dur, "s"),
+                            "duration": (float(dur), "s"),
                         }
                     case "order" | "group":
                         raise NotImplementedError(op.data)
@@ -299,7 +299,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
             if len(cmd.bits) != len(op.values):
                 logger.error("LHS and RHS lengths mismatch for classical assignment")
                 raise ValueError
-            out = assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+            out = assign_cop(
+                [arg_to_bit(bit) for bit in cmd.bits], list(map(int, op.values))
+            )
 
         case tk.CopyBitsOp():
             if len(cmd.bits) != len(cmd.args) // 2:

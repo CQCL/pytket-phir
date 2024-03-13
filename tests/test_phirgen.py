@@ -132,7 +132,7 @@ def test_sleep_idle() -> None:
     """Ensure sleep from qasm gets converted to PHIR Idle Mop."""
     circ = get_qasm_as_circuit(QasmFile.sleep)
     phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][7] == {"mop": "Idle", "args": [["q", 0]], "duration": ["1", "s"]}
+    assert phir["ops"][7] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
 
 
 def test_multiple_sleep() -> None:
@@ -148,5 +148,5 @@ def test_multiple_sleep() -> None:
     """
     circ = circuit_from_qasm_str(qasm)
     phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": ["1", "s"]}
-    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": ["2", "s"]}
+    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
+    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}
