@@ -280,6 +280,31 @@ def format_and_add_primary_commands(
             groups2qops(fmt_g2q, ops)
 
 
+def adjust_phir_transport_time(ops: list["JsonDict"], machine: "Machine") -> None:
+    """Analyze the generated phir and adjust the transport time."""
+    adjustment = 0.0
+    for op in ops:
+        if "qop" in op:
+            match op["qop"]:
+                case "RZ" | "R1XY":
+                    adjustment += machine.sq_time
+                case "RZZ":
+                    adjustment += machine.tq_time
+                case "Measure":
+                    adjustment += machine.meas_prep_time
+        if "block" in op and op["block"] == "qparallel":
+            first_op = op["ops"][0]["qop"]
+            match first_op:
+                case "RZ" | "R1XY":
+                    adjustment += machine.sq_time
+                case "RZZ":
+                    adjustment += machine.tq_time
+        if "mop" in op and op["mop"] == "Transport":
+            cost, units = op["duration"]
+            op["duration"] = cost + adjustment, units
+            adjustment = 0.0
+
+
 def genphir_parallel(
     inp: list[tuple["Ordering", "ShardLayer", "Cost"]], machine: "Machine"
 ) -> str:
@@ -289,8 +314,8 @@ def genphir_parallel(
         inp: list of shards
         machine: a QTM machine on which to simulate the circuit
     """
-    max_parallel_tq_gates = len(machine.tq_options)
-    max_parallel_sq_gates = len(machine.sq_options)
+    max_parallel_tq_gates = int(len(machine.tq_options) / 2)
+    max_parallel_sq_gates = int(len(machine.sq_options) / 2)
 
     phir = PHIR_HEADER
     phir["metadata"]["strict_parallelism"] = True
@@ -322,6 +347,7 @@ def genphir_parallel(
                 "duration": (layer_cost, "ms"),
             },
         )
+    adjust_phir_transport_time(ops, machine)
 
     decls = get_decls(qbits, cbits)
 

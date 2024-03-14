@@ -20,11 +20,13 @@ class MachineTimings:
     tq_time: time for a two qubit gate
     sq_time: time for a single qubit gate
     qb_swap_time: time it takes to swap to qubits
+    meas_prep_time: time to arrange qubits for measurement
     """
 
     tq_time: float
     sq_time: float
     qb_swap_time: float
+    meas_prep_time: float
 
 
 class Machine:
@@ -52,6 +54,7 @@ class Machine:
         self.tq_time = timings.tq_time
         self.sq_time = timings.sq_time
         self.qb_swap_time = timings.qb_swap_time
+        self.meas_prep_time = timings.meas_prep_time
 
         for i in self.tq_options:
             self.sq_options.add(i)

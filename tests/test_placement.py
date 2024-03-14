@@ -19,9 +19,9 @@ from pytket.phir.placement import (
 )
 from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET
 
-m = Machine(4, QTM_DEFAULT_GATESET, {1}, MachineTimings(10, 2, 2))
-m2 = Machine(6, QTM_DEFAULT_GATESET, {1, 3}, MachineTimings(10, 2, 2))
-m3 = Machine(8, QTM_DEFAULT_GATESET, {0, 6}, MachineTimings(10, 2, 2))
+m = Machine(4, QTM_DEFAULT_GATESET, {1}, MachineTimings(10, 2, 2, 1))
+m2 = Machine(6, QTM_DEFAULT_GATESET, {1, 3}, MachineTimings(10, 2, 2, 1))
+m3 = Machine(8, QTM_DEFAULT_GATESET, {0, 6}, MachineTimings(10, 2, 2, 1))
 
 
 def test_placement_check() -> None:

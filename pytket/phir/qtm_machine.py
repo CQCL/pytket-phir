@@ -27,16 +27,22 @@ QTM_MACHINES_MAP = {
         size=20,
         gateset=QTM_DEFAULT_GATESET,
         tq_options={0, 2, 4, 6, 8, 10, 12, 14, 16, 18},
-        # need to get better timing values for below
-        # but will have to look them up in hqcompiler
-        timings=MachineTimings(tq_time=3.0, sq_time=1.0, qb_swap_time=2.0),
+        timings=MachineTimings(
+            tq_time=0.04,
+            sq_time=0.03,
+            qb_swap_time=0.9,
+            meas_prep_time=0.05,
+        ),
     ),
     QtmMachine.H1_2: Machine(
         size=12,
         gateset=QTM_DEFAULT_GATESET,
         tq_options={0, 2, 4, 6, 8, 10},
-        # need to get better timing values for below
-        # but will have to look them up in hqcompiler
-        timings=MachineTimings(tq_time=3.0, sq_time=1.0, qb_swap_time=2.0),
+        timings=MachineTimings(
+            tq_time=0.04,
+            sq_time=0.03,
+            qb_swap_time=0.9,
+            meas_prep_time=0.05,
+        ),
     ),
 }
