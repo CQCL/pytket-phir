@@ -33,16 +33,5 @@ QTM_MACHINES_MAP = {
             qb_swap_time=0.9,
             meas_prep_time=0.05,
         ),
-    ),
-    QtmMachine.H1_2: Machine(
-        size=12,
-        gateset=QTM_DEFAULT_GATESET,
-        tq_options={0, 2, 4, 6, 8, 10},
-        timings=MachineTimings(
-            tq_time=0.04,
-            sq_time=0.03,
-            qb_swap_time=0.9,
-            meas_prep_time=0.05,
-        ),
-    ),
+    )
 }
