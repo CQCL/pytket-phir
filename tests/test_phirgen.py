@@ -9,9 +9,11 @@
 # mypy: disable-error-code="misc"
 
 import json
+from pathlib import Path
 
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
+from pytket.qasm.qasm import circuit_from_qasm_str
 
 from .test_utils import QasmFile, get_qasm_as_circuit
 
@@ -79,6 +81,17 @@ def test_bitwise_ops() -> None:
     }
 
 
+def test_conditional_barrier() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/119 ."""
+    circ = get_qasm_as_circuit(QasmFile.cond_barrier)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][5] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": ["m", 0]},
+        "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],
+    }
+
+
 def test_nested_bitwise_op() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/133 ."""
     circ = Circuit(4)
@@ -105,12 +118,35 @@ def test_nested_bitwise_op() -> None:
     }
 
 
-def test_conditional_barrier() -> None:
-    """From https://github.com/CQCL/pytket-phir/issues/119 ."""
-    circ = get_qasm_as_circuit(QasmFile.cond_barrier)
+def test_global_phase() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/136 ."""
+    this_dir = Path(Path(__file__).resolve()).parent
+    with Path(f"{this_dir}/data/phase.json").open() as fp:
+        circ = Circuit.from_dict(json.load(fp))
+
     phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][5] == {
-        "block": "if",
-        "condition": {"cop": "==", "args": ["m", 0]},
-        "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],
-    }
+    assert phir["ops"][-7]["true_branch"] == [{"mop": "Skip"}]
+
+
+def test_sleep_idle() -> None:
+    """Ensure sleep from qasm gets converted to PHIR Idle Mop."""
+    circ = get_qasm_as_circuit(QasmFile.sleep)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][7] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
+
+
+def test_multiple_sleep() -> None:
+    """Ensure multiple sleep ops get converted correctly."""
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1_dev.inc";
+
+    qreg q[2];
+
+    sleep(1) q[0];
+    sleep(2) q[1];
+    """
+    circ = circuit_from_qasm_str(qasm)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
+    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}

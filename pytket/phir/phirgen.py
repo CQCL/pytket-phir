@@ -169,56 +169,82 @@ def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
     }
 
 
+def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+    """Return PHIR dict for a tket gate op."""
+    try:
+        gate = tket_gate_to_phir[op.type]
+    except KeyError:
+        if op.type == tk.OpType.Phase:
+            # ignore global phase
+            return {"mop": "Skip"}
+        logging.exception("Gate %s unsupported by PHIR", op.get_name())
+        raise
+
+    angles = (op.params, "pi") if op.params else None
+    qop: JsonDict
+    match gate:
+        case "Measure":
+            qop = {
+                "qop": gate,
+                "returns": [arg_to_bit(cmd.bits[0])],
+                "args": [arg_to_bit(cmd.args[0])],
+            }
+        case ("CX"
+            | "CY"
+            | "CZ"
+            | "RXX"
+            | "RYY"
+            | "RZZ"
+            | "R2XXYYZZ"
+            | "SXX"
+            | "SXXdg"
+            | "SYY"
+            | "SYYdg"
+            | "SZZ"
+            | "SZZdg"
+            | "SWAP"
+        ):  # two-qubit gates  # fmt: skip
+            qop = {
+                "qop": gate,
+                "angles": angles,
+                "args": [[arg_to_bit(cmd.qubits[0]), arg_to_bit(cmd.qubits[1])]],
+            }
+        case _:  # single-qubit gates
+            qop = {
+                "qop": gate,
+                "angles": angles,
+                "args": [arg_to_bit(cmd.qubits[0])],
+            }
+    return qop
+
+
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
-    """Return PHIR dict give op and its arguments."""
+    """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
-        try:
-            gate = tket_gate_to_phir[op.type]
-        except KeyError:
-            logging.exception("Gate %s unsupported by PHIR", op.get_name())
-            raise
-        angles = (op.params, "pi") if op.params else None
-        qop: JsonDict
-        match gate:
-            case "Measure":
-                qop = {
-                    "qop": gate,
-                    "returns": [arg_to_bit(cmd.bits[0])],
-                    "args": [arg_to_bit(cmd.args[0])],
-                }
-            case (
-                "CX"
-                | "CY"
-                | "CZ"
-                | "RXX"
-                | "RYY"
-                | "RZZ"
-                | "R2XXYYZZ"
-                | "SXX"
-                | "SXXdg"
-                | "SYY"
-                | "SYYdg"
-                | "SZZ"
-                | "SZZdg"
-                | "SWAP"
-            ):  # two-qubit gates
-                qop = {
-                    "qop": gate,
-                    "angles": angles,
-                    "args": [[arg_to_bit(cmd.qubits[0]), arg_to_bit(cmd.qubits[1])]],
-                }
-            case _:  # single-qubit gates
-                qop = {
-                    "qop": gate,
-                    "angles": angles,
-                    "args": [arg_to_bit(cmd.qubits[0])],
-                }
-        return qop
+        return convert_gate(op, cmd)
 
     out: JsonDict | None = None
     match op:  # non-quantum op
         case tk.BarrierOp():
-            out = {"meta": "barrier", "args": [arg_to_bit(qbit) for qbit in cmd.qubits]}
+            if op.data:
+                # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
+                match op.data[0:5]:
+                    case "sleep":
+                        dur = op.data.removeprefix("sleep(").removesuffix(")")
+                        out = {
+                            "mop": "Idle",
+                            "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                            "duration": (float(dur), "s"),
+                        }
+                    case "order" | "group":
+                        raise NotImplementedError(op.data)
+                    case _:
+                        raise TypeError(op.data)
+            else:
+                out = {
+                    "meta": "barrier",
+                    "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                }
 
         case tk.Conditional():  # where the condition is equality check
             out = {
@@ -273,7 +299,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
             if len(cmd.bits) != len(op.values):
                 logger.error("LHS and RHS lengths mismatch for classical assignment")
                 raise ValueError
-            out = assign_cop([arg_to_bit(bit) for bit in cmd.bits], op.values)
+            out = assign_cop(
+                [arg_to_bit(bit) for bit in cmd.bits], list(map(int, op.values))
+            )
 
         case tk.CopyBitsOp():
             if len(cmd.bits) != len(cmd.args) // 2:
@@ -343,19 +371,31 @@ def dedupe_bits_to_registers(bits: "Sequence[UnitID]") -> list[str]:
     return list(dict.fromkeys([bit.reg_name for bit in bits]))
 
 
-def make_comment_text(command: tk.Command, op: tk.Op) -> str:
+def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     """Converts a command + op to the PHIR comment spec."""
+    comment = str(cmd)
     match op:
         case tk.Conditional():
-            conditional_text = str(command)
+            conditional_text = str(cmd)
             cleaned = conditional_text[: conditional_text.find("THEN") + 4]
-            return f"{cleaned} {make_comment_text(command, op.op)}"
+            comment = f"{cleaned} {make_comment_text(cmd, op.op)}"
 
         case tk.WASMOp():
-            args, returns = extract_wasm_args_and_returns(command, op)
-            return f"WASM function={op.func_name} args={args} returns={returns}"
+            args, returns = extract_wasm_args_and_returns(cmd, op)
+            comment = f"WASM function={op.func_name} args={args} returns={returns}"
 
-    return str(command)
+        case tk.BarrierOp():
+            comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
+
+        case tk.ClassicalExpBox():
+            exp = op.get_exp()
+            match exp:
+                case BitLogicExp():
+                    comment = str(cmd.bits[0]) + " = " + str(op.get_exp())
+                case RegLogicExp():
+                    comment = str(cmd.bits[0].reg_name) + " = " + str(op.get_exp())
+
+    return comment
 
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
