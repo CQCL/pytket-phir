@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-03-15
+
+### Changed
+
+* show approx transport time in PHIR in https://github.com/CQCL/pytket-phir/pull/147
+  * **BREAKING CHANGE**: machine names `H1_1`/`H1-1` and `H1_2`/`H1-2` are now deprecated in favor of `H1`
+
+## [0.5.1] - 2024-03-13
+
+### Changed
+
+* float not str for duration in https://github.com/CQCL/pytket-phir/pull/144
+
 ## [0.5.0] - 2024-03-06
 
 ### Added
