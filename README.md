@@ -26,7 +26,7 @@ Install additional dependencies needed for the CLI using `pip install pytket-phi
 
 ```sh
 ❯ phirc -h
-usage: phirc [-h] [-w WASM_FILE] [-m {H1-1,H1-2}] [-v] [--version] qasm_files [qasm_files ...]
+usage: phirc [-h] [-w WASM_FILE] [-m {H1}] [-v] [--version] qasm_files [qasm_files ...]
 
 Emulates QASM program execution via PECOS
 
@@ -37,8 +37,8 @@ options:
   -h, --help            show this help message and exit
   -w WASM_FILE, --wasm-file WASM_FILE
                         Optional WASM file for use by the QASM programs
-  -m {H1-1,H1-2}, --machine {H1-1,H1-2}
-                        Machine name, H1-1 by default
+  -m {H1}, --machine {H1}
+                        Machine name, H1 by default
   -v, --verbose
   --version             show program's version number and exit
 ```

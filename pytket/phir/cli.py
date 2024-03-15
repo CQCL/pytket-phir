@@ -43,9 +43,9 @@ def main() -> None:
     parser.add_argument(
         "-m",
         "--machine",
-        choices=["H1-1", "H1-2"],
-        default="H1-1",
-        help="Machine name, H1-1 by default",
+        choices=["H1"],
+        default="H1",
+        help="Machine name, H1 by default",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
@@ -66,8 +66,10 @@ def main() -> None:
             circuit = circuit_from_qasm(file)
 
         match args.machine:
-            case "H1-1" | "H1-2" | "H1":
+            case "H1":
                 machine = QtmMachine.H1
+            case _:
+                raise NotImplementedError
 
         if args.verbose:
             logging.basicConfig(level=logging.INFO)
