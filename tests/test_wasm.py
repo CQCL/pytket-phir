@@ -51,7 +51,7 @@ class TestWASM:
 
         wasm_uid = hashlib.sha256(base64.b64encode(wasm_bytes)).hexdigest()
 
-        phir_str = qasm_to_phir(qasm, QtmMachine.H1_1, wasm_bytes=wasm_bytes)
+        phir_str = qasm_to_phir(qasm, QtmMachine.H1, wasm_bytes=wasm_bytes)
         phir = json.loads(phir_str)
 
         expected_metadata = {"ff_object": (f"WASM module uid: {wasm_uid}")}
@@ -88,7 +88,7 @@ class TestWASM:
 
             c.add_wasm_to_reg("add_one", w, [c0], [c0], condition=c1[0])
 
-            phir_str = pytket_to_phir(c, QtmMachine.H1_1)
+            phir_str = pytket_to_phir(c, QtmMachine.H1)
         finally:
             Path.unlink(Path(wasm_file.name))
 

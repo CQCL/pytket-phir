@@ -18,12 +18,12 @@ from pytket.phir.sharding.sharder import Sharder
 from tests.test_utils import QasmFile, get_qasm_as_circuit
 
 if __name__ == "__main__":
-    machine = Machine(3, QTM_DEFAULT_GATESET, {1}, MachineTimings(3.0, 1.0, 2.0))
+    machine = Machine(3, QTM_DEFAULT_GATESET, {1}, MachineTimings(3.0, 1.0, 2.0, 2.0))
     # force machine options for this test
     # machines normally don't like odd numbers of qubits
     machine.sq_options = {0, 1, 2}
 
-    h11 = QTM_MACHINES_MAP[QtmMachine.H1_1]
+    h11 = QTM_MACHINES_MAP[QtmMachine.H1]
 
     circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
     sharder = Sharder(circuit)

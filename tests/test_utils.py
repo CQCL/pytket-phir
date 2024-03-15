@@ -74,7 +74,7 @@ def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
 
 def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
     """Get the QASM file for the specified circuit."""
-    qtm_machine = QtmMachine.H1_1
+    qtm_machine = QtmMachine.H1
     circuit = get_qasm_as_circuit(qasmfile)
     if rebase:
         circuit = rebase_to_qtm_machine(circuit, qtm_machine)
