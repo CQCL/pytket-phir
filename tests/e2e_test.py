@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # machines normally don't like odd numbers of qubits
     machine.sq_options = {0, 1, 2}
 
-    h11 = QTM_MACHINES_MAP[QtmMachine.H1_1]
+    h11 = QTM_MACHINES_MAP[QtmMachine.H1]
 
     circuit = get_qasm_as_circuit(QasmFile.classical_hazards)
     sharder = Sharder(circuit)

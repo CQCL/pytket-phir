@@ -16,14 +16,13 @@ from .machine import Machine, MachineTimings
 class QtmMachine(Enum):
     """Available machine architectures."""
 
-    H1_1 = "H1-1"
-    H1_2 = "H1-2"
+    H1 = "H1"
 
 
 QTM_DEFAULT_GATESET = {OpType.Rz, OpType.PhasedX, OpType.ZZPhase}
 
 QTM_MACHINES_MAP = {
-    QtmMachine.H1_1: Machine(
+    QtmMachine.H1: Machine(
         size=20,
         gateset=QTM_DEFAULT_GATESET,
         tq_options={0, 2, 4, 6, 8, 10, 12, 14, 16, 18},

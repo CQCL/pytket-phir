@@ -66,10 +66,8 @@ def main() -> None:
             circuit = circuit_from_qasm(file)
 
         match args.machine:
-            case "H1-1":
-                machine = QtmMachine.H1_1
-            case "H1-2":
-                machine = QtmMachine.H1_2
+            case "H1-1" | "H1-2" | "H1":
+                machine = QtmMachine.H1
 
         if args.verbose:
             logging.basicConfig(level=logging.INFO)

@@ -48,7 +48,7 @@ class TestApi:
         """Standard case."""
         circuit = get_qasm_as_circuit(test_file)
 
-        assert pytket_to_phir(circuit, QtmMachine.H1_1)
+        assert pytket_to_phir(circuit, QtmMachine.H1)
 
     def test_pytket_classical_only(self) -> None:
         c = Circuit(1)
@@ -85,4 +85,4 @@ class TestApi:
         measure q[1]->cr[0];
         """
 
-        assert qasm_to_phir(qasm, QtmMachine.H1_1)
+        assert qasm_to_phir(qasm, QtmMachine.H1)
