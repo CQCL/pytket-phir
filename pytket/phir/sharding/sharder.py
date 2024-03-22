@@ -273,7 +273,7 @@ class Sharder:
         """
         return (
             op.type in SHARD_TRIGGER_OP_TYPES
-            or (isinstance(op, Conditional) and op.op.type in SHARD_TRIGGER_OP_TYPES)
+            or isinstance(op, Conditional)
             or (op.is_gate() and op.n_qubits > 1)
         )
 

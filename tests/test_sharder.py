@@ -103,7 +103,7 @@ class TestSharder:
         circuit = get_qasm_as_circuit(QasmFile.simple_cond)
         shards = Sharder(circuit).shard()
 
-        assert len(shards) == 4
+        assert len(shards) == 5
 
         # shard 0: [h q;] measure q->c;
         assert shards[0].primary_command.op.type == OpType.Measure
@@ -132,18 +132,20 @@ class TestSharder:
         assert shards[2].bits_read == {circuit.bits[0], circuit.bits[1]}
         assert shards[2].depends_upon == {shards[0].ID}
 
-        # shard 3: [if (c==1) h q;] measure q->c;
-        assert shards[3].primary_command.op.type == OpType.Measure
+        # shard 3: [if (c==1) h q;]
+        assert isinstance(shards[3].primary_command.op, Conditional)
+        assert shards[3].primary_command.op.op.type == OpType.H
+        assert not shards[3].sub_commands
         assert shards[3].qubits_used == {circuit.qubits[0]}
-        assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
-        assert shards[3].depends_upon == {shards[0].ID, shards[1].ID, shards[2].ID}
-        assert len(shards[3].sub_commands.items()) == 1
-        s2_qubit, s2_sub_cmds = next(iter(shards[3].sub_commands.items()))
-        assert s2_qubit == circuit.qubits[0]
-        assert isinstance(s2_sub_cmds[0].op, Conditional)
-        assert s2_sub_cmds[0].op.op.type == OpType.H
-        assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
+        assert shards[3].depends_upon == {shards[0].ID, shards[1].ID}
+
+        # shard 4: measure q->c;
+        assert shards[4].primary_command.op.type == OpType.Measure
+        assert not shards[4].sub_commands
+        assert shards[4].qubits_used == {circuit.qubits[0]}
+        assert shards[4].bits_written == {circuit.bits[0]}
+        assert shards[4].depends_upon == {shards[0].ID, shards[3].ID}
 
     def test_complex_barriers(self) -> None:  # noqa: PLR0915
         circuit = get_qasm_as_circuit(QasmFile.barrier_complex)

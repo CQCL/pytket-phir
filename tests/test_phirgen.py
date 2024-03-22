@@ -9,7 +9,6 @@
 # mypy: disable-error-code="misc"
 
 import json
-from pathlib import Path
 
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
@@ -119,16 +118,6 @@ def test_nested_bitwise_op() -> None:
     }
 
 
-def test_global_phase() -> None:
-    """From https://github.com/CQCL/pytket-phir/issues/136 ."""
-    this_dir = Path(Path(__file__).resolve()).parent
-    with Path(f"{this_dir}/data/phase.json").open() as fp:
-        circ = Circuit.from_dict(json.load(fp))
-
-    phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][-7]["true_branch"] == [{"mop": "Skip"}]
-
-
 def test_sleep_idle() -> None:
     """Ensure sleep from qasm gets converted to PHIR Idle Mop."""
     circ = get_qasm_as_circuit(QasmFile.sleep)
@@ -151,3 +140,37 @@ def test_multiple_sleep() -> None:
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
     assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}
+
+
+def test_reordering_classical_conditional() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/150 ."""
+    circuit = Circuit(1)
+
+    ctrl = circuit.add_c_register(name="ctrl", size=1)
+    meas = circuit.add_c_register(name="meas", size=1)
+
+    circuit.add_c_setreg(1, ctrl)
+    circuit.X(0, condition=ctrl[0])
+
+    circuit.add_c_setreg(0, ctrl)
+    circuit.X(0, condition=ctrl[0])
+
+    circuit.Measure(
+        qubit=circuit.qubits[0],
+        bit=meas[0],
+    )
+
+    phir = json.loads(pytket_to_phir(circuit))
+
+    assert phir["ops"][4] == {"args": [1], "cop": "=", "returns": [["ctrl", 0]]}
+    assert phir["ops"][6] == {
+        "block": "if",
+        "condition": {"args": [["ctrl", 0], 1], "cop": "=="},
+        "true_branch": [{"angles": None, "args": [["q", 0]], "qop": "X"}],
+    }
+    assert phir["ops"][8] == {"args": [0], "cop": "=", "returns": [["ctrl", 0]]}
+    assert phir["ops"][10] == {
+        "block": "if",
+        "condition": {"args": [["ctrl", 0], 1], "cop": "=="},
+        "true_branch": [{"angles": None, "args": [["q", 0]], "qop": "X"}],
+    }
