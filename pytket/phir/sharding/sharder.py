@@ -7,7 +7,6 @@
 ##############################################################################
 
 import logging
-from typing import cast
 
 from pytket.circuit import Circuit, Command, Conditional, Op, OpType
 from pytket.unit_id import Bit, Qubit, UnitID
@@ -273,11 +272,8 @@ class Sharder:
             `True` if the operation is one that should result in shard creation
         """
         return (
-            op.type in (SHARD_TRIGGER_OP_TYPES)
-            or (
-                op.type == OpType.Conditional
-                and cast(Conditional, op).op.type in (SHARD_TRIGGER_OP_TYPES)
-            )
+            op.type in SHARD_TRIGGER_OP_TYPES
+            or (isinstance(op, Conditional) and op.op.type in SHARD_TRIGGER_OP_TYPES)
             or (op.is_gate() and op.n_qubits > 1)
         )
 
@@ -289,6 +285,5 @@ class Sharder:
             command: Command to evaluate
         """
         return command.op.type == OpType.Phase or (
-            command.op.type == OpType.Conditional
-            and cast(Conditional, command.op).op.type == OpType.Phase
+            isinstance(command.op, Conditional) and command.op.op.type == OpType.Phase
         )

@@ -6,8 +6,6 @@
 #
 ##############################################################################
 
-from typing import cast
-
 from pytket.circuit import Conditional, Op, OpType
 from pytket.phir.sharding.sharder import Sharder
 
@@ -126,8 +124,8 @@ class TestSharder:
         assert not shards[1].bits_read
 
         # shard 2: if (c==1) z=1;
-        assert shards[2].primary_command.op.type == OpType.Conditional
-        assert cast(Conditional, shards[2].primary_command.op).op.type == OpType.SetBits
+        assert isinstance(shards[2].primary_command.op, Conditional)
+        assert shards[2].primary_command.op.op.type == OpType.SetBits
         assert not shards[2].sub_commands
         assert not shards[2].qubits_used
         assert shards[2].bits_written == {circuit.bits[1]}
@@ -143,8 +141,8 @@ class TestSharder:
         assert len(shards[3].sub_commands.items()) == 1
         s2_qubit, s2_sub_cmds = next(iter(shards[3].sub_commands.items()))
         assert s2_qubit == circuit.qubits[0]
-        assert s2_sub_cmds[0].op.type == OpType.Conditional
-        assert cast(Conditional, s2_sub_cmds[0].op).op.type == OpType.H
+        assert isinstance(s2_sub_cmds[0].op, Conditional)
+        assert s2_sub_cmds[0].op.op.type == OpType.H
         assert s2_sub_cmds[0].qubits == [circuit.qubits[0]]
 
     def test_complex_barriers(self) -> None:  # noqa: PLR0915
