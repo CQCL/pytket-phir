@@ -85,6 +85,7 @@ def test_conditional_barrier() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/119 ."""
     circ = get_qasm_as_circuit(QasmFile.cond_barrier)
     phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][4] == {"//": "IF ([m[0], m[1]] == 0) THEN Barrier q[0], q[1];"}
     assert phir["ops"][5] == {
         "block": "if",
         "condition": {"cop": "==", "args": ["m", 0]},
