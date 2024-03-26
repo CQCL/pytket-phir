@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2024-03-26
+
+### Fixed
+
+* Remove unneeded logic for comments for conditionals in https://github.com/CQCL/pytket-phir/pull/152
+  * Fixes `make_comment_text` repeats the condition for conditional ops (https://github.com/CQCL/pytket-phir/issues/149)
+* Invalid reordering of operations involving classical bits in https://github.com/CQCL/pytket-phir/pull/151
+  * Fixes https://github.com/CQCL/pytket-phir/issues/150
+
 ## [0.6.0] - 2024-03-15
 
 ### Changed
@@ -145,6 +154,9 @@ First release.
 [0.4.3]: https://github.com/CQCL/pytket-phir/compare/v0.4.2...v0.4.3
 [0.4.4]: https://github.com/CQCL/pytket-phir/compare/v0.4.3...v0.4.4
 [0.5.0]: https://github.com/CQCL/pytket-phir/compare/v0.4.4...v0.5.0
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.5.0...HEAD
+[0.5.1]: https://github.com/CQCL/pytket-phir/compare/v0.5.0...v0.5.1
+[0.6.0]: https://github.com/CQCL/pytket-phir/compare/v0.5.1...v0.6.0
+[0.6.1]: https://github.com/CQCL/pytket-phir/compare/v0.6.0...v0.6.1
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.6.1...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
