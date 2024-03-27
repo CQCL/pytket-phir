@@ -187,7 +187,7 @@ def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
             qop = {
                 "qop": gate,
                 "returns": [arg_to_bit(cmd.bits[0])],
-                "args": [arg_to_bit(cmd.args[0])],
+                "args": [arg_to_bit(cmd.qubits[0])],
             }
         case ("CX"
             | "CY"
