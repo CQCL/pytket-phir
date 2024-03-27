@@ -174,3 +174,17 @@ def test_reordering_classical_conditional() -> None:
         "condition": {"args": [["ctrl", 0], 1], "cop": "=="},
         "true_branch": [{"angles": None, "args": [["q", 0]], "qop": "X"}],
     }
+
+
+def test_conditional_measure() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/154 ."""
+    c = Circuit(2, 2)
+    c.H(0).H(1)
+    c.Measure(0, 0)
+    c.Measure(1, 1, condition_bits=[0], condition_value=1)
+    phir = json.loads(pytket_to_phir(c))
+    assert phir["ops"][-1] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["c", 0], 1]},
+        "true_branch": [{"qop": "Measure", "returns": [["c", 1]], "args": [["q", 1]]}],
+    }
