@@ -17,7 +17,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from pytket.circuit import Circuit
+from pytket.circuit import Circuit, Qubit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
 from pytket.wasm.wasm import WasmFileHandler
@@ -112,7 +112,7 @@ def test_pytket_with_wasm() -> None:
         "returns": ["c2"],
     }
     assert phir["ops"][8] == {
-        "//": "IF ([c1[0]] == 1) THEN WASM_function=add_one args=['c1', 'c0'] returns=['c0'];"  # noqa: E501
+        "//": "IF ([c1[0]] == 1) THEN WASM_function='add_one' args=['c0'] returns=['c0'];"  # noqa: E501
     }
     assert phir["ops"][9] == {
         "block": "if",
@@ -123,7 +123,7 @@ def test_pytket_with_wasm() -> None:
                 "cop": "ffcall",
                 "returns": ["c0"],
                 "function": "add_one",
-                "args": ["c1", "c0"],
+                "args": ["c0"],
             }
         ],
     }
@@ -140,3 +140,40 @@ def test_pytket_with_wasm() -> None:
         "args": [],
         "returns": ["c2"],
     }
+
+
+def test_conditional_wasm() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/156 ."""
+    wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
+    try:
+        wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+        wasm_file.write(wasm_bytes)
+        wasm_file.flush()
+        wasm_file.close()
+
+        w = WasmFileHandler(wasm_file.name)
+
+        c = Circuit(1)
+        areg = c.add_c_register("a", 2)
+        breg = c.add_c_register("b", 1)
+        c.H(0)
+        c.Measure(Qubit(0), breg[0])
+        c.add_wasm(
+            funcname="add_one",
+            filehandler=w,
+            list_i=[1],
+            list_o=[1],
+            args=[areg[0], areg[1]],
+            args_wasm=[0],
+            condition_bits=[breg[0]],
+            condition_value=1,
+        )
+    finally:
+        Path.unlink(Path(wasm_file.name))
+
+    phir = json.loads(pytket_to_phir(c))
+
+    assert phir["ops"][-2] == {
+        "//": "IF ([b[0]] == 1) THEN WASM_function='add_one' args=['a'] returns=['a'];"
+    }
+    assert phir["ops"][-1]["true_branch"][0]["args"] == ["a"]

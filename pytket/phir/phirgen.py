@@ -386,7 +386,7 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
 
         case tk.WASMOp():
             args, returns = extract_wasm_args_and_returns(cmd, op)
-            comment = f"WASM_function={op.func_name} args={args} returns={returns};"
+            comment = f"WASM_function='{op.func_name}' args={args} returns={returns};"
 
         case tk.BarrierOp():
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
