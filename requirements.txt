@@ -1,4 +1,4 @@
-build==1.1.1
+build==1.2.1
 mypy==1.9.0
 networkx==2.8.8
 phir==0.3.2
