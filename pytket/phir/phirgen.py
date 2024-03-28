@@ -357,11 +357,13 @@ def extract_wasm_args_and_returns(
 ) -> tuple[list[str], list[str]]:
     """Extract the wasm args and return values as whole register names."""
     # This slice removes the extra `_w` cregs (wires) that are not part of the
-    # circuit, and the output args which are appended after the input args
+    # circuit and the output args, which are appended after the input args
     slice_index = op.num_w + sum(op.output_widths)
     only_args = command.args[:-slice_index]
+    # Eliminate conditional bits from the front of the args
+    input_args = only_args[len(only_args) - op.n_inputs :]
     return (
-        dedupe_bits_to_registers(only_args),
+        dedupe_bits_to_registers(input_args),
         dedupe_bits_to_registers(command.bits),
     )
 
@@ -404,8 +406,6 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
-    # TODO(kartik): this may not always be accurate
-    # https://github.com/CQCL/pytket-phir/issues/24
     qvar_dim: dict[str, int] = {}
     for qbit in qbits:
         qvar_dim.setdefault(qbit.reg_name, 0)
