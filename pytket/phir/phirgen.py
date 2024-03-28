@@ -375,9 +375,18 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     """Converts a command + op to the PHIR comment spec."""
     comment = str(cmd)
     match op:
+        case tk.Conditional():
+            conditional_text = str(cmd)
+            cleaned = (
+                conditional_text[: conditional_text.find("THEN") + 5]
+                if isinstance(op.op, tk.WASMOp)
+                else ""
+            )
+            comment = f"{cleaned}{make_comment_text(cmd, op.op)}"
+
         case tk.WASMOp():
             args, returns = extract_wasm_args_and_returns(cmd, op)
-            comment = f"WASM function={op.func_name} args={args} returns={returns}"
+            comment = f"WASM_function={op.func_name} args={args} returns={returns};"
 
         case tk.BarrierOp():
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)

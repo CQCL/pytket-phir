@@ -183,6 +183,7 @@ def test_conditional_measure() -> None:
     c.Measure(0, 0)
     c.Measure(1, 1, condition_bits=[0], condition_value=1)
     phir = json.loads(pytket_to_phir(c))
+    assert phir["ops"][-2] == {"//": "IF ([c[0]] == 1) THEN Measure q[1] --> c[1];"}
     assert phir["ops"][-1] == {
         "block": "if",
         "condition": {"cop": "==", "args": [["c", 0], 1]},
