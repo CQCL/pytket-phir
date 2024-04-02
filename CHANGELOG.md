@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2024-04-02
+
+### Fixed
+
+* wasm/phirgen: correct arguments for conditional wasm functions in https://github.com/CQCL/pytket-phir/pull/157
+
+## [0.6.2] - 2024-03-27
+
+### Fixed
+
+* phirgen: don't rely on args when qubits carries correct info in https://github.com/CQCL/pytket-phir/pull/155
+
 ## [0.6.1] - 2024-03-26
 
 ### Fixed
@@ -157,6 +169,8 @@ First release.
 [0.5.1]: https://github.com/CQCL/pytket-phir/compare/v0.5.0...v0.5.1
 [0.6.0]: https://github.com/CQCL/pytket-phir/compare/v0.5.1...v0.6.0
 [0.6.1]: https://github.com/CQCL/pytket-phir/compare/v0.6.0...v0.6.1
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.6.1...HEAD
+[0.6.2]: https://github.com/CQCL/pytket-phir/compare/v0.6.1...v0.6.2
+[0.6.3]: https://github.com/CQCL/pytket-phir/compare/v0.6.2...v0.6.3
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.6.3...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
