@@ -230,11 +230,11 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                 # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
                 match op.data[0:5]:
                     case "sleep":
-                        dur = op.data.removeprefix("sleep(").removesuffix(")")
+                        duration = op.data.removeprefix("sleep(").removesuffix(")")
                         out = {
                             "mop": "Idle",
                             "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
-                            "duration": (float(dur), "s"),
+                            "duration": (float(duration), "s"),
                         }
                     case "order" | "group":
                         raise NotImplementedError(op.data)
