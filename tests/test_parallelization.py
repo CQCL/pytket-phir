@@ -64,18 +64,18 @@ def test_parallel_subcommand_relative_ordering() -> None:
     phir = get_phir_json(QasmFile.rxrz, rebase=True)
     # make sure it is ordered like the qasm file
     ops = phir["ops"]
-    frst_sc = ops[3]
-    scnd_sc = ops[5]
-    thrd_sc = ops[7]
-    frth_sc = ops[9]
-    assert frst_sc["qop"] == "RZ"
-    assert frst_sc["angles"] == [[0.5], "pi"]
-    assert scnd_sc["qop"] == "R1XY"
-    assert scnd_sc["angles"] == [[3.5, 0.0], "pi"]
-    assert thrd_sc["qop"] == "R1XY"
-    assert thrd_sc["angles"] == [[0.5, 0.0], "pi"]
-    assert frth_sc["qop"] == "RZ"
-    assert frth_sc["angles"] == [[3.5], "pi"]
+    sc1 = ops[3]
+    sc2 = ops[5]
+    sc3 = ops[7]
+    sc4 = ops[9]
+    assert sc1["qop"] == "RZ"
+    assert sc1["angles"] == [[0.5], "pi"]
+    assert sc2["qop"] == "R1XY"
+    assert sc2["angles"] == [[3.5, 0.0], "pi"]
+    assert sc3["qop"] == "R1XY"
+    assert sc3["angles"] == [[0.5, 0.0], "pi"]
+    assert sc4["qop"] == "RZ"
+    assert sc4["angles"] == [[3.5], "pi"]
 
 
 def test_single_qubit_circuit_with_parallel() -> None:

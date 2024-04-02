@@ -230,11 +230,11 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
                 # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
                 match op.data[0:5]:
                     case "sleep":
-                        dur = op.data.removeprefix("sleep(").removesuffix(")")
+                        duration = op.data.removeprefix("sleep(").removesuffix(")")
                         out = {
                             "mop": "Idle",
                             "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
-                            "duration": (float(dur), "s"),
+                            "duration": (float(duration), "s"),
                         }
                     case "order" | "group":
                         raise NotImplementedError(op.data)
@@ -357,11 +357,13 @@ def extract_wasm_args_and_returns(
 ) -> tuple[list[str], list[str]]:
     """Extract the wasm args and return values as whole register names."""
     # This slice removes the extra `_w` cregs (wires) that are not part of the
-    # circuit, and the output args which are appended after the input args
+    # circuit and the output args, which are appended after the input args
     slice_index = op.num_w + sum(op.output_widths)
     only_args = command.args[:-slice_index]
+    # Eliminate conditional bits from the front of the args
+    input_args = only_args[len(only_args) - op.n_inputs :]
     return (
-        dedupe_bits_to_registers(only_args),
+        dedupe_bits_to_registers(input_args),
         dedupe_bits_to_registers(command.bits),
     )
 
@@ -375,9 +377,18 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     """Converts a command + op to the PHIR comment spec."""
     comment = str(cmd)
     match op:
+        case tk.Conditional():
+            conditional_text = str(cmd)
+            cleaned = (
+                conditional_text[: conditional_text.find("THEN") + 5]
+                if isinstance(op.op, tk.WASMOp)
+                else ""
+            )
+            comment = f"{cleaned}{make_comment_text(cmd, op.op)}"
+
         case tk.WASMOp():
             args, returns = extract_wasm_args_and_returns(cmd, op)
-            comment = f"WASM function={op.func_name} args={args} returns={returns}"
+            comment = f"WASM_function='{op.func_name}' args={args} returns={returns};"
 
         case tk.BarrierOp():
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
@@ -395,8 +406,6 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
 
 def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
     """Format the qvar and cvar define PHIR elements."""
-    # TODO(kartik): this may not always be accurate
-    # https://github.com/CQCL/pytket-phir/issues/24
     qvar_dim: dict[str, int] = {}
     for qbit in qbits:
         qvar_dim.setdefault(qbit.reg_name, 0)
