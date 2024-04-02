@@ -92,6 +92,18 @@ def test_conditional_barrier() -> None:
     }
 
 
+def test_simple_cond_classical() -> None:
+    """Ensure conditional classical operation are correctly generated."""
+    circ = get_qasm_as_circuit(QasmFile.simple_cond)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][-6] == {"//": "IF ([c[0]] == 1) THEN SetBits(1) z[0];"}
+    assert phir["ops"][-5] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["c", 0], 1]},
+        "true_branch": [{"cop": "=", "returns": [["z", 0]], "args": [1]}],
+    }
+
+
 def test_nested_bitwise_op() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/133 ."""
     circ = Circuit(4)
