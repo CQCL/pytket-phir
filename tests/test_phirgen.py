@@ -10,9 +10,12 @@
 
 import json
 
+import pytest
+
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
 from pytket.qasm.qasm import circuit_from_qasm_str
+from pytket.unit_id import BitRegister
 
 from .test_utils import QasmFile, get_qasm_as_circuit
 
@@ -200,4 +203,114 @@ def test_conditional_measure() -> None:
         "block": "if",
         "condition": {"cop": "==", "args": [["c", 0], 1]},
         "true_branch": [{"qop": "Measure", "returns": [["c", 1]], "args": [["q", 1]]}],
+    }
+
+
+@pytest.mark.order("first")
+def test_conditional_classical_not() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/159 ."""
+    circuit = Circuit()
+    target_reg = circuit.add_c_register(BitRegister(name="target_reg", size=1))
+    control_reg = circuit.add_c_register(BitRegister(name="control_reg", size=1))
+
+    circuit.add_c_not(
+        arg_in=target_reg[0], arg_out=target_reg[0], condition=control_reg[0]
+    )
+
+    phir = json.loads(pytket_to_phir(circuit))
+    assert phir["ops"][-1] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["control_reg", 0], 1]},
+        "true_branch": [
+            {
+                "cop": "=",
+                "returns": [["target_reg", 0]],
+                "args": [{"cop": "~", "args": [["target_reg", 0]]}],
+            }
+        ],
+    }
+
+
+@pytest.mark.order("first")
+def test_standard_classical_ops() -> None:
+    """Test classical ops added to the circuit via dedicated circuit."""
+    c = Circuit(0, 4)
+    c.add_c_and(1, 2, 3)
+    c.add_c_not(1, 2)
+    c.add_c_or(2, 1, 3)
+    c.add_c_xor(1, 2, 3)
+    phir = json.loads(pytket_to_phir(c))
+    assert phir["ops"][-1] == {
+        "cop": "=",
+        "returns": [["c", 3]],
+        "args": [{"cop": "^", "args": [["c", 1], ["c", 2]]}],
+    }
+    assert phir["ops"][-3] == {
+        "cop": "=",
+        "returns": [["c", 3]],
+        "args": [{"cop": "|", "args": [["c", 2], ["c", 1]]}],
+    }
+    assert phir["ops"][-5] == {
+        "cop": "=",
+        "returns": [["c", 2]],
+        "args": [{"cop": "~", "args": [["c", 1]]}],
+    }
+    assert phir["ops"][-7] == {
+        "cop": "=",
+        "returns": [["c", 3]],
+        "args": [{"cop": "&", "args": [["c", 1], ["c", 2]]}],
+    }
+
+
+@pytest.mark.order("first")
+def test_multi_bit_ops() -> None:
+    """Test classical ops added to the circuit via tket multi-bit ops."""
+    c = Circuit(0, 4)
+    c0 = c.add_c_register("c0", 2)
+    c1 = c.add_c_register("c1", 2)
+    c2 = c.add_c_register("c2", 2)
+    c.add_c_and_to_registers(c0, c1, c2)
+    c.add_c_not_to_registers(c0, c1)
+    c.add_c_or_to_registers(c0, c1, c2)
+    c.add_c_xor_to_registers(c0, c1, c2)
+    phir = json.loads(pytket_to_phir(c))
+    assert phir["ops"][-1] == {
+        "cop": "=",
+        "returns": [["c2", 1]],
+        "args": [{"cop": "^", "args": [["c0", 1], ["c1", 1]]}],
+    }
+    assert phir["ops"][-2] == {
+        "cop": "=",
+        "returns": [["c2", 0]],
+        "args": [{"cop": "^", "args": [["c0", 0], ["c1", 0]]}],
+    }
+    assert phir["ops"][-4] == {
+        "cop": "=",
+        "returns": [["c2", 1]],
+        "args": [{"cop": "|", "args": [["c0", 1], ["c1", 1]]}],
+    }
+    assert phir["ops"][-5] == {
+        "cop": "=",
+        "returns": [["c2", 0]],
+        "args": [{"cop": "|", "args": [["c0", 0], ["c1", 0]]}],
+    }
+    assert phir["ops"][-7] == {
+        "cop": "=",
+        "returns": [["c1", 1]],
+        "args": [{"cop": "~", "args": [["c0", 1]]}],
+    }
+    assert phir["ops"][-8] == {
+        "cop": "=",
+        "returns": [["c1", 0]],
+        "args": [{"cop": "~", "args": [["c0", 0]]}],
+    }
+    assert phir["ops"][-10] == {
+        "cop": "=",
+        "returns": [["c2", 1]],
+        "args": [{"cop": "&", "args": [["c0", 1], ["c1", 1]]}],
+    }
+    assert phir["ops"][-11] == {
+        "cop": "=",
+        "returns": [["c2", 0]],
+        "args": [{"cop": "&", "args": [["c0", 0], ["c1", 0]]}],
     }

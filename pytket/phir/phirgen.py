@@ -24,6 +24,7 @@ from pytket.circuit.logic_exp import (
     LogicExp,
     RegLogicExp,
     RegWiseOp,
+    create_logic_exp,
 )
 from pytket.unit_id import Bit as tkBit
 from pytket.unit_id import BitRegister
@@ -218,12 +219,12 @@ def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     return qop
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | list[JsonDict] | None:  # noqa: PLR0915, PLR0914
     """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
         return convert_gate(op, cmd)
 
-    out: JsonDict | None = None
+    out: JsonDict | list[JsonDict] | None = None
     match op:  # non-quantum op
         case tk.BarrierOp():
             if op.data:
@@ -314,10 +315,46 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
         case tk.WASMOp():
             return create_wasm_op(cmd, op)
 
+        case tk.MultiBitOp():
+            cop_name = cmd.op.basic_op.get_name()  # type: ignore [attr-defined]
+            cop = BitWiseOp[cop_name]
+            # TODO(Asa Kosto): Add a PR to Pytket so this number is a property of cmd.op
+            # https://github.com/CQCL/tket/issues/1326
+            multiplier = len(cmd.bits)
+            total_args = len(cmd.args)
+            args_per_op = total_args // multiplier
+            # create a list of 'sub-ops' that make up the MultiBitOp
+            # https://tket.quantinuum.com/api-docs/circuit.html#pytket.circuit.MultiBitOp
+            out = []
+            for i in range(0, total_args, args_per_op):
+                args_for_sub_op = cmd.args[i : i + args_per_op]
+                target_bit = args_for_sub_op.pop()
+                log_exp = create_logic_exp(cop, args_for_sub_op)  # type: ignore [arg-type]
+                rhs = [classical_op(log_exp, bitwise=True)]
+                out.append(assign_cop([arg_to_bit(target_bit)], rhs))
         case _:
-            # TODO(kartik): NYI
-            # https://github.com/CQCL/pytket-phir/issues/25
-            raise NotImplementedError
+            match op.type:
+                case tk.OpType.ExplicitPredicate:
+                    cop_name = op.get_name()
+                    cop = BitWiseOp[cop_name]
+                    # with conditionals, cmd.args contains all bits in the expression
+                    # the first element in cmd.args will be the conditional bit
+                    # parse out the bits that are relevant for the true branch
+                    match cmd.op:
+                        case tk.Conditional():
+                            bits = cmd.args[1:]
+                        case _:
+                            bits = cmd.args.copy()
+                    target_bit = bits.pop()
+                    log_exp = create_logic_exp(cop, bits)  # type: ignore [arg-type]
+                    rhs = [classical_op(log_exp, bitwise=True)]
+                    out = assign_cop([arg_to_bit(target_bit)], rhs)
+
+                case tk.OpType.ExplicitModifier:
+                    raise NotImplementedError
+
+                case _:
+                    raise NotImplementedError
 
     return out
 
@@ -330,9 +367,12 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         ops: the list of ops to append to
     """
     ops.append({"//": make_comment_text(cmd, cmd.op)})
-    op: JsonDict | None = convert_subcmd(cmd.op, cmd)
+    op: JsonDict | list[JsonDict] | None = convert_subcmd(cmd.op, cmd)
     if op:
-        ops.append(op)
+        if type(op) is list:
+            ops.extend(op)
+        elif type(op) is dict:
+            ops.append(op)
 
 
 def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> JsonDict:
