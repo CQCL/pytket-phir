@@ -24,7 +24,6 @@ from pytket.circuit.logic_exp import (
     LogicExp,
     RegLogicExp,
     RegWiseOp,
-    create_logic_exp,
 )
 from pytket.unit_id import Bit as tkBit
 from pytket.unit_id import BitRegister
@@ -219,49 +218,42 @@ def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     return qop
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | list[JsonDict] | None:  # noqa: PLR0915, PLR0914
-    """Return PHIR dict given a tket op and its arguments."""
-    if op.is_gate():
-        return convert_gate(op, cmd)
+def cop_from_op_name(op_name: str) -> str:
+    """Get PHIR classical op name from pytket op name."""
+    match op_name:
+        case "AND":
+            cop = "&"
+        case "OR":
+            cop = "|"
+        case "XOR":
+            cop = "^"
+        case "NOT":
+            cop = "~"
+        case name:
+            raise NotImplementedError(name)
+    return cop
 
-    out: JsonDict | list[JsonDict] | None = None
-    match op:  # non-quantum op
-        case tk.BarrierOp():
-            if op.data:
-                # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
-                match op.data[0:5]:
-                    case "sleep":
-                        duration = op.data.removeprefix("sleep(").removesuffix(")")
-                        out = {
-                            "mop": "Idle",
-                            "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
-                            "duration": (float(duration), "s"),
-                        }
-                    case "order" | "group":
-                        raise NotImplementedError(op.data)
-                    case _:
-                        raise TypeError(op.data)
-            else:
-                out = {
-                    "meta": "barrier",
-                    "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
-                }
 
-        case tk.Conditional():  # where the condition is equality check
-            out = {
-                "block": "if",
-                "condition": {
-                    "cop": "==",
-                    "args": [
-                        arg_to_bit(cmd.args[0])
-                        if op.width == 1
-                        else cmd.args[0].reg_name,
-                        op.value,
-                    ],
-                },
-                "true_branch": [convert_subcmd(op.op, cmd)],
-            }
-
+def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:
+    """Return PHIR dict for a pytket ClassicalEvalOp."""
+    if type(op) is not type(cmd.op):
+        logger.warning("cmd.args might carry a conditional bit")
+    out: JsonDict | None = None
+    match op:
+        case tk.CopyBitsOp():
+            if len(cmd.bits) != len(cmd.args) // 2:
+                logger.warning("LHS and RHS lengths mismatch for CopyBits")
+            out = assign_cop(
+                [arg_to_bit(bit) for bit in cmd.bits],
+                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
+            )
+        case tk.SetBitsOp():
+            if len(cmd.bits) != len(op.values):
+                logger.error("LHS and RHS lengths mismatch for classical assignment")
+                raise ValueError
+            out = assign_cop(
+                [arg_to_bit(bit) for bit in cmd.bits], list(map(int, op.values))
+            )
         case tk.RangePredicateOp():  # where the condition is a range
             cond: JsonDict
             match op.lower, op.upper:
@@ -285,6 +277,71 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | list[JsonDict] | No
                 "condition": cond,
                 "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
             }
+        case tk.MultiBitOp():
+            # determine number of register operands involved in the operation
+            operand_count = (
+                len(cmd.args) // len(cmd.bits) - 1
+                if op.basic_op.type == tk.OpType.ExplicitPredicate
+                else len(cmd.args) // len(cmd.bits)
+            )
+            out = assign_cop(
+                # Converting to regwise operations that pecos can handle
+                [cmd.bits[0].reg_name],
+                [
+                    {
+                        "cop": cop_from_op_name(op.basic_op.get_name()),
+                        "args": [arg.reg_name for arg in cmd.args[:operand_count]],
+                    }
+                ],
+            )
+        case _:
+            raise NotImplementedError(op)
+
+    return out
+
+
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+    """Return PHIR dict given a tket op and its arguments."""
+    if op.is_gate():
+        return convert_gate(op, cmd)
+
+    out: JsonDict | None = None
+    match op:  # non-quantum op
+        case tk.Conditional():  # where the condition is equality check
+            out = {
+                "block": "if",
+                "condition": {
+                    "cop": "==",
+                    "args": [
+                        arg_to_bit(cmd.args[0])
+                        if op.width == 1
+                        else cmd.args[0].reg_name,
+                        op.value,
+                    ],
+                },
+                "true_branch": [convert_subcmd(op.op, cmd)],
+            }
+
+        case tk.BarrierOp():
+            if op.data:
+                # See https://github.com/CQCL/tket/blob/0ec603986821d994caa3a0fb9c4640e5bc6c0a24/pytket/pytket/qasm/qasm.py#L419-L459
+                match op.data[0:5]:
+                    case "sleep":
+                        duration = op.data.removeprefix("sleep(").removesuffix(")")
+                        out = {
+                            "mop": "Idle",
+                            "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                            "duration": (float(duration), "s"),
+                        }
+                    case "order" | "group":
+                        raise NotImplementedError(op.data)
+                    case _:
+                        raise TypeError(op.data)
+            else:
+                out = {
+                    "meta": "barrier",
+                    "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
+                }
 
         case tk.ClassicalExpBox():
             exp = op.get_exp()
@@ -296,65 +353,29 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | list[JsonDict] | No
                     rhs = [classical_op(exp)]
                     out = assign_cop([cmd.bits[0].reg_name], rhs)
 
-        case tk.SetBitsOp():
-            if len(cmd.bits) != len(op.values):
-                logger.error("LHS and RHS lengths mismatch for classical assignment")
-                raise ValueError
-            out = assign_cop(
-                [arg_to_bit(bit) for bit in cmd.bits], list(map(int, op.values))
-            )
-
-        case tk.CopyBitsOp():
-            if len(cmd.bits) != len(cmd.args) // 2:
-                logger.warning("LHS and RHS lengths mismatch for CopyBits")
-            out = assign_cop(
-                [arg_to_bit(bit) for bit in cmd.bits],
-                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
-            )
+        case tk.ClassicalEvalOp():
+            return convert_classicalevalop(op, cmd)
 
         case tk.WASMOp():
             return create_wasm_op(cmd, op)
 
-        case tk.MultiBitOp():
-            cop_name = cmd.op.basic_op.get_name()  # type: ignore [attr-defined]
-            cop = BitWiseOp[cop_name]
-            # TODO(Asa Kosto): Add a PR to Pytket so this number is a property of cmd.op
-            # https://github.com/CQCL/tket/issues/1326
-            multiplier = len(cmd.bits)
-            total_args = len(cmd.args)
-            args_per_op = total_args // multiplier
-            # create a list of 'sub-ops' that make up the MultiBitOp
-            # https://tket.quantinuum.com/api-docs/circuit.html#pytket.circuit.MultiBitOp
-            out = []
-            for i in range(0, total_args, args_per_op):
-                args_for_sub_op = cmd.args[i : i + args_per_op]
-                target_bit = args_for_sub_op.pop()
-                log_exp = create_logic_exp(cop, args_for_sub_op)  # type: ignore [arg-type]
-                rhs = [classical_op(log_exp, bitwise=True)]
-                out.append(assign_cop([arg_to_bit(target_bit)], rhs))
         case _:
+            args = cmd.args[1:] if isinstance(cmd.op, tk.Conditional) else cmd.args
             match op.type:
-                case tk.OpType.ExplicitPredicate:
-                    cop_name = op.get_name()
-                    cop = BitWiseOp[cop_name]
-                    # with conditionals, cmd.args contains all bits in the expression
-                    # the first element in cmd.args will be the conditional bit
-                    # parse out the bits that are relevant for the true branch
-                    match cmd.op:
-                        case tk.Conditional():
-                            bits = cmd.args[1:]
-                        case _:
-                            bits = cmd.args.copy()
-                    target_bit = bits.pop()
-                    log_exp = create_logic_exp(cop, bits)  # type: ignore [arg-type]
-                    rhs = [classical_op(log_exp, bitwise=True)]
-                    out = assign_cop([arg_to_bit(target_bit)], rhs)
-
-                case tk.OpType.ExplicitModifier:
-                    raise NotImplementedError
-
+                case tk.OpType.ExplicitPredicate | tk.OpType.ExplicitModifier:
+                    # exclude outbit when not modifying in place
+                    args = args[:-1] if op.type == tk.OpType.ExplicitPredicate else args
+                    out = assign_cop(
+                        [arg_to_bit(cmd.bits[0])],
+                        [
+                            {
+                                "cop": cop_from_op_name(op.get_name()),
+                                "args": [arg_to_bit(arg) for arg in args],
+                            }
+                        ],
+                    )
                 case _:
-                    raise NotImplementedError
+                    raise NotImplementedError(op.type)
 
     return out
 
@@ -431,6 +452,8 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
             comment = f"WASM_function='{op.func_name}' args={args} returns={returns};"
 
         case tk.BarrierOp():
+            if type(op) is not type(cmd.op):
+                logger.warning("cmd.args might carry a conditional bit")
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
 
         case tk.ClassicalExpBox():

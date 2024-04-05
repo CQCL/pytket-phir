@@ -10,8 +10,6 @@
 
 import json
 
-import pytest
-
 from pytket.circuit import Circuit
 from pytket.phir.api import pytket_to_phir
 from pytket.qasm.qasm import circuit_from_qasm_str
@@ -206,7 +204,6 @@ def test_conditional_measure() -> None:
     }
 
 
-@pytest.mark.order("first")
 def test_conditional_classical_not() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/159 ."""
     circuit = Circuit()
@@ -231,86 +228,93 @@ def test_conditional_classical_not() -> None:
     }
 
 
-@pytest.mark.order("first")
-def test_standard_classical_ops() -> None:
-    """Test classical ops added to the circuit via dedicated circuit."""
+def test_explicit_classical_ops() -> None:
+    """Test explicit predicates and modifiers."""
+    # From https://github.com/CQCL/tket/blob/a2f6fab8a57da8787dfae94764b7c3a8e5779024/pytket/tests/classical_test.py#L97-L101
     c = Circuit(0, 4)
+    # predicates
     c.add_c_and(1, 2, 3)
-    c.add_c_not(1, 2)
-    c.add_c_or(2, 1, 3)
+    c.add_c_not(0, 1)
     c.add_c_xor(1, 2, 3)
+    # modifiers
+    c.add_c_and(2, 3, 3)
+    c.add_c_or(0, 3, 0)
     phir = json.loads(pytket_to_phir(c))
-    assert phir["ops"][-1] == {
-        "cop": "=",
-        "returns": [["c", 3]],
-        "args": [{"cop": "^", "args": [["c", 1], ["c", 2]]}],
-    }
-    assert phir["ops"][-3] == {
-        "cop": "=",
-        "returns": [["c", 3]],
-        "args": [{"cop": "|", "args": [["c", 2], ["c", 1]]}],
-    }
-    assert phir["ops"][-5] == {
-        "cop": "=",
-        "returns": [["c", 2]],
-        "args": [{"cop": "~", "args": [["c", 1]]}],
-    }
-    assert phir["ops"][-7] == {
+    assert phir["ops"][1] == {"//": "AND c[1], c[2], c[3];"}
+    assert phir["ops"][2] == {
         "cop": "=",
         "returns": [["c", 3]],
         "args": [{"cop": "&", "args": [["c", 1], ["c", 2]]}],
     }
+    assert phir["ops"][3] == {"//": "NOT c[0], c[1];"}
+    assert phir["ops"][4] == {
+        "cop": "=",
+        "returns": [["c", 1]],
+        "args": [{"cop": "~", "args": [["c", 0]]}],
+    }
+    assert phir["ops"][5] == {"//": "XOR c[1], c[2], c[3];"}
+    assert phir["ops"][6] == {
+        "cop": "=",
+        "returns": [["c", 3]],
+        "args": [{"cop": "^", "args": [["c", 1], ["c", 2]]}],
+    }
+    assert phir["ops"][7] == {"//": "AND c[2], c[3];"}
+    assert phir["ops"][8] == {
+        "cop": "=",
+        "returns": [["c", 3]],
+        "args": [{"cop": "&", "args": [["c", 2], ["c", 3]]}],
+    }
+    assert phir["ops"][9] == {"//": "OR c[3], c[0];"}
+    assert phir["ops"][10] == {
+        "cop": "=",
+        "returns": [["c", 0]],
+        "args": [{"cop": "|", "args": [["c", 3], ["c", 0]]}],
+    }
 
 
-@pytest.mark.order("first")
 def test_multi_bit_ops() -> None:
     """Test classical ops added to the circuit via tket multi-bit ops."""
+    # Test from https://github.com/CQCL/tket/blob/a2f6fab8a57da8787dfae94764b7c3a8e5779024/pytket/tests/classical_test.py#L107-L112
     c = Circuit(0, 4)
-    c0 = c.add_c_register("c0", 2)
-    c1 = c.add_c_register("c1", 2)
-    c2 = c.add_c_register("c2", 2)
+    c0 = c.add_c_register("c0", 3)
+    c1 = c.add_c_register("c1", 4)
+    c2 = c.add_c_register("c2", 5)
+    # predicates
     c.add_c_and_to_registers(c0, c1, c2)
-    c.add_c_not_to_registers(c0, c1)
+    c.add_c_not_to_registers(c1, c2)
     c.add_c_or_to_registers(c0, c1, c2)
-    c.add_c_xor_to_registers(c0, c1, c2)
+    # modifier
+    c.add_c_xor_to_registers(c2, c1, c2)
     phir = json.loads(pytket_to_phir(c))
-    assert phir["ops"][-1] == {
-        "cop": "=",
-        "returns": [["c2", 1]],
-        "args": [{"cop": "^", "args": [["c0", 1], ["c1", 1]]}],
+    assert phir["ops"][3] == {
+        "//": "AND (*3) c0[0], c1[0], c2[0], c0[1], c1[1], c2[1], c0[2], c1[2], c2[2];"
     }
-    assert phir["ops"][-2] == {
+    assert phir["ops"][4] == {
         "cop": "=",
-        "returns": [["c2", 0]],
-        "args": [{"cop": "^", "args": [["c0", 0], ["c1", 0]]}],
+        "returns": ["c2"],
+        "args": [{"cop": "&", "args": ["c0", "c1"]}],
     }
-    assert phir["ops"][-4] == {
-        "cop": "=",
-        "returns": [["c2", 1]],
-        "args": [{"cop": "|", "args": [["c0", 1], ["c1", 1]]}],
+    assert phir["ops"][5] == {
+        "//": "NOT (*4) c1[0], c2[0], c1[1], c2[1], c1[2], c2[2], c1[3], c2[3];"
     }
-    assert phir["ops"][-5] == {
+    assert phir["ops"][6] == {
         "cop": "=",
-        "returns": [["c2", 0]],
-        "args": [{"cop": "|", "args": [["c0", 0], ["c1", 0]]}],
+        "returns": ["c2"],
+        "args": [{"cop": "~", "args": ["c1"]}],
     }
-    assert phir["ops"][-7] == {
-        "cop": "=",
-        "returns": [["c1", 1]],
-        "args": [{"cop": "~", "args": [["c0", 1]]}],
+    assert phir["ops"][7] == {
+        "//": "OR (*3) c0[0], c1[0], c2[0], c0[1], c1[1], c2[1], c0[2], c1[2], c2[2];"
     }
-    assert phir["ops"][-8] == {
+    assert phir["ops"][8] == {
         "cop": "=",
-        "returns": [["c1", 0]],
-        "args": [{"cop": "~", "args": [["c0", 0]]}],
+        "returns": ["c2"],
+        "args": [{"cop": "|", "args": ["c0", "c1"]}],
     }
-    assert phir["ops"][-10] == {
-        "cop": "=",
-        "returns": [["c2", 1]],
-        "args": [{"cop": "&", "args": [["c0", 1], ["c1", 1]]}],
+    assert phir["ops"][9] == {
+        "//": "XOR (*4) c1[0], c2[0], c1[1], c2[1], c1[2], c2[2], c1[3], c2[3];"
     }
-    assert phir["ops"][-11] == {
+    assert phir["ops"][10] == {
         "cop": "=",
-        "returns": [["c2", 0]],
-        "args": [{"cop": "&", "args": [["c0", 0], ["c1", 0]]}],
+        "returns": ["c2"],
+        "args": [{"cop": "^", "args": ["c1", "c2"]}],
     }
