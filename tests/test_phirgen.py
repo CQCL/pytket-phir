@@ -26,6 +26,9 @@ def test_pytket_classical_only() -> None:
 
     c.add_c_copyreg(a, b)
     c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
+    c.add_c_copybits(
+        [Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)], condition=Bit("b", 1)
+    )
 
     phir = json.loads(pytket_to_phir(c))
 
@@ -38,6 +41,13 @@ def test_pytket_classical_only() -> None:
         "cop": "=",
         "returns": [["a", 0], ["b", 0]],
         "args": [["b", 2], ["a", 1]],
+    }
+    assert phir["ops"][7] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["b", 1], 1]},
+        "true_branch": [
+            {"cop": "=", "returns": [["a", 0], ["b", 0]], "args": [["b", 2], ["a", 1]]}
+        ],
     }
 
 
@@ -308,6 +318,9 @@ def test_multi_bit_ops() -> None:
     c.add_c_or_to_registers(c0, c1, c2)
     # modifier
     c.add_c_xor_to_registers(c2, c1, c2)
+    # conditionals
+    c.add_c_not_to_registers(c1, c2, condition=Bit("c0", 0))
+    c.add_c_not_to_registers(c1, c1, condition=Bit("c0", 0))
     phir = json.loads(pytket_to_phir(c))
     assert phir["ops"][3] == {
         "//": "AND (*3) c0[0], c1[0], c2[0], c0[1], c1[1], c2[1], c0[2], c1[2], c2[2];"
@@ -340,4 +353,18 @@ def test_multi_bit_ops() -> None:
         "cop": "=",
         "returns": ["c2"],
         "args": [{"cop": "^", "args": ["c1", "c2"]}],
+    }
+    assert phir["ops"][12] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["c0", 0], 1]},
+        "true_branch": [
+            {"cop": "=", "returns": ["c2"], "args": [{"cop": "~", "args": ["c1"]}]}
+        ],
+    }
+    assert phir["ops"][14] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["c0", 0], 1]},
+        "true_branch": [
+            {"cop": "=", "returns": ["c1"], "args": [{"cop": "~", "args": ["c1"]}]}
+        ],
     }

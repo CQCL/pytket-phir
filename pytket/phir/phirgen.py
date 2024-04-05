@@ -236,8 +236,8 @@ def cop_from_op_name(op_name: str) -> str:
 
 def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:
     """Return PHIR dict for a pytket ClassicalEvalOp."""
-    if type(op) is not type(cmd.op):
-        logger.warning("cmd.args might carry a conditional bit")
+    # Exclude conditional bit from args
+    args = cmd.args[1:] if isinstance(cmd.op, tk.Conditional) else cmd.args
     out: JsonDict | None = None
     match op:
         case tk.CopyBitsOp():
@@ -245,7 +245,7 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
                 logger.warning("LHS and RHS lengths mismatch for CopyBits")
             out = assign_cop(
                 [arg_to_bit(bit) for bit in cmd.bits],
-                [arg_to_bit(cmd.args[i]) for i in range(len(cmd.args) // 2)],
+                [arg_to_bit(args[i]) for i in range(len(cmd.args) // 2)],
             )
         case tk.SetBitsOp():
             if len(cmd.bits) != len(op.values):
@@ -290,7 +290,7 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
                 [
                     {
                         "cop": cop_from_op_name(op.basic_op.get_name()),
-                        "args": [arg.reg_name for arg in cmd.args[:operand_count]],
+                        "args": [arg.reg_name for arg in args[:operand_count]],
                     }
                 ],
             )
@@ -360,10 +360,11 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
             return create_wasm_op(cmd, op)
 
         case _:
+            # Exclude conditional bit from args
             args = cmd.args[1:] if isinstance(cmd.op, tk.Conditional) else cmd.args
             match op.type:
                 case tk.OpType.ExplicitPredicate | tk.OpType.ExplicitModifier:
-                    # exclude outbit when not modifying in place
+                    # exclude output bit when not modifying in place
                     args = args[:-1] if op.type == tk.OpType.ExplicitPredicate else args
                     out = assign_cop(
                         [arg_to_bit(cmd.bits[0])],
