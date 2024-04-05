@@ -10,12 +10,35 @@
 
 import json
 
-from pytket.circuit import Circuit
+from pytket.circuit import Bit, Circuit
 from pytket.phir.api import pytket_to_phir
 from pytket.qasm.qasm import circuit_from_qasm_str
 from pytket.unit_id import BitRegister
 
 from .test_utils import QasmFile, get_qasm_as_circuit
+
+
+def test_pytket_classical_only() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/61 ."""
+    c = Circuit(1)
+    a = c.add_c_register("a", 2)
+    b = c.add_c_register("b", 3)
+
+    c.add_c_copyreg(a, b)
+    c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
+
+    phir = json.loads(pytket_to_phir(c))
+
+    assert phir["ops"][3] == {
+        "cop": "=",
+        "returns": [["b", 0], ["b", 1]],
+        "args": [["a", 0], ["a", 1]],
+    }
+    assert phir["ops"][5] == {
+        "cop": "=",
+        "returns": [["a", 0], ["b", 0]],
+        "args": [["b", 2], ["a", 1]],
+    }
 
 
 def test_classicalexpbox() -> None:

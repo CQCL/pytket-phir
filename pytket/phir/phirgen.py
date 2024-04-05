@@ -388,12 +388,9 @@ def append_cmd(cmd: tk.Command, ops: list[JsonDict]) -> None:
         ops: the list of ops to append to
     """
     ops.append({"//": make_comment_text(cmd, cmd.op)})
-    op: JsonDict | list[JsonDict] | None = convert_subcmd(cmd.op, cmd)
+    op: JsonDict | None = convert_subcmd(cmd.op, cmd)
     if op:
-        if type(op) is list:
-            ops.extend(op)
-        elif type(op) is dict:
-            ops.append(op)
+        ops.append(op)
 
 
 def create_wasm_op(cmd: tk.Command, wasm_op: tk.WASMOp) -> JsonDict:
@@ -452,8 +449,6 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
             comment = f"WASM_function='{op.func_name}' args={args} returns={returns};"
 
         case tk.BarrierOp():
-            if type(op) is not type(cmd.op):
-                logger.warning("cmd.args might carry a conditional bit")
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
 
         case tk.ClassicalExpBox():
