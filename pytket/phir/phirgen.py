@@ -237,15 +237,15 @@ def cop_from_op_name(op_name: str) -> str:
 def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:
     """Return PHIR dict for a pytket ClassicalEvalOp."""
     # Exclude conditional bit from args
-    args = cmd.args[1:] if isinstance(cmd.op, tk.Conditional) else cmd.args
+    args = cmd.args[cmd.op.width :] if isinstance(cmd.op, tk.Conditional) else cmd.args
     out: JsonDict | None = None
     match op:
         case tk.CopyBitsOp():
-            if len(cmd.bits) != len(cmd.args) // 2:
+            if len(cmd.bits) != len(args) // 2:
                 logger.warning("LHS and RHS lengths mismatch for CopyBits")
             out = assign_cop(
                 [arg_to_bit(bit) for bit in cmd.bits],
-                [arg_to_bit(args[i]) for i in range(len(cmd.args) // 2)],
+                [arg_to_bit(args[i]) for i in range(len(args) // 2)],
             )
         case tk.SetBitsOp():
             if len(cmd.bits) != len(op.values):
@@ -260,17 +260,17 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
                 case l, u if l == u:
                     cond = {
                         "cop": "==",
-                        "args": [cmd.args[0].reg_name, u],
+                        "args": [args[0].reg_name, u],
                     }
                 case l, u if u == UINTMAX:
                     cond = {
                         "cop": ">=",
-                        "args": [cmd.args[0].reg_name, l],
+                        "args": [args[0].reg_name, l],
                     }
                 case 0, u:
                     cond = {
                         "cop": "<=",
-                        "args": [cmd.args[0].reg_name, u],
+                        "args": [args[0].reg_name, u],
                     }
             out = {
                 "block": "if",
@@ -280,9 +280,9 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
         case tk.MultiBitOp():
             # determine number of register operands involved in the operation
             operand_count = (
-                len(cmd.args) // len(cmd.bits) - 1
+                len(args) // len(cmd.bits) - 1
                 if op.basic_op.type == tk.OpType.ExplicitPredicate
-                else len(cmd.args) // len(cmd.bits)
+                else len(args) // len(cmd.bits)
             )
             out = assign_cop(
                 # Converting to regwise operations that pecos can handle
@@ -300,6 +300,19 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
     return out
 
 
+def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
+    """Construct bitwise condition."""
+    return {
+        "cop": "&",
+        "args": [
+            {"cop": "==", "args": [arg_to_bit(arg), bval]}
+            for (arg, bval) in zip(
+                args, map(int, f"{value:0{len(args)}b}"), strict=True
+            )
+        ],
+    }
+
+
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
     """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
@@ -307,18 +320,12 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
 
     out: JsonDict | None = None
     match op:  # non-quantum op
-        case tk.Conditional():  # where the condition is equality check
+        case tk.Conditional():
             out = {
                 "block": "if",
-                "condition": {
-                    "cop": "==",
-                    "args": [
-                        arg_to_bit(cmd.args[0])
-                        if op.width == 1
-                        else cmd.args[0].reg_name,
-                        op.value,
-                    ],
-                },
+                "condition": {"cop": "==", "args": [arg_to_bit(cmd.args[0]), op.value]}
+                if op.width == 1
+                else multi_bit_condition(cmd.args[: op.width], op.value),
                 "true_branch": [convert_subcmd(op.op, cmd)],
             }
 
@@ -360,8 +367,12 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
             return create_wasm_op(cmd, op)
 
         case _:
-            # Exclude conditional bit from args
-            args = cmd.args[1:] if isinstance(cmd.op, tk.Conditional) else cmd.args
+            # Exclude conditional bits from args
+            args = (
+                cmd.args[cmd.op.width :]
+                if isinstance(cmd.op, tk.Conditional)
+                else cmd.args
+            )
             match op.type:
                 case tk.OpType.ExplicitPredicate | tk.OpType.ExplicitModifier:
                     # exclude output bit when not modifying in place

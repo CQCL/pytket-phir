@@ -18,6 +18,35 @@ from pytket.unit_id import BitRegister
 from .test_utils import QasmFile, get_qasm_as_circuit
 
 
+def test_multiple_sleep() -> None:
+    """Ensure multiple sleep ops get converted correctly."""
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1_dev.inc";
+
+    qreg q[2];
+
+    sleep(1) q[0];
+    sleep(2) q[1];
+    """
+    circ = circuit_from_qasm_str(qasm)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
+    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}
+
+
+def test_simple_cond_classical() -> None:
+    """Ensure conditional classical operation are correctly generated."""
+    circ = get_qasm_as_circuit(QasmFile.simple_cond)
+    phir = json.loads(pytket_to_phir(circ))
+    assert phir["ops"][-6] == {"//": "IF ([c[0]] == 1) THEN SetBits(1) z[0];"}
+    assert phir["ops"][-5] == {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["c", 0], 1]},
+        "true_branch": [{"cop": "=", "returns": [["z", 0]], "args": [1]}],
+    }
+
+
 def test_pytket_classical_only() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/61 ."""
     c = Circuit(1)
@@ -28,6 +57,12 @@ def test_pytket_classical_only() -> None:
     c.add_c_copybits([Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)])
     c.add_c_copybits(
         [Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)], condition=Bit("b", 1)
+    )
+    c.add_c_copybits(
+        [Bit("a", 0), Bit("a", 1)],  # type: ignore[list-item] # overloaded function
+        [Bit("b", 0), Bit("b", 1)],  # type: ignore[list-item] # overloaded function
+        condition_bits=[Bit("b", 1), Bit("b", 2)],
+        condition_value=2,
     )
 
     phir = json.loads(pytket_to_phir(c))
@@ -47,6 +82,22 @@ def test_pytket_classical_only() -> None:
         "condition": {"cop": "==", "args": [["b", 1], 1]},
         "true_branch": [
             {"cop": "=", "returns": [["a", 0], ["b", 0]], "args": [["b", 2], ["a", 1]]}
+        ],
+    }
+    assert phir["ops"][8] == {
+        "//": "IF ([b[1], b[2]] == 2) THEN CopyBits a[0], a[1], b[0], b[1];"
+    }
+    assert phir["ops"][9] == {
+        "block": "if",
+        "condition": {
+            "cop": "&",
+            "args": [
+                {"cop": "==", "args": [["b", 1], 1]},
+                {"cop": "==", "args": [["b", 2], 0]},
+            ],
+        },
+        "true_branch": [
+            {"cop": "=", "returns": [["b", 0], ["b", 1]], "args": [["a", 0], ["a", 1]]}
         ],
     }
 
@@ -121,20 +172,14 @@ def test_conditional_barrier() -> None:
     assert phir["ops"][4] == {"//": "IF ([m[0], m[1]] == 0) THEN Barrier q[0], q[1];"}
     assert phir["ops"][5] == {
         "block": "if",
-        "condition": {"cop": "==", "args": ["m", 0]},
+        "condition": {
+            "cop": "&",
+            "args": [
+                {"cop": "==", "args": [["m", 0], 0]},
+                {"cop": "==", "args": [["m", 1], 0]},
+            ],
+        },
         "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],
-    }
-
-
-def test_simple_cond_classical() -> None:
-    """Ensure conditional classical operation are correctly generated."""
-    circ = get_qasm_as_circuit(QasmFile.simple_cond)
-    phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][-6] == {"//": "IF ([c[0]] == 1) THEN SetBits(1) z[0];"}
-    assert phir["ops"][-5] == {
-        "block": "if",
-        "condition": {"cop": "==", "args": [["c", 0], 1]},
-        "true_branch": [{"cop": "=", "returns": [["z", 0]], "args": [1]}],
     }
 
 
@@ -169,23 +214,6 @@ def test_sleep_idle() -> None:
     circ = get_qasm_as_circuit(QasmFile.sleep)
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][7] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
-
-
-def test_multiple_sleep() -> None:
-    """Ensure multiple sleep ops get converted correctly."""
-    qasm = """
-    OPENQASM 2.0;
-    include "hqslib1_dev.inc";
-
-    qreg q[2];
-
-    sleep(1) q[0];
-    sleep(2) q[1];
-    """
-    circ = circuit_from_qasm_str(qasm)
-    phir = json.loads(pytket_to_phir(circ))
-    assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
-    assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}
 
 
 def test_reordering_classical_conditional() -> None:
