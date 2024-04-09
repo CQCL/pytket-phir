@@ -396,3 +396,38 @@ def test_multi_bit_ops() -> None:
             {"cop": "=", "returns": ["c1"], "args": [{"cop": "~", "args": ["c1"]}]}
         ],
     }
+
+
+def test_irregular_multibit_ops() -> None:
+    """From https://github.com/CQCL/pytket-phir/pull/162#discussion_r1555807863 ."""
+    c = Circuit()
+    areg = c.add_c_register("a", 2)
+    breg = c.add_c_register("b", 2)
+    creg = c.add_c_register("c", 2)
+    c.add_c_and_to_registers(areg, breg, creg)
+    mbop = c.get_commands()[0].op
+    c.add_gate(mbop, [areg[0], areg[1], breg[0], breg[1], creg[0], creg[1]])
+
+    phir = json.loads(pytket_to_phir(c))
+    assert phir["ops"][3] == {"//": "AND (*2) a[0], b[0], c[0], a[1], b[1], c[1];"}
+    assert phir["ops"][4] == {
+        "cop": "=",
+        "returns": ["c"],
+        "args": [{"cop": "&", "args": ["a", "b"]}],
+    }
+    assert phir["ops"][5] == {"//": "AND (*2) a[0], a[1], b[0], b[1], c[0], c[1];"}
+    assert phir["ops"][6] == {
+        "block": "sequence",
+        "ops": [
+            {
+                "cop": "=",
+                "returns": [["b", 0]],
+                "args": [{"cop": "&", "args": [["a", 0], ["a", 1]]}],
+            },
+            {
+                "cop": "=",
+                "returns": [["c", 1]],
+                "args": [{"cop": "&", "args": [["b", 1], ["c", 0]]}],
+            },
+        ],
+    }

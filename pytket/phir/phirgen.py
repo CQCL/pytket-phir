@@ -10,6 +10,7 @@
 
 import json
 import logging
+from copy import deepcopy
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, TypeAlias
 
@@ -278,22 +279,55 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
                 "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
             }
         case tk.MultiBitOp():
+            cop = cop_from_op_name(op.basic_op.get_name())
+            is_explicit = op.basic_op.type == tk.OpType.ExplicitPredicate
+
             # determine number of register operands involved in the operation
-            operand_count = (
-                len(args) // len(cmd.bits) - 1
-                if op.basic_op.type == tk.OpType.ExplicitPredicate
-                else len(args) // len(cmd.bits)
-            )
-            out = assign_cop(
-                # Converting to regwise operations that pecos can handle
-                [cmd.bits[0].reg_name],
-                [
-                    {
-                        "cop": cop_from_op_name(op.basic_op.get_name()),
-                        "args": [arg.reg_name for arg in args[:operand_count]],
-                    }
-                ],
-            )
+            operand_count = len(args) // len(cmd.bits) - (1 if is_explicit else 0)
+
+            iters = [iter(args)] * (operand_count + (1 if is_explicit else 0))
+            iter2 = deepcopy(iters)
+
+            # Columns of expressions, e.g.,
+            #   AND (*2) a[0], b[0], c[0]
+            #          , a[1], b[1], c[1]
+            #   would be [(a[0], a[1]), (b[0], b[1]), (c[0], c[1])]
+            # and AND (*2) a[0], a[1], b[0]
+            #            , b[1], c[0], c[1]
+            #   would be [(a[0], b[1]), (a[1], c[0]), (b[0], c[1])]
+            cols = zip(*zip(*iters, strict=True), strict=True)
+
+            if all(
+                all(col[0].reg_name == bit.reg_name for bit in col) for col in cols
+            ):  # expression can be applied register-wise
+                out = assign_cop(
+                    [cmd.bits[0].reg_name],
+                    [
+                        {
+                            "cop": cop,
+                            "args": [arg.reg_name for arg in args[:operand_count]],
+                        }
+                    ],
+                )
+            else:  # apply a sequence of bit-wise ops
+                exps = zip(*iter2, strict=True)
+                out = {
+                    "block": "sequence",
+                    "ops": [
+                        assign_cop(
+                            [arg_to_bit(bit)],
+                            [
+                                {
+                                    "cop": cop,
+                                    "args": [
+                                        arg_to_bit(arg) for arg in exp[:operand_count]
+                                    ],
+                                }
+                            ],
+                        )
+                        for bit, exp in zip(cmd.bits, exps, strict=True)
+                    ],
+                }
         case _:
             raise NotImplementedError(op)
 
