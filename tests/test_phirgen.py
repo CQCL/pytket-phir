@@ -92,8 +92,8 @@ def test_pytket_classical_only() -> None:
         "condition": {
             "cop": "&",
             "args": [
-                {"cop": "==", "args": [["b", 1], 1]},
-                {"cop": "==", "args": [["b", 2], 0]},
+                {"cop": "==", "args": [["b", 2], 1]},
+                {"cop": "==", "args": [["b", 1], 0]},
             ],
         },
         "true_branch": [
@@ -175,8 +175,8 @@ def test_conditional_barrier() -> None:
         "condition": {
             "cop": "&",
             "args": [
-                {"cop": "==", "args": [["m", 0], 0]},
                 {"cop": "==", "args": [["m", 1], 0]},
+                {"cop": "==", "args": [["m", 0], 0]},
             ],
         },
         "true_branch": [{"meta": "barrier", "args": [["q", 0], ["q", 1]]}],

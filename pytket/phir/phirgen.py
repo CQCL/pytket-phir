@@ -243,7 +243,8 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
     match op:
         case tk.CopyBitsOp():
             if len(cmd.bits) != len(args) // 2:
-                logger.warning("LHS and RHS lengths mismatch for CopyBits")
+                msg = "LHS and RHS lengths mismatch for CopyBits"
+                raise TypeError(msg)
             out = assign_cop(
                 [arg_to_bit(bit) for bit in cmd.bits],
                 [arg_to_bit(args[i]) for i in range(len(args) // 2)],
@@ -279,13 +280,17 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
                 "true_branch": [assign_cop([arg_to_bit(cmd.bits[0])], [1])],
             }
         case tk.MultiBitOp():
+            if len(args) % len(cmd.bits) != 0:
+                msg = "Input bit- and output bit lengths mismatch."
+                raise TypeError(msg)
+
             cop = cop_from_op_name(op.basic_op.get_name())
             is_explicit = op.basic_op.type == tk.OpType.ExplicitPredicate
 
             # determine number of register operands involved in the operation
-            operand_count = len(args) // len(cmd.bits) - (1 if is_explicit else 0)
+            operand_count = len(args) // len(cmd.bits) - is_explicit
 
-            iters = [iter(args)] * (operand_count + (1 if is_explicit else 0))
+            iters = [iter(args)] * (operand_count + is_explicit)
             iter2 = deepcopy(iters)
 
             # Columns of expressions, e.g.,
@@ -341,7 +346,7 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
         "args": [
             {"cop": "==", "args": [arg_to_bit(arg), bval]}
             for (arg, bval) in zip(
-                args, map(int, f"{value:0{len(args)}b}"), strict=True
+                args[::-1], map(int, f"{value:0{len(args)}b}"), strict=True
             )
         ],
     }
