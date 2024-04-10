@@ -292,6 +292,8 @@ def adjust_phir_transport_time(ops: list["JsonDict"], machine: "Machine") -> Non
                     adjustment += machine.tq_time
                 case "Measure":
                     adjustment += machine.meas_prep_time
+                case "Init":
+                    pass  # Init does not have a duration
                 case _:
                     logger.warning(
                         "Gate type %s not assigned a transport duration", op["qop"]
@@ -303,6 +305,8 @@ def adjust_phir_transport_time(ops: list["JsonDict"], machine: "Machine") -> Non
                     adjustment += machine.sq_time
                 case "RZZ":
                     adjustment += machine.tq_time
+                case "Init":
+                    pass  # Init does not have a duration
                 case _:
                     logger.warning(
                         "Gate type %s not assigned a transport duration", first_op
