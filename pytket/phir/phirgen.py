@@ -237,7 +237,7 @@ def cop_from_op_name(op_name: str) -> str:
 
 def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:
     """Return PHIR dict for a pytket ClassicalEvalOp."""
-    # Exclude conditional bit from args
+    # Exclude conditional bits from args
     args = cmd.args[cmd.op.width :] if isinstance(cmd.op, tk.Conditional) else cmd.args
     out: JsonDict | None = None
     match op:
