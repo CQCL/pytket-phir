@@ -7,7 +7,7 @@ pydata_sphinx_theme==0.15.2
 pytest==8.1.1
 pytest-order==1.2.1
 pytket==1.26.0
-ruff==0.3.5
+ruff==0.3.7
 setuptools_scm==8.0.4
 sphinx==7.2.6
 wasmtime==19.0.0
