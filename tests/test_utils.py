@@ -88,4 +88,6 @@ def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
 def get_wat_as_wasm_bytes(wat_file: WatFile) -> bytes:
     """Gets a given wat file, converted to WASM bytes by wasmtime."""
     this_dir = Path(Path(__file__).resolve()).parent
-    return wat2wasm(Path(f"{this_dir}/data/wasm/{wat_file.name}.wat").read_text())
+    return wat2wasm(
+        Path(f"{this_dir}/data/wasm/{wat_file.name}.wat").read_text(encoding="utf-8")
+    )
