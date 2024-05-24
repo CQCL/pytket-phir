@@ -25,7 +25,7 @@ def parse_shards_naive(
     scheduled: set[int] = set()
     num_shards: int = len(shards)
     qid_count: int = 0
-    qubits2ids: dict["UnitID", int] = {}
+    qubits2ids: dict[UnitID, int] = {}
 
     while len(scheduled) < num_shards:
         layer: Layer = []

@@ -11,6 +11,7 @@
 import json
 
 from pytket.circuit import Bit, Circuit
+from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
 from pytket.qasm.qasm import circuit_from_qasm_str
 from pytket.unit_id import BitRegister
@@ -430,4 +431,34 @@ def test_irregular_multibit_ops() -> None:
                 "args": [{"cop": "&", "args": [["b", 1], ["c", 0]]}],
             },
         ],
+    }
+
+
+def test_nullary_ops() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/178 ."""
+    c = Circuit(1, 1)
+    exp1 = create_bit_logic_exp(BitWiseOp.ONE, [])
+    c.H(0, condition=exp1)
+    exp0 = create_bit_logic_exp(BitWiseOp.ZERO, [])
+    c.H(0, condition=exp0)
+    c.measure_all()
+    phir = json.loads(pytket_to_phir(c))
+
+    assert phir["ops"][4] == {
+        "cop": "=",
+        "returns": [["tk_SCRATCH_BIT", 0]],
+        "args": [1],
+    }
+    assert phir["ops"][6] == {
+        "cop": "=",
+        "returns": [["tk_SCRATCH_BIT", 1]],
+        "args": [0],
+    }
+    assert phir["ops"][8]["condition"] == {
+        "cop": "==",
+        "args": [["tk_SCRATCH_BIT", 0], 1],
+    }
+    assert phir["ops"][10]["condition"] == {
+        "cop": "==",
+        "args": [["tk_SCRATCH_BIT", 1], 1],  # evals to False
     }

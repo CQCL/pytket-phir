@@ -99,9 +99,14 @@ def assign_cop(
     }
 
 
-def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict:
+def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict | int:
     """PHIR for classical register operations."""
     match exp.op:
+        # Nullary
+        case BitWiseOp.ZERO:
+            return 0
+        case BitWiseOp.ONE:
+            return 1
         # Bitwise
         case RegWiseOp.AND | BitWiseOp.AND:
             cop = "&"
