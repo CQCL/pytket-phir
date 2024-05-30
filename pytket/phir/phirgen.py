@@ -99,7 +99,7 @@ def assign_cop(
     }
 
 
-def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict | int:
+def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict | int:  # noqa: PLR0912, PLR0915
     """PHIR for classical register operations."""
     match exp.op:
         # Nullary
@@ -240,7 +240,7 @@ def cop_from_op_name(op_name: str) -> str:
     return cop
 
 
-def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:
+def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
     """Return PHIR dict for a pytket ClassicalEvalOp."""
     # Exclude conditional bits from args
     args = cmd.args[cmd.op.width :] if isinstance(cmd.op, tk.Conditional) else cmd.args
@@ -357,7 +357,7 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     }
 
 
-def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
+def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
     """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
         return convert_gate(op, cmd)

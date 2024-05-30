@@ -47,7 +47,7 @@ def exec_order_preserved(
     )
 
 
-def process_sub_commands(
+def process_sub_commands(  # noqa: PLR0912
     sub_commands: dict["UnitID", list[tk.Command]], max_parallel_sq_gates: int
 ) -> dict[int, list[tk.Command]]:
     """Create parallelizable groups of sub-commands."""
