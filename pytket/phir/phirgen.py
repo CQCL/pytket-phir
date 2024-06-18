@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 from typing_extensions import assert_never
 
+import pytket
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import (
