@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2024-06-18
+
+### Added
+
+* Set maximum bit width for classical operations according to pytket support in https://github.com/CQCL/pytket-phir/pull/190
+  * Closes #165
+
+## [0.7.2] - 2024-05-28
+
+### Added
+
+* feat(phirgen): add support for ZERO/ONE nullary ops by @qartik in https://github.com/CQCL/pytket-phir/pull/180
+
+## [0.7.1] - 2024-04-12
+
+### Fixed
+
+* do nothing on Init gate instead of warning by @Asa-Kosto-QTM in https://github.com/CQCL/pytket-phir/pull/166
+
 ## [0.7.0] - 2024-04-10
 
 ### Added
@@ -179,6 +198,9 @@ First release.
 [0.6.2]: https://github.com/CQCL/pytket-phir/compare/v0.6.1...v0.6.2
 [0.6.3]: https://github.com/CQCL/pytket-phir/compare/v0.6.2...v0.6.3
 [0.7.0]: https://github.com/CQCL/pytket-phir/compare/v0.6.3...v0.7.0
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.7.0...HEAD
+[0.7.1]: https://github.com/CQCL/pytket-phir/compare/v0.7.0...v0.7.1
+[0.7.2]: https://github.com/CQCL/pytket-phir/compare/v0.7.1...v0.7.2
+[0.7.3]: https://github.com/CQCL/pytket-phir/compare/v0.7.2...v0.7.3
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.7.3...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
