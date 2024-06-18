@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Set maximum bit width for classical operations according to pytket support in https://github.com/CQCL/pytket-phir/pull/190
-  * Closes #165
+  * Fixes [#165: `UINTMAX` is hard-coded as `2^32 - 1`](https://github.com/CQCL/pytket-phir/issues/165)
 
 ## [0.7.2] - 2024-05-28
 
