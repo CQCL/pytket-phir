@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 from typing_extensions import assert_never
 
+import pytket
 import pytket.circuit as tk
 from phir.model import PHIRModel
 from pytket.circuit.logic_exp import (
@@ -44,7 +45,7 @@ PHIR_HEADER: JsonDict = {
     "version": "0.1.0",
     "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
 }
-UINTMAX = 2**32 - 1
+UINTMAX = 2 ** (64 if pytket.__dict__.get("bit_width_64", False) else 32) - 1
 
 Var: TypeAlias = str
 Bit: TypeAlias = list[Var | int]  # e.g. [c, 0] for c[0]
