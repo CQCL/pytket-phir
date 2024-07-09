@@ -19,8 +19,6 @@ from phir.model import PHIRModel
 from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
 
 if TYPE_CHECKING:
-    import sympy
-
     from pytket.unit_id import UnitID
 
     from .machine import Machine
@@ -131,7 +129,7 @@ def process_sub_commands(  # noqa: PLR0912
 def groups2qops(groups: dict[int, list[tk.Command]], ops: list["JsonDict"]) -> None:  # noqa: PLR0912
     """Convert the groups of parallel ops to properly formatted PHIR."""
     for group in groups.values():
-        angles2qops: dict[tuple[sympy.Expr | float, ...], JsonDict] = {}
+        angles2qops: dict[tuple[float, ...], JsonDict] = {}
         for qop in group:
             if not qop.op.is_gate():
                 append_cmd(qop, ops)
