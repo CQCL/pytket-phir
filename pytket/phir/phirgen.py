@@ -45,7 +45,9 @@ PHIR_HEADER: JsonDict = {
     "version": "0.1.0",
     "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
 }
-UINTMAX = 2 ** (64 if pytket.__dict__.get("bit_width_64", False) else 32) - 1
+
+WORDSIZE = 64 if pytket.__dict__.get("bit_width_64", False) else 32
+UINTMAX = 2**WORDSIZE - 1
 
 Var: TypeAlias = str
 Bit: TypeAlias = list[Var | int]  # e.g. [c, 0] for c[0]

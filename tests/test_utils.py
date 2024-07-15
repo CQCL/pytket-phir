@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from wasmtime import wat2wasm
 
+from pytket.phir.phirgen import WORDSIZE
 from pytket.phir.phirgen_parallel import genphir_parallel
 from pytket.phir.place_and_route import place_and_route
 from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
@@ -69,7 +70,9 @@ def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
         Corresponding tket circuit
     """
     this_dir = Path(Path(__file__).resolve()).parent
-    return circuit_from_qasm(f"{this_dir}/data/qasm/{qasm_file.name}.qasm")
+    return circuit_from_qasm(
+        f"{this_dir}/data/qasm/{qasm_file.name}.qasm", maxwidth=WORDSIZE
+    )
 
 
 def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":

@@ -16,6 +16,7 @@ from importlib.metadata import version
 from pecos.engines.hybrid_engine import HybridEngine
 from pecos.foreign_objects.wasmtime import WasmtimeObj
 
+from pytket.phir.phirgen import WORDSIZE
 from pytket.qasm.qasm import (
     circuit_from_qasm,
     circuit_from_qasm_wasm,
@@ -60,10 +61,10 @@ def main() -> None:
         circuit = None
         if args.wasm_file:
             print(f"Including WASM from file {args.wasm_file}")
-            circuit = circuit_from_qasm_wasm(file, args.wasm_file)
+            circuit = circuit_from_qasm_wasm(file, args.wasm_file, maxwidth=WORDSIZE)
             wasm_pecos_obj = WasmtimeObj(args.wasm_file)
         else:
-            circuit = circuit_from_qasm(file)
+            circuit = circuit_from_qasm(file, maxwidth=WORDSIZE)
 
         match args.machine:
             case "H1":

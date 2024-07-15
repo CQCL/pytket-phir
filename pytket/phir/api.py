@@ -18,7 +18,7 @@ from rich import print
 from phir.model import PHIRModel
 from pytket.qasm.qasm import circuit_from_qasm_str, circuit_from_qasm_wasm
 
-from .phirgen import genphir
+from .phirgen import WORDSIZE, genphir
 from .phirgen_parallel import genphir_parallel
 from .place_and_route import place_and_route
 from .qtm_machine import QTM_MACHINES_MAP, QtmMachine
@@ -100,10 +100,12 @@ def qasm_to_phir(
             wasm_file.flush()
             wasm_file.close()
 
-            circuit = circuit_from_qasm_wasm(qasm_file.name, wasm_file.name)
+            circuit = circuit_from_qasm_wasm(
+                qasm_file.name, wasm_file.name, maxwidth=WORDSIZE
+            )
         finally:
             Path.unlink(Path(qasm_file.name))
             Path.unlink(Path(wasm_file.name))
     else:
-        circuit = circuit_from_qasm_str(qasm)
+        circuit = circuit_from_qasm_str(qasm, maxwidth=WORDSIZE)
     return pytket_to_phir(circuit, qtm_machine)
