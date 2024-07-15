@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2023 Quantinuum LLC All rights reserved.
+# Copyright (c) 2023-2024 Quantinuum LLC All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 #
@@ -10,11 +10,17 @@
 
 import json
 import logging
+import sys
 from copy import deepcopy
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, TypeAlias
 
-from typing_extensions import assert_never
+from pytket.qasm.qasm import QASMUnsupportedError
+
+if sys.version_info >= (3, 11):
+    from typing import assert_never
+else:
+    from typing_extensions import assert_never
 
 import pytket
 import pytket.circuit as tk
@@ -482,7 +488,7 @@ def extract_wasm_args_and_returns(
     input_args = only_args[len(only_args) - op.n_inputs :]
     if any(arg.index[0] >= WASM_WORDSIZE for arg in input_args):
         msg = "WASM support is limited to at most 32-bit registers"
-        raise ValueError(msg)
+        raise QASMUnsupportedError(msg)
     return (
         dedupe_bits_to_registers(input_args),
         dedupe_bits_to_registers(command.bits),
@@ -550,7 +556,7 @@ def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | in
     decls += [
         {
             "data": "cvar_define",
-            "data_type": f"u{WORDSIZE}",
+            "data_type": f"i{WORDSIZE}",
             "variable": cvar,
             "size": dim,
         }

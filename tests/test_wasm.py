@@ -20,6 +20,7 @@ import pytest
 from pytket.circuit import Circuit, Qubit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
+from pytket.qasm.qasm import QASMUnsupportedError
 from pytket.wasm.wasm import WasmFileHandler
 
 from .test_utils import WatFile, get_wat_as_wasm_bytes
@@ -77,7 +78,10 @@ def test_qasm_wasm_unsupported_reg_len() -> None:
 
     wasm_bytes = get_wat_as_wasm_bytes(WatFile.add)
 
-    with pytest.raises(ValueError, match="limited to at most 32-bit registers"):
+    with pytest.raises(
+        QASMUnsupportedError,
+        match="limited to at most 32-bit|try setting the `maxwidth` parameter",
+    ):
         qasm_to_phir(qasm, QtmMachine.H1, wasm_bytes=wasm_bytes)
 
 
