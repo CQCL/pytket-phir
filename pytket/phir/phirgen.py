@@ -46,6 +46,7 @@ PHIR_HEADER: JsonDict = {
     "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
 }
 
+WASM_WORDSIZE = 32
 WORDSIZE = 64 if pytket.__dict__.get("bit_width_64", False) else 32
 UINTMAX = 2**WORDSIZE - 1
 
@@ -479,6 +480,9 @@ def extract_wasm_args_and_returns(
     only_args = command.args[:-slice_index]
     # Eliminate conditional bits from the front of the args
     input_args = only_args[len(only_args) - op.n_inputs :]
+    if any(arg.index[0] >= WASM_WORDSIZE for arg in input_args):
+        msg = "WASM support is limited to at most 32-bit registers"
+        raise ValueError(msg)
     return (
         dedupe_bits_to_registers(input_args),
         dedupe_bits_to_registers(command.bits),

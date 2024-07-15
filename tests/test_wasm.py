@@ -64,6 +64,23 @@ def test_qasm_to_phir_with_wasm() -> None:
     }
 
 
+def test_qasm_wasm_unsupported_reg_len() -> None:
+    """Test that qasm containing calls to WASM with more than 32-bits fails."""
+    qasm = """
+    OPENQASM 2.0;
+    include "qelib1.inc";
+
+    creg cr[33];
+
+    cr = add(cr, cr);
+    """
+
+    wasm_bytes = get_wat_as_wasm_bytes(WatFile.add)
+
+    with pytest.raises(ValueError, match="limited to at most 32-bit registers"):
+        qasm_to_phir(qasm, QtmMachine.H1, wasm_bytes=wasm_bytes)
+
+
 @pytest.mark.order("first")
 def test_pytket_with_wasm() -> None:
     """Test whether pytket works with WASM."""
@@ -140,6 +157,26 @@ def test_pytket_with_wasm() -> None:
         "args": [],
         "returns": ["c2"],
     }
+
+
+def test_pytket_wasm_unsupported_reg_len() -> None:
+    """Test that pytket circuit calling WASM with more than 32-bits fails."""
+    wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
+    try:
+        wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+        wasm_file.write(wasm_bytes)
+        wasm_file.flush()
+        wasm_file.close()
+
+        w = WasmFileHandler(wasm_file.name)
+
+        c = Circuit(0, 33)
+        c0 = c.add_c_register("c0", 33)
+
+        with pytest.raises(ValueError, match="only registers of at most 32 bits"):
+            c.add_wasm_to_reg("no_return", w, [c0], [])
+    finally:
+        Path.unlink(Path(wasm_file.name))
 
 
 def test_conditional_wasm() -> None:
