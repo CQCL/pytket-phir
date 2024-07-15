@@ -546,7 +546,7 @@ def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | in
     decls += [
         {
             "data": "cvar_define",
-            "data_type": "u32",
+            "data_type": f"u{WORDSIZE}",
             "variable": cvar,
             "size": dim,
         }
