@@ -31,7 +31,7 @@ dependencies = [
 
 [project.optional-dependencies]
 docs = ["sphinx", "pydata_sphinx_theme"]
-phirc = ["projectq", "quantum-pecos>=0.5.0.dev10"]
+phirc = ["projectq", "quantum-pecos>=0.6.0.dev2"]
 tests = ["pytest"]
 
 [project.scripts]
