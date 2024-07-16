@@ -214,6 +214,7 @@ First release.
 [0.7.1]: https://github.com/CQCL/pytket-phir/compare/v0.7.0...v0.7.1
 [0.7.2]: https://github.com/CQCL/pytket-phir/compare/v0.7.1...v0.7.2
 [0.7.3]: https://github.com/CQCL/pytket-phir/compare/v0.7.2...v0.7.3
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.7.3...HEAD
+[0.8.0]: https://github.com/CQCL/pytket-phir/compare/v0.7.3...v0.8.0
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.8.0...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
