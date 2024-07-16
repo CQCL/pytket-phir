@@ -13,6 +13,7 @@ import json
 from pytket.circuit import Bit, Circuit
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
+from pytket.phir.phirgen import WORDSIZE
 from pytket.qasm.qasm import circuit_from_qasm_str
 from pytket.unit_id import BitRegister
 
@@ -30,7 +31,7 @@ def test_multiple_sleep() -> None:
     sleep(1) q[0];
     sleep(2) q[1];
     """
-    circ = circuit_from_qasm_str(qasm)
+    circ = circuit_from_qasm_str(qasm, maxwidth=WORDSIZE)
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][2] == {"mop": "Idle", "args": [["q", 0]], "duration": [1.0, "s"]}
     assert phir["ops"][4] == {"mop": "Idle", "args": [["q", 1]], "duration": [2.0, "s"]}
