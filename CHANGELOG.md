@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2024-07-16
+
+### Added
+
+* Support for 64-bits while maintaining backward compatibility.
+
+### Changed
+
+* Abstract `WORDSIZE` to specify `maxwidth` on qasm conversion in https://github.com/CQCL/pytket-phir/pull/204 including
+  * generate cvar with `data_type` dependent on `WORDSIZE`
+  * Fail early on WASM calls with parameters using more than 32-bits
+  * Require 64-bit version of PECOS, emit i32/i64 cvars for compatibility
+
 ## [0.7.3] - 2024-06-18
 
 ### Added
