@@ -13,7 +13,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
-from rich import print
+from rich import print  # noqa: A004
 
 from phir.model import PHIRModel
 from pytket.qasm.qasm import circuit_from_qasm_str, circuit_from_qasm_wasm

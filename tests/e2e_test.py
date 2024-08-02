@@ -7,7 +7,7 @@
 ##############################################################################
 
 from phir.model import PHIRModel
-from rich import print
+from rich import print  # noqa: A004
 
 from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.phirgen import genphir
