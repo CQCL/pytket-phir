@@ -10,6 +10,8 @@
 
 import json
 
+from pecos.engines.hybrid_engine import HybridEngine
+
 from pytket.circuit import Bit, Circuit
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
@@ -463,3 +465,12 @@ def test_nullary_ops() -> None:
         "cop": "==",
         "args": [["tk_SCRATCH_BIT", 1], 1],  # evals to False
     }
+
+
+def test_condition_multiple_bits() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/215 ."""
+    n_bits = 3
+    c = Circuit(1, n_bits)
+    c.Rz(0.5, 0, condition_bits=list(range(n_bits)), condition_value=0)
+    phir = pytket_to_phir(c)
+    HybridEngine(qsim="state-vector").run(program=phir)
