@@ -8,8 +8,7 @@
 
 from typing import TYPE_CHECKING
 
-from pytket.passes import DecomposeBoxes
-from pytket.passes.auto_rebase import auto_rebase_pass
+from pytket.passes import AutoRebase, DecomposeBoxes
 from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET, QTM_MACHINES_MAP, QtmMachine
 
 if TYPE_CHECKING:
@@ -22,5 +21,5 @@ def rebase_to_qtm_machine(circuit: "Circuit", qtm_machine: QtmMachine) -> "Circu
     gateset = QTM_DEFAULT_GATESET if machine is None else machine.gateset
     c = circuit.copy()
     DecomposeBoxes().apply(c)
-    auto_rebase_pass(gateset, allow_swaps=True).apply(c)
+    AutoRebase(gateset, allow_swaps=True).apply(c)
     return c

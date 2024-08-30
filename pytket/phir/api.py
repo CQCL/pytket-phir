@@ -9,7 +9,6 @@
 # mypy: disable-error-code="misc"
 
 import logging
-from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
@@ -90,22 +89,18 @@ def qasm_to_phir(
     """
     circuit: Circuit
     if wasm_bytes:
-        try:
-            qasm_file = NamedTemporaryFile(suffix=".qasm", delete=False)
-            wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+        with (
+            NamedTemporaryFile(suffix=".qasm", delete=False) as qasm_file,
+            NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file,
+        ):
             qasm_file.write(qasm.encode())
             qasm_file.flush()
-            qasm_file.close()
             wasm_file.write(wasm_bytes)
             wasm_file.flush()
-            wasm_file.close()
 
             circuit = circuit_from_qasm_wasm(
                 qasm_file.name, wasm_file.name, maxwidth=WORDSIZE
             )
-        finally:
-            Path.unlink(Path(qasm_file.name))
-            Path.unlink(Path(wasm_file.name))
     else:
         circuit = circuit_from_qasm_str(qasm, maxwidth=WORDSIZE)
     return pytket_to_phir(circuit, qtm_machine)

@@ -12,7 +12,6 @@ import base64
 import hashlib
 import json
 import logging
-from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import pytest
@@ -85,16 +84,13 @@ def test_qasm_wasm_unsupported_reg_len() -> None:
         qasm_to_phir(qasm, QtmMachine.H1, wasm_bytes=wasm_bytes)
 
 
-@pytest.mark.order("first")
 def test_pytket_with_wasm() -> None:
     """Test whether pytket works with WASM."""
     wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
     phir_str: str
-    try:
-        wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
         wasm_file.write(wasm_bytes)
         wasm_file.flush()
-        wasm_file.close()
 
         w = WasmFileHandler(wasm_file.name)
 
@@ -111,8 +107,6 @@ def test_pytket_with_wasm() -> None:
         c.add_wasm_to_reg("add_one", w, [c0], [c0], condition=c1[0])
 
         phir_str = pytket_to_phir(c, QtmMachine.H1)
-    finally:
-        Path.unlink(Path(wasm_file.name))
 
     phir = json.loads(phir_str)
 
@@ -166,11 +160,9 @@ def test_pytket_with_wasm() -> None:
 def test_pytket_wasm_unsupported_reg_len() -> None:
     """Test that pytket circuit calling WASM with more than 32-bits fails."""
     wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
-    try:
-        wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
         wasm_file.write(wasm_bytes)
         wasm_file.flush()
-        wasm_file.close()
 
         w = WasmFileHandler(wasm_file.name)
 
@@ -179,18 +171,14 @@ def test_pytket_wasm_unsupported_reg_len() -> None:
 
         with pytest.raises(ValueError, match="only registers of at most 32 bits"):
             c.add_wasm_to_reg("no_return", w, [c0], [])
-    finally:
-        Path.unlink(Path(wasm_file.name))
 
 
 def test_conditional_wasm() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/156 ."""
     wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
-    try:
-        wasm_file = NamedTemporaryFile(suffix=".wasm", delete=False)
+    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
         wasm_file.write(wasm_bytes)
         wasm_file.flush()
-        wasm_file.close()
 
         w = WasmFileHandler(wasm_file.name)
 
@@ -209,8 +197,6 @@ def test_conditional_wasm() -> None:
             condition_bits=[breg[0]],
             condition_value=1,
         )
-    finally:
-        Path.unlink(Path(wasm_file.name))
 
     phir = json.loads(pytket_to_phir(c))
 
