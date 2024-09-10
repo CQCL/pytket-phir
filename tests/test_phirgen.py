@@ -10,8 +10,6 @@
 
 import json
 
-from pecos.engines.hybrid_engine import HybridEngine
-
 from pytket.circuit import Bit, Circuit
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
@@ -471,6 +469,20 @@ def test_condition_multiple_bits() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/215 ."""
     n_bits = 3
     c = Circuit(1, n_bits)
-    c.Rz(0.5, 0, condition_bits=list(range(n_bits)), condition_value=0)
-    phir = pytket_to_phir(c)
-    HybridEngine(qsim="state-vector").run(program=phir)
+    c.Rz(0.5, 0, condition_bits=list(range(n_bits)), condition_value=6)
+    phir = json.loads(pytket_to_phir(c))
+
+    assert phir["ops"][2] == {"//": "IF ([c[0], c[1], c[2]] == 6) THEN Rz(0.5) q[0];"}
+    assert phir["ops"][3]["condition"] == {
+        "cop": "&",
+        "args": [
+            {"cop": "==", "args": [["c", 0], 0]},
+            {
+                "cop": "&",
+                "args": [
+                    {"cop": "==", "args": [["c", 1], 1]},
+                    {"cop": "==", "args": [["c", 2], 1]},
+                ],
+            },
+        ],
+    }
