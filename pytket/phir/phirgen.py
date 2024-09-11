@@ -357,10 +357,13 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
 
 def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     """Construct bitwise condition."""
-    val_bits = deque(map(int, f"{value:0{len(args)}b}"))
+    min_args = 2
+    if len(args) < min_args:
+        msg = "multi_bit_condition requires at least two arguments"
+        raise TypeError(msg)
 
     def nested_cop(cop: str, args: "deque[UnitID]", val_bits: deque[int]) -> JsonDict:
-        if len(args) == 2:  # noqa: PLR2004
+        if len(args) == min_args:
             return {
                 "cop": cop,
                 "args": [
@@ -376,7 +379,7 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
             ],
         }
 
-    return nested_cop("&", deque(args), val_bits)
+    return nested_cop("&", deque(args), deque(map(int, f"{value:0{len(args)}b}")))
 
 
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
