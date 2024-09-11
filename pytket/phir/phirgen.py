@@ -359,7 +359,7 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     """Construct bitwise condition."""
     min_args = 2
     if len(args) < min_args:
-        msg = "multi_bit_condition requires at least two arguments"
+        msg = f"multi_bit_condition requires at least {min_args} arguments"
         raise TypeError(msg)
 
     def nested_cop(cop: str, args: "deque[UnitID]", val_bits: deque[int]) -> JsonDict:
