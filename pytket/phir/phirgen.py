@@ -11,6 +11,7 @@
 import json
 import logging
 import sys
+from collections import deque
 from copy import deepcopy
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, TypeAlias
@@ -356,15 +357,29 @@ def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict
 
 def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     """Construct bitwise condition."""
-    return {
-        "cop": "&",
-        "args": [
-            {"cop": "==", "args": [arg_to_bit(arg), bval]}
-            for (arg, bval) in zip(
-                args[::-1], map(int, f"{value:0{len(args)}b}"), strict=True
-            )
-        ],
-    }
+    min_args = 2
+    if len(args) < min_args:
+        msg = f"multi_bit_condition requires at least {min_args} arguments"
+        raise TypeError(msg)
+
+    def nested_cop(cop: str, args: "deque[UnitID]", val_bits: deque[int]) -> JsonDict:
+        if len(args) == min_args:
+            return {
+                "cop": cop,
+                "args": [
+                    {"cop": "==", "args": [arg_to_bit(args.popleft()), val_bits.pop()]},
+                    {"cop": "==", "args": [arg_to_bit(args.popleft()), val_bits.pop()]},
+                ],
+            }
+        return {
+            "cop": cop,
+            "args": [
+                {"cop": "==", "args": [arg_to_bit(args.popleft()), val_bits.pop()]},
+                nested_cop(cop, args, val_bits),
+            ],
+        }
+
+    return nested_cop("&", deque(args), deque(map(int, f"{value:0{len(args)}b}")))
 
 
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912

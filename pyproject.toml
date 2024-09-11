@@ -8,8 +8,11 @@ name = "pytket-phir"
 description = "A circuit analyzer and translator from pytket to PHIR"
 readme = "README.md"
 requires-python = ">=3.10, <3.13"
-license = {file = "LICENSE"}
-authors = [{name = "Quantinuum"}]
+license = { file = "LICENSE" }
+authors = [{ name = "Quantinuum" }]
+maintainers = [
+  { name = "Kartik Singhal", email = "Kartik.Singhal@quantinuum.com" },
+]
 
 classifiers = [
   "Environment :: Console",
@@ -50,9 +53,7 @@ where = ["."]
 
 [tool.pytest.ini_options]
 addopts = "-s -vv"
-pythonpath = [
-  "."
-]
+pythonpath = ["."]
 log_cli = true
 log_cli_level = "INFO"
 log_level = "DEBUG"
