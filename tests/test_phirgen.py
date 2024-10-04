@@ -486,3 +486,12 @@ def test_condition_multiple_bits() -> None:
             },
         ],
     }
+
+
+def test_unused_classical_registers() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/237 ."""
+    circ = Circuit()
+    _ = circ.add_c_register("a", 1)
+    phir = json.loads(pytket_to_phir(circ))
+
+    assert phir["ops"] != []
