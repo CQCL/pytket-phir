@@ -94,7 +94,7 @@ def test_pytket_with_wasm() -> None:
 
         w = WasmFileHandler(wasm_file.name)
 
-        c = Circuit(6, 6)
+        c = Circuit()
         c0 = c.add_c_register("c0", 3)
         c1 = c.add_c_register("c1", 4)
         c2 = c.add_c_register("c2", 5)

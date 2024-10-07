@@ -35,12 +35,13 @@ from pytket.circuit.logic_exp import (
     RegWiseOp,
 )
 from pytket.unit_id import Bit as tkBit
-from pytket.unit_id import BitRegister
+from pytket.unit_id import BitRegister, QubitRegister
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pytket.unit_id import Qubit, UnitID
+    from pytket.circuit import Circuit
+    from pytket.unit_id import UnitID
 
     from .sharding.shard import Cost, Ordering, ShardLayer
 
@@ -546,60 +547,52 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
     return comment
 
 
-def get_decls(qbits: set["Qubit"], cbits: set[tkBit]) -> list[dict[str, str | int]]:
-    """Format the qvar and cvar define PHIR elements."""
-    qvar_dim: dict[str, int] = {}
-    for qbit in qbits:
-        qvar_dim.setdefault(qbit.reg_name, 0)
-        qvar_dim[qbit.reg_name] += 1
-
-    cvar_dim: dict[str, int] = {}
-    for cbit in cbits:
-        cvar_dim.setdefault(cbit.reg_name, 0)
-        cvar_dim[cbit.reg_name] += 1
-
+def get_decls(
+    qregs: list[QubitRegister], cregs: list[BitRegister]
+) -> list[dict[str, str | int]]:
+    """Get PHIR declarations for qubits and classical variables."""
     decls: list[dict[str, str | int]] = [
         {
             "data": "qvar_define",
             "data_type": "qubits",
-            "variable": qvar,
-            "size": dim,
+            "variable": qreg.name,
+            "size": qreg.size,
         }
-        for qvar, dim in qvar_dim.items()
+        for qreg in qregs
     ]
 
     decls += [
         {
             "data": "cvar_define",
             "data_type": f"i{WORDSIZE}",
-            "variable": cvar,
-            "size": dim,
+            "variable": creg.name,
+            "size": creg.size,
         }
-        for cvar, dim in cvar_dim.items()
-        if cvar != "_w"
+        for creg in cregs
+        if creg.name != "_w"
     ]
 
     return decls
 
 
 def genphir(
-    inp: list[tuple["Ordering", "ShardLayer", "Cost"]], *, machine_ops: bool = True
+    inp: list[tuple["Ordering", "ShardLayer", "Cost"]],
+    circuit: "Circuit",
+    *,
+    machine_ops: bool = True,
 ) -> str:
     """Convert a list of shards to the equivalent PHIR.
 
     Args:
         inp: list of shards
+        circuit: corresponding tket Circuit
         machine_ops: whether to include machine ops
     """
     phir = PHIR_HEADER
     ops: list[JsonDict] = []
 
-    qbits = set()
-    cbits = set()
     for _orders, shard_layer, layer_cost in inp:
         for shard in shard_layer:
-            qbits |= shard.qubits_used
-            cbits |= shard.bits_read | shard.bits_written
             for sub_commands in shard.sub_commands.values():
                 for sc in sub_commands:
                     append_cmd(sc, ops)
@@ -612,7 +605,7 @@ def genphir(
                 },
             )
 
-    decls = get_decls(qbits, cbits)
+    decls = get_decls(circuit.q_registers, circuit.c_registers)
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)
