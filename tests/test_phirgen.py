@@ -51,7 +51,7 @@ def test_simple_cond_classical() -> None:
 
 def test_pytket_classical_only() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/61 ."""
-    c = Circuit(1)
+    c = Circuit()
     a = c.add_c_register("a", 2)
     b = c.add_c_register("b", 3)
 
@@ -106,7 +106,7 @@ def test_pytket_classical_only() -> None:
 
 def test_classicalexpbox() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/86 ."""
-    circ = Circuit(1)
+    circ = Circuit()
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 3)
@@ -122,7 +122,7 @@ def test_classicalexpbox() -> None:
 
 def test_nested_arith() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/87 ."""
-    circ = Circuit(1)
+    circ = Circuit()
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 3)
@@ -138,7 +138,7 @@ def test_nested_arith() -> None:
 
 def test_arith_with_int() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/88 ."""
-    circ = Circuit(1)
+    circ = Circuit()
     a = circ.add_c_register("a", 2)
     circ.add_classicalexpbox_register(a << 1, a.to_list())
 
@@ -152,7 +152,7 @@ def test_arith_with_int() -> None:
 
 def test_bitwise_ops() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/91 ."""
-    circ = Circuit(1)
+    circ = Circuit()
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 1)
@@ -187,7 +187,7 @@ def test_conditional_barrier() -> None:
 
 def test_nested_bitwise_op() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/133 ."""
-    circ = Circuit(4)
+    circ = Circuit()
     a = circ.add_c_register("a", 4)
     b = circ.add_c_register("b", 1)
     circ.add_classicalexpbox_bit(a[0] ^ a[1] ^ a[2] ^ a[3], [b[0]])
@@ -338,7 +338,7 @@ def test_explicit_classical_ops() -> None:
 def test_multi_bit_ops() -> None:
     """Test classical ops added to the circuit via tket multi-bit ops."""
     # Test from https://github.com/CQCL/tket/blob/a2f6fab8a57da8787dfae94764b7c3a8e5779024/pytket/tests/classical_test.py#L107-L112
-    c = Circuit(0, 4)
+    c = Circuit()
     c0 = c.add_c_register("c0", 3)
     c1 = c.add_c_register("c1", 4)
     c2 = c.add_c_register("c2", 5)
@@ -485,4 +485,18 @@ def test_condition_multiple_bits() -> None:
                 ],
             },
         ],
+    }
+
+
+def test_unused_classical_registers() -> None:
+    """From https://github.com/CQCL/pytket-phir/issues/237 ."""
+    circ = Circuit()
+    _ = circ.add_c_register("a", 1)
+    phir = json.loads(pytket_to_phir(circ))
+
+    assert phir["ops"][0] == {
+        "data": "cvar_define",
+        "data_type": "i64",
+        "size": 1,
+        "variable": "a",
     }

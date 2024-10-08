@@ -85,7 +85,7 @@ def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
     assert machine
     shards = Sharder(circuit).shard()
     placed = place_and_route(shards, machine)
-    return json.loads(genphir_parallel(placed, machine))  # type: ignore[misc, no-any-return]
+    return json.loads(genphir_parallel(placed, circuit, machine))  # type: ignore[misc, no-any-return]
 
 
 def get_wat_as_wasm_bytes(wat_file: WatFile) -> bytes:
