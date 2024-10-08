@@ -64,9 +64,9 @@ def pytket_to_phir(circuit: "Circuit", qtm_machine: QtmMachine | None = None) ->
     placed = place_and_route(shards, machine)
     # safety check: never run with parallelization on a 1 qubit circuit
     if machine and len(circuit.qubits) > 1:
-        phir_json = genphir_parallel(placed, machine)
+        phir_json = genphir_parallel(placed, circuit, machine)
     else:
-        phir_json = genphir(placed, machine_ops=bool(machine))
+        phir_json = genphir(placed, circuit, machine_ops=bool(machine))
     if logger.getEffectiveLevel() <= logging.INFO:
         print("PHIR JSON:")
         print(PHIRModel.model_validate_json(phir_json))

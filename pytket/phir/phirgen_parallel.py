@@ -19,6 +19,7 @@ from phir.model import PHIRModel
 from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir
 
 if TYPE_CHECKING:
+    from pytket.circuit import Circuit
     from pytket.unit_id import UnitID
 
     from .machine import Machine
@@ -310,12 +311,15 @@ def adjust_phir_transport_time(ops: list["JsonDict"], machine: "Machine") -> Non
 
 
 def genphir_parallel(
-    inp: list[tuple["Ordering", "ShardLayer", "Cost"]], machine: "Machine"
+    inp: list[tuple["Ordering", "ShardLayer", "Cost"]],
+    circuit: "Circuit",
+    machine: "Machine",
 ) -> str:
     """Convert a list of shards to the equivalent PHIR with parallel gating.
 
     Args:
         inp: list of shards
+        circuit: corresponding tket Circuit
         machine: a QTM machine on which to simulate the circuit
     """
     max_parallel_tq_gates = len(machine.tq_options) // 2
@@ -325,8 +329,6 @@ def genphir_parallel(
     phir["metadata"]["strict_parallelism"] = True
     ops: list[JsonDict] = []
 
-    qbits = set()
-    cbits = set()
     for _orders, shard_layer, layer_cost in inp:
         # within each shard layer, create groups of parallelizable shards
         # squash all the sub-commands into the first shard in the group
@@ -335,8 +337,6 @@ def genphir_parallel(
         )
         for group in shard_groups.values():
             for shard in group:
-                qbits |= shard.qubits_used
-                cbits |= shard.bits_read | shard.bits_written
                 if shard.sub_commands.values():
                     # sub-commands are always sq gates
                     subcmd_groups = process_sub_commands(
@@ -353,7 +353,7 @@ def genphir_parallel(
         )
     adjust_phir_transport_time(ops, machine)
 
-    decls = get_decls(qbits, cbits)
+    decls = get_decls(circuit.q_registers, circuit.c_registers)
 
     phir["ops"] = decls + ops
     PHIRModel.model_validate(phir)
