@@ -10,7 +10,9 @@
 
 import json
 
-from pytket.circuit import Bit, Circuit
+import pytest
+
+from pytket.circuit import Bit, Circuit, Qubit
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
 from pytket.phir.phirgen import WORDSIZE
@@ -500,3 +502,15 @@ def test_unused_classical_registers() -> None:
         "size": 1,
         "variable": "a",
     }
+
+
+def test_reg_decl() -> None:
+    """From https://github.com/CQCL/pytket-phir/pull/238#discussion_r1791725755 ."""
+    circ = Circuit()
+    circ.add_qubit(Qubit(1))
+    circ.add_bit(Bit(1))
+    circ.H(1)
+    circ.Measure(1, 1)
+
+    with pytest.raises(Exception):  # noqa: B017, PT011
+        _ = json.loads(pytket_to_phir(circ))
