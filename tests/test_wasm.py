@@ -12,7 +12,6 @@ import base64
 import hashlib
 import json
 import logging
-from tempfile import NamedTemporaryFile
 
 import pytest
 
@@ -20,7 +19,7 @@ from pytket.circuit import Circuit, Qubit
 from pytket.phir.api import pytket_to_phir, qasm_to_phir
 from pytket.phir.qtm_machine import QtmMachine
 from pytket.qasm.qasm import QASMUnsupportedError
-from pytket.wasm.wasm import WasmFileHandler
+from pytket.wasm.wasm import WasmModuleHandler
 
 from .test_utils import WatFile, get_wat_as_wasm_bytes
 
@@ -86,27 +85,21 @@ def test_qasm_wasm_unsupported_reg_len() -> None:
 
 def test_pytket_with_wasm() -> None:
     """Test whether pytket works with WASM."""
-    wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
-    phir_str: str
-    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
-        wasm_file.write(wasm_bytes)
-        wasm_file.flush()
+    w = WasmModuleHandler(get_wat_as_wasm_bytes(WatFile.testfile))
 
-        w = WasmFileHandler(wasm_file.name)
+    c = Circuit()
+    c0 = c.add_c_register("c0", 3)
+    c1 = c.add_c_register("c1", 4)
+    c2 = c.add_c_register("c2", 5)
 
-        c = Circuit()
-        c0 = c.add_c_register("c0", 3)
-        c1 = c.add_c_register("c1", 4)
-        c2 = c.add_c_register("c2", 5)
+    c.add_wasm_to_reg("multi", w, [c0, c1], [c2])
+    c.add_wasm_to_reg("add_one", w, [c2], [c2])
+    c.add_wasm_to_reg("no_return", w, [c2], [])
+    c.add_wasm_to_reg("no_parameters", w, [], [c2])
 
-        c.add_wasm_to_reg("multi", w, [c0, c1], [c2])
-        c.add_wasm_to_reg("add_one", w, [c2], [c2])
-        c.add_wasm_to_reg("no_return", w, [c2], [])
-        c.add_wasm_to_reg("no_parameters", w, [], [c2])
+    c.add_wasm_to_reg("add_one", w, [c0], [c0], condition=c1[0])
 
-        c.add_wasm_to_reg("add_one", w, [c0], [c0], condition=c1[0])
-
-        phir_str = pytket_to_phir(c, QtmMachine.H1)
+    phir_str = pytket_to_phir(c, QtmMachine.H1)
 
     phir = json.loads(phir_str)
 
@@ -159,44 +152,34 @@ def test_pytket_with_wasm() -> None:
 
 def test_pytket_wasm_unsupported_reg_len() -> None:
     """Test that pytket circuit calling WASM with more than 32-bits fails."""
-    wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
-    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
-        wasm_file.write(wasm_bytes)
-        wasm_file.flush()
+    w = WasmModuleHandler(get_wat_as_wasm_bytes(WatFile.testfile))
 
-        w = WasmFileHandler(wasm_file.name)
+    c = Circuit(0, 33)
+    c0 = c.add_c_register("c0", 33)
 
-        c = Circuit(0, 33)
-        c0 = c.add_c_register("c0", 33)
-
-        with pytest.raises(ValueError, match="only registers of at most 32 bits"):
-            c.add_wasm_to_reg("no_return", w, [c0], [])
+    with pytest.raises(ValueError, match="only registers of at most 32 bits"):
+        c.add_wasm_to_reg("no_return", w, [c0], [])
 
 
 def test_conditional_wasm() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/156 ."""
-    wasm_bytes = get_wat_as_wasm_bytes(WatFile.testfile)
-    with NamedTemporaryFile(suffix=".wasm", delete=False) as wasm_file:
-        wasm_file.write(wasm_bytes)
-        wasm_file.flush()
+    w = WasmModuleHandler(get_wat_as_wasm_bytes(WatFile.testfile))
 
-        w = WasmFileHandler(wasm_file.name)
-
-        c = Circuit(1)
-        areg = c.add_c_register("a", 2)
-        breg = c.add_c_register("b", 1)
-        c.H(0)
-        c.Measure(Qubit(0), breg[0])
-        c.add_wasm(
-            funcname="add_one",
-            filehandler=w,
-            list_i=[1],
-            list_o=[1],
-            args=[areg[0], areg[1]],
-            args_wasm=[0],
-            condition_bits=[breg[0]],
-            condition_value=1,
-        )
+    c = Circuit(1)
+    areg = c.add_c_register("a", 2)
+    breg = c.add_c_register("b", 1)
+    c.H(0)
+    c.Measure(Qubit(0), breg[0])
+    c.add_wasm(
+        funcname="add_one",
+        filehandler=w,
+        list_i=[1],
+        list_o=[1],
+        args=[areg[0], areg[1]],
+        args_wasm=[0],
+        condition_bits=[breg[0]],
+        condition_value=1,
+    )
 
     phir = json.loads(pytket_to_phir(c))
 

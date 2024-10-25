@@ -51,7 +51,7 @@ JsonDict: TypeAlias = dict[str, Any]
 PHIR_HEADER: JsonDict = {
     "format": "PHIR/JSON",
     "version": "0.1.0",
-    "metadata": {"source": f'pytket-phir v{version("pytket-phir").split("+")[0]}'},
+    "metadata": {"source": f"pytket-phir v{version('pytket-phir').split('+')[0]}"},
 }
 
 WASM_WORDSIZE = 32
