@@ -46,6 +46,6 @@ if __name__ == "__main__":
     cost_1 = output[1][2]
     assert cost_1 == 0.0
 
-    phir_json = genphir(output)
+    phir_json = genphir(output, circuit)
 
     print(PHIRModel.model_validate_json(phir_json))  # type: ignore[misc]
