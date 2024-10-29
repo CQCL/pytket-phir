@@ -111,9 +111,7 @@ def assign_cop(
     }
 
 
-def classical_op(
-    exp: LogicExp, *, bitwise: bool = False
-) -> JsonDict | int:  # noqa: PLR0912, PLR0915
+def classical_op(exp: LogicExp, *, bitwise: bool = False) -> JsonDict | int:  # noqa: PLR0912, PLR0915
     """PHIR for classical register operations."""
     match exp.op:
         # Nullary
@@ -254,9 +252,7 @@ def cop_from_op_name(op_name: str) -> str:
     return cop
 
 
-def convert_classicalevalop(
-    op: tk.ClassicalEvalOp, cmd: tk.Command
-) -> JsonDict | None:  # noqa: PLR0912
+def convert_classicalevalop(op: tk.ClassicalEvalOp, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
     """Return PHIR dict for a pytket ClassicalEvalOp."""
     # Exclude conditional bits from args
     args = cmd.args[cmd.op.width :] if isinstance(cmd.op, tk.Conditional) else cmd.args
@@ -397,11 +393,9 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
         case tk.Conditional():
             out = {
                 "block": "if",
-                "condition": (
-                    {"cop": "==", "args": [arg_to_bit(cmd.args[0]), op.value]}
-                    if op.width == 1
-                    else multi_bit_condition(cmd.args[: op.width], op.value)
-                ),
+                "condition": {"cop": "==", "args": [arg_to_bit(cmd.args[0]), op.value]}
+                if op.width == 1
+                else multi_bit_condition(cmd.args[: op.width], op.value),
                 "true_branch": [convert_subcmd(op.op, cmd)],
             }
 
