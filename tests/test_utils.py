@@ -62,11 +62,14 @@ class WatFile(Enum):
     testfile = auto()
 
 
-def get_qasm_as_circuit(qasm_file: QasmFile, use_clexpr: bool = False) -> "Circuit":
+def get_qasm_as_circuit(
+    qasm_file: QasmFile, use_clexpr: bool = False  # noqa: FBT001, FBT002
+) -> "Circuit":
     """Utility function to convert a QASM file to Circuit.
 
     Args:
         qasm_file: enum for a QASM file
+        use_clexpr: convert classical expressions to ClExprOp operations
 
     Returns:
         Corresponding tket circuit

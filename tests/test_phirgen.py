@@ -505,7 +505,8 @@ def test_unused_classical_registers() -> None:
 
 
 @pytest.mark.parametrize("use_clexpr", [False, True])
-def test_classical_0(use_clexpr: bool) -> None:
+def test_classical_0(use_clexpr: bool) -> None:  # noqa: FBT001
+    """Test handling of ClassicalExpBox/ClExprOp."""
     circ = get_qasm_as_circuit(QasmFile.classical0, use_clexpr=use_clexpr)
     phir = json.loads(pytket_to_phir(circ))
     ops = phir["ops"]
@@ -576,7 +577,8 @@ def test_classical_0(use_clexpr: bool) -> None:
 
 
 @pytest.mark.parametrize("use_clexpr", [False, True])
-def test_classical_1(use_clexpr: bool) -> None:
+def test_classical_1(use_clexpr: bool) -> None:  # noqa: FBT001
+    """Test handling of ClassicalExpBox/ClExprOp."""
     circ = get_qasm_as_circuit(QasmFile.classical1, use_clexpr=use_clexpr)
     phir = json.loads(pytket_to_phir(circ))
     ops = phir["ops"]
