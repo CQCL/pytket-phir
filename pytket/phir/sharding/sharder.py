@@ -21,6 +21,7 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.Barrier,
     OpType.SetBits,
     OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
+    OpType.ClExpr,
     OpType.RangePredicate,
     OpType.ExplicitPredicate,
     OpType.ExplicitModifier,

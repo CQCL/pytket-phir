@@ -26,6 +26,8 @@ else:
 import pytket
 import pytket.circuit as tk
 from phir.model import PHIRModel
+from pytket.circuit import ClBitVar, ClExpr, ClOp, ClRegVar
+from pytket.circuit.clexpr import has_reg_output
 from pytket.circuit.logic_exp import (
     BitLogicExp,
     BitWiseOp,
@@ -383,6 +385,78 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     return nested_cop("&", deque(args), deque(map(int, f"{value:0{len(args)}b}")))
 
 
+def phir_from_clexpr_arg(
+    expr_arg: int | ClBitVar | ClRegVar | ClExpr,
+    bit_posn: dict[int, int],
+    reg_posn: dict[int, list[int]],
+    bits: list[tkBit],
+) -> JsonDict | int:
+    """Return PHIR dict for a ClExpr."""
+    if isinstance(expr_arg, int):
+        return expr_arg
+    elif isinstance(expr_arg, ClBitVar):
+        bit: tkBit = bits[bit_posn[expr_arg.index]]
+        return arg_to_bit(bit)
+    elif isinstance(expr_arg, ClRegVar):
+        bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
+        reg_size = len(bits_in_reg)
+        assert reg_size > 0
+        reg_name = bits_in_reg[0].reg_name
+        assert all(bit.reg_name == reg_name for bit in bits_in_reg)
+        assert all(bit.index[0] == i for i, bit in enumerate(bits_in_reg))
+        return reg_name
+    else:
+        assert isinstance(expr_arg, ClExpr)
+        op: ClOp = expr_arg.op
+        match op:
+            case ClOp.BitZero | ClOp.RegZero:
+                return 0
+            case ClOp.BitOne:
+                return 1
+            case ClOp.RegOne:
+                return -1
+            case ClOp.BitAnd | ClOp.RegAnd:
+                cop = "&"
+            case ClOp.BitOr | ClOp.RegOr:
+                cop = "|"
+            case ClOp.BitXor | ClOp.RegXor:
+                cop = "^"
+            case ClOp.BitNot | ClOp.RegNot:
+                cop = "~"
+            case ClOp.RegLsh:
+                cop = "<<"
+            case ClOp.RegRsh:
+                cop = ">>"
+            case ClOp.BitEq | ClOp.RegEq:
+                cop = "=="
+            case ClOp.BitNeq | ClOp.RegNeq:
+                cop = "!="
+            case ClOp.RegLt:
+                cop = "<"
+            case ClOp.RegGt:
+                cop = ">"
+            case ClOp.RegLeq:
+                cop = "<="
+            case ClOp.RegGeq:
+                cop = ">="
+            case ClOp.RegAdd:
+                cop = "+"
+            case ClOp.RegSub:
+                cop = "-"
+            case ClOp.RegMul:
+                cop = "*"
+            case ClOp.RegDiv:
+                cop = "/"
+            case ClOp.RegPow:
+                cop = "**"
+            case _:
+                logging.exception(f"Classical operation {op} unsupported by PHIR")
+        args = [
+            phir_from_clexpr_arg(arg, bit_posn, reg_posn, bits) for arg in expr_arg.args
+        ]
+        return {"cop": cop, "args": args}
+
+
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
     """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
@@ -429,6 +503,25 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
                 case RegLogicExp():
                     rhs = [classical_op(exp)]
                     out = assign_cop([cmd.bits[0].reg_name], rhs)
+
+        case tk.ClExprOp():
+            wexpr: WiredClExpr = op.expr
+            expr: ClExpr = wexpr.expr
+            bit_posn: dict[int, int] = wexpr.bit_posn
+            reg_posn: dict[int, list[int]] = wexpr.reg_posn
+            output_posn: list[int] = wexpr.output_posn
+            args: list[tkBit] = cmd.bits
+
+            # TODO Check that all ClExprOps in the circuit are register-aligned (i.e.
+            # that each register variable, and the register output if applicable,
+            # comprises bits that constitute a complete register in the correct order).
+            # See https://github.com/CQCL/tket/issues/1644.
+
+            rhs = [phir_from_clexpr_arg(expr, bit_posn, reg_posn, args)]
+            if has_reg_output(expr.op):
+                return assign_cop([args[output_posn[0]].reg_name], rhs)
+            else:
+                return assign_cop([arg_to_bit(args[output_posn[0]])], rhs)
 
         case tk.ClassicalEvalOp():
             return convert_classicalevalop(op, cmd)
