@@ -390,7 +390,7 @@ def phir_from_clexpr_arg(  # noqa: PLR0911, PLR0912, PLR0915
     bit_posn: dict[int, int],
     reg_posn: dict[int, list[int]],
     bits: list[tkBit],
-) -> JsonDict | int:
+) -> int | str | list[str | int] | JsonDict:
     """Return PHIR dict for a ClExpr."""
     if isinstance(expr_arg, int):
         return expr_arg
@@ -465,6 +465,7 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
         return convert_gate(op, cmd)
 
     out: JsonDict | None = None
+    rhs: list[int | str | list[str | int] | JsonDict] = []
     match op:  # non-quantum op
         case tk.Conditional():
             out = {
@@ -512,17 +513,17 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
             bit_posn: dict[int, int] = wexpr.bit_posn
             reg_posn: dict[int, list[int]] = wexpr.reg_posn
             output_posn: list[int] = wexpr.output_posn
-            args: list[tkBit] = cmd.bits
+            cmd_args: list[tkBit] = cmd.bits
 
             # TODO(AE): Check that all ClExprOps in the circuit are register-aligned
             # (i.e. that each register variable, and the register output if applicable,
             # comprises bits that constitute a complete register in the correct order).
             # https://github.com/CQCL/tket/issues/1644
 
-            rhs = [phir_from_clexpr_arg(expr, bit_posn, reg_posn, args)]
+            rhs = [phir_from_clexpr_arg(expr, bit_posn, reg_posn, cmd_args)]
             if has_reg_output(expr.op):
-                return assign_cop([args[output_posn[0]].reg_name], rhs)
-            return assign_cop([arg_to_bit(args[output_posn[0]])], rhs)
+                return assign_cop([cmd_args[output_posn[0]].reg_name], rhs)
+            return assign_cop([arg_to_bit(cmd_args[output_posn[0]])], rhs)
 
         case tk.ClassicalEvalOp():
             return convert_classicalevalop(op, cmd)
