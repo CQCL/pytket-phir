@@ -53,6 +53,8 @@ class QasmFile(Enum):
     arbitrary_qreg_names = auto()
     group_ordering = auto()
     sleep = auto()
+    classical0 = auto()
+    classical1 = auto()
 
 
 class WatFile(Enum):
@@ -60,18 +62,25 @@ class WatFile(Enum):
     testfile = auto()
 
 
-def get_qasm_as_circuit(qasm_file: QasmFile) -> "Circuit":
+def get_qasm_as_circuit(
+    qasm_file: QasmFile,
+    *,
+    use_clexpr: bool = False,
+) -> "Circuit":
     """Utility function to convert a QASM file to Circuit.
 
     Args:
         qasm_file: enum for a QASM file
+        use_clexpr: convert classical expressions to ClExprOp operations
 
     Returns:
         Corresponding tket circuit
     """
     this_dir = Path(Path(__file__).resolve()).parent
     return circuit_from_qasm(
-        f"{this_dir}/data/qasm/{qasm_file.name}.qasm", maxwidth=WORDSIZE
+        f"{this_dir}/data/qasm/{qasm_file.name}.qasm",
+        maxwidth=WORDSIZE,
+        use_clexpr=use_clexpr,
     )
 
 

@@ -26,6 +26,8 @@ else:
 import pytket
 import pytket.circuit as tk
 from phir.model import PHIRModel
+from pytket.circuit import ClBitVar, ClExpr, ClOp, ClRegVar
+from pytket.circuit.clexpr import has_reg_output
 from pytket.circuit.logic_exp import (
     BitLogicExp,
     BitWiseOp,
@@ -40,7 +42,7 @@ from pytket.unit_id import BitRegister, QubitRegister
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pytket.circuit import Circuit
+    from pytket.circuit import Circuit, WiredClExpr
     from pytket.unit_id import UnitID
 
     from .sharding.shard import Cost, Ordering, ShardLayer
@@ -383,12 +385,98 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     return nested_cop("&", deque(args), deque(map(int, f"{value:0{len(args)}b}")))
 
 
+def get_cop_from_op(op: ClOp) -> str | int:  # noqa: PLR0912
+    """Get PHIR classical op name from ClOp."""
+    cop: str | int
+    match op:
+        case ClOp.BitZero | ClOp.RegZero:
+            cop = 0
+        case ClOp.BitOne:
+            cop = 1
+        case ClOp.RegOne:
+            cop = -1
+        case ClOp.BitAnd | ClOp.RegAnd:
+            cop = "&"
+        case ClOp.BitOr | ClOp.RegOr:
+            cop = "|"
+        case ClOp.BitXor | ClOp.RegXor:
+            cop = "^"
+        case ClOp.BitNot | ClOp.RegNot:
+            cop = "~"
+        case ClOp.RegLsh:
+            cop = "<<"
+        case ClOp.RegRsh:
+            cop = ">>"
+        case ClOp.BitEq | ClOp.RegEq:
+            cop = "=="
+        case ClOp.BitNeq | ClOp.RegNeq:
+            cop = "!="
+        case ClOp.RegLt:
+            cop = "<"
+        case ClOp.RegGt:
+            cop = ">"
+        case ClOp.RegLeq:
+            cop = "<="
+        case ClOp.RegGeq:
+            cop = ">="
+        case ClOp.RegAdd:
+            cop = "+"
+        case ClOp.RegSub:
+            cop = "-"
+        case ClOp.RegMul:
+            cop = "*"
+        case ClOp.RegDiv:
+            cop = "/"
+        case ClOp.RegPow:
+            cop = "**"
+        case _:
+            logging.exception("Classical operation %s unsupported by PHIR", str(op))
+            raise NotImplementedError(op)
+    return cop
+
+
+def phir_from_clexpr_arg(
+    expr_arg: int | ClBitVar | ClRegVar | ClExpr,
+    bit_posn: dict[int, int],
+    reg_posn: dict[int, list[int]],
+    bits: list[tkBit],
+) -> int | str | list[str | int] | JsonDict:
+    """Return PHIR dict for a ClExpr."""
+    match expr_arg:
+        case int():
+            return expr_arg
+        case ClBitVar():
+            bit: tkBit = bits[bit_posn[expr_arg.index]]
+            return arg_to_bit(bit)
+        case ClRegVar():
+            bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
+            reg_size = len(bits_in_reg)
+            if reg_size == 0:
+                logging.exception("Register variable with no bits")
+            reg_name = bits_in_reg[0].reg_name
+            if any(bit.reg_name != reg_name for bit in bits_in_reg) or any(
+                bit.index[0] != i for i, bit in enumerate(bits_in_reg)
+            ):
+                logging.exception("Register variable not aligned with any register")
+            return reg_name
+    assert isinstance(expr_arg, ClExpr)  # noqa: S101
+
+    cop = get_cop_from_op(expr_arg.op)
+    if isinstance(cop, int):
+        return cop
+    args = [
+        phir_from_clexpr_arg(arg, bit_posn, reg_posn, bits) for arg in expr_arg.args
+    ]
+    return {"cop": cop, "args": args}
+
+
 def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0912
     """Return PHIR dict given a tket op and its arguments."""
     if op.is_gate():
         return convert_gate(op, cmd)
 
     out: JsonDict | None = None
+    rhs: list[int | str | list[str | int] | JsonDict] = []
     match op:  # non-quantum op
         case tk.Conditional():
             out = {
@@ -429,6 +517,24 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
                 case RegLogicExp():
                     rhs = [classical_op(exp)]
                     out = assign_cop([cmd.bits[0].reg_name], rhs)
+
+        case tk.ClExprOp():
+            wexpr: WiredClExpr = op.expr
+            expr: ClExpr = wexpr.expr
+            bit_posn: dict[int, int] = wexpr.bit_posn
+            reg_posn: dict[int, list[int]] = wexpr.reg_posn
+            output_posn: list[int] = wexpr.output_posn
+            cmd_args: list[tkBit] = cmd.bits
+
+            # TODO(AE): Check that all ClExprOps in the circuit are register-aligned
+            # (i.e. that each register variable, and the register output if applicable,
+            # comprises bits that constitute a complete register in the correct order).
+            # https://github.com/CQCL/tket/issues/1644
+
+            rhs = [phir_from_clexpr_arg(expr, bit_posn, reg_posn, cmd_args)]
+            if has_reg_output(expr.op):
+                return assign_cop([cmd_args[output_posn[0]].reg_name], rhs)
+            return assign_cop([arg_to_bit(cmd_args[output_posn[0]])], rhs)
 
         case tk.ClassicalEvalOp():
             return convert_classicalevalop(op, cmd)
@@ -543,6 +649,11 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
                     comment = str(cmd.bits[0]) + " = " + str(op.get_exp())
                 case RegLogicExp():
                     comment = str(cmd.bits[0].reg_name) + " = " + str(op.get_exp())
+
+        case tk.ClExprOp():
+            comment = (
+                str(cmd).split(";")[0] + " of the form " + str(op.expr).split(" [")[0]
+            )
 
     return comment
 

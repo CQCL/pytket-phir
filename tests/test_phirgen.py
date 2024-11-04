@@ -10,6 +10,8 @@
 
 import json
 
+import pytest
+
 from pytket.circuit import Bit, Circuit
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
@@ -500,3 +502,112 @@ def test_unused_classical_registers() -> None:
         "size": 1,
         "variable": "a",
     }
+
+
+@pytest.mark.parametrize("use_clexpr", [False, True])
+def test_classical_0(*, use_clexpr: bool) -> None:
+    """Test handling of ClassicalExpBox/ClExprOp."""
+    circ = get_qasm_as_circuit(QasmFile.classical0, use_clexpr=use_clexpr)
+    phir = json.loads(pytket_to_phir(circ))
+    ops = phir["ops"]
+    assert {
+        "cop": "=",
+        "returns": ["d"],
+        "args": [{"cop": "<<", "args": ["a", 1]}],
+    } in ops
+    assert {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["tk_SCRATCH_BIT", 0], 0]},
+        "true_branch": [
+            {
+                "cop": "=",
+                "returns": [["c", 1]],
+                "args": [
+                    {
+                        "cop": "|",
+                        "args": [
+                            {"cop": "&", "args": [["b", 1], ["a", 1]]},
+                            ["a", 0],
+                        ],
+                    }
+                ],
+            }
+        ],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["c"],
+        "args": [{"cop": "&", "args": ["b", "a"]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["b"],
+        "args": [{"cop": "+", "args": ["a", "b"]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": [["b", 1]],
+        "args": [{"cop": "^", "args": [["b", 0], {"cop": "~", "args": [["b", 2]]}]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["c"],
+        "args": [{"cop": "-", "args": ["a", {"cop": "*", "args": ["b", "c"]}]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["d"],
+        "args": [{"cop": "<<", "args": ["a", 1]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["d"],
+        "args": [{"cop": ">>", "args": ["c", 2]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["b"],
+        "args": [{"cop": "*", "args": [{"cop": "*", "args": ["a", "c"]}, "b"]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": [["d", 0]],
+        "args": [{"cop": "^", "args": [["a", 0], 1]}],
+    } in ops
+
+
+@pytest.mark.parametrize("use_clexpr", [False, True])
+def test_classical_1(*, use_clexpr: bool) -> None:
+    """Test handling of ClassicalExpBox/ClExprOp."""
+    circ = get_qasm_as_circuit(QasmFile.classical1, use_clexpr=use_clexpr)
+    phir = json.loads(pytket_to_phir(circ))
+    ops = phir["ops"]
+    assert {
+        "block": "if",
+        "condition": {"cop": "==", "args": [["tk_SCRATCH_BIT", 0], 0]},
+        "true_branch": [
+            {
+                "cop": "=",
+                "returns": [["c", 1]],
+                "args": [
+                    {
+                        "cop": "|",
+                        "args": [
+                            {"cop": "&", "args": [["b", 1], ["a", 1]]},
+                            ["a", 0],
+                        ],
+                    }
+                ],
+            }
+        ],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": ["c"],
+        "args": [{"cop": "|", "args": [{"cop": "&", "args": ["b", "a"]}, "d"]}],
+    } in ops
+    assert {
+        "cop": "=",
+        "returns": [["d", 0]],
+        "args": [{"cop": "^", "args": [["a", 0], 1]}],
+    } in ops
