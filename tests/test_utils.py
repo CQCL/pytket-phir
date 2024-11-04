@@ -64,7 +64,8 @@ class WatFile(Enum):
 
 def get_qasm_as_circuit(
     qasm_file: QasmFile,
-    use_clexpr: bool = False,  # noqa: FBT001, FBT002
+    *,
+    use_clexpr: bool = False,
 ) -> "Circuit":
     """Utility function to convert a QASM file to Circuit.
 

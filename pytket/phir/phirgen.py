@@ -385,38 +385,16 @@ def multi_bit_condition(args: "list[UnitID]", value: int) -> JsonDict:
     return nested_cop("&", deque(args), deque(map(int, f"{value:0{len(args)}b}")))
 
 
-def phir_from_clexpr_arg(  # noqa: PLR0911, PLR0912, PLR0915
-    expr_arg: int | ClBitVar | ClRegVar | ClExpr,
-    bit_posn: dict[int, int],
-    reg_posn: dict[int, list[int]],
-    bits: list[tkBit],
-) -> int | str | list[str | int] | JsonDict:
-    """Return PHIR dict for a ClExpr."""
-    if isinstance(expr_arg, int):
-        return expr_arg
-    if isinstance(expr_arg, ClBitVar):
-        bit: tkBit = bits[bit_posn[expr_arg.index]]
-        return arg_to_bit(bit)
-    if isinstance(expr_arg, ClRegVar):
-        bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
-        reg_size = len(bits_in_reg)
-        if reg_size == 0:
-            logging.exception("Register variable with no bits")
-        reg_name = bits_in_reg[0].reg_name
-        if any(bit.reg_name != reg_name for bit in bits_in_reg) or any(
-            bit.index[0] != i for i, bit in enumerate(bits_in_reg)
-        ):
-            logging.exception("Register variable not aligned with any register")
-        return reg_name
-    assert isinstance(expr_arg, ClExpr)  # noqa: S101
-    op: ClOp = expr_arg.op
+def get_cop_from_op(op: ClOp) -> str | int:  # noqa: PLR0912
+    """Get PHIR classical op name from ClOp."""
+    cop: str | int
     match op:
         case ClOp.BitZero | ClOp.RegZero:
-            return 0
+            cop = 0
         case ClOp.BitOne:
-            return 1
+            cop = 1
         case ClOp.RegOne:
-            return -1
+            cop = -1
         case ClOp.BitAnd | ClOp.RegAnd:
             cop = "&"
         case ClOp.BitOr | ClOp.RegOr:
@@ -453,6 +431,39 @@ def phir_from_clexpr_arg(  # noqa: PLR0911, PLR0912, PLR0915
             cop = "**"
         case _:
             logging.exception("Classical operation %s unsupported by PHIR", str(op))
+            raise NotImplementedError(op)
+    return cop
+
+
+def phir_from_clexpr_arg(
+    expr_arg: int | ClBitVar | ClRegVar | ClExpr,
+    bit_posn: dict[int, int],
+    reg_posn: dict[int, list[int]],
+    bits: list[tkBit],
+) -> int | str | list[str | int] | JsonDict:
+    """Return PHIR dict for a ClExpr."""
+    match expr_arg:
+        case int():
+            return expr_arg
+        case ClBitVar():
+            bit: tkBit = bits[bit_posn[expr_arg.index]]
+            return arg_to_bit(bit)
+        case ClRegVar():
+            bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
+            reg_size = len(bits_in_reg)
+            if reg_size == 0:
+                logging.exception("Register variable with no bits")
+            reg_name = bits_in_reg[0].reg_name
+            if any(bit.reg_name != reg_name for bit in bits_in_reg) or any(
+                bit.index[0] != i for i, bit in enumerate(bits_in_reg)
+            ):
+                logging.exception("Register variable not aligned with any register")
+            return reg_name
+    assert isinstance(expr_arg, ClExpr)  # noqa: S101
+
+    cop = get_cop_from_op(expr_arg.op)
+    if isinstance(cop, int):
+        return cop
     args = [
         phir_from_clexpr_arg(arg, bit_posn, reg_posn, bits) for arg in expr_arg.args
     ]
@@ -638,6 +649,11 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
                     comment = str(cmd.bits[0]) + " = " + str(op.get_exp())
                 case RegLogicExp():
                     comment = str(cmd.bits[0].reg_name) + " = " + str(op.get_exp())
+
+        case tk.ClExprOp():
+            comment = (
+                str(cmd).split(";")[0] + " of the form " + str(op.expr).split(" [")[0]
+            )
 
     return comment
 
