@@ -459,9 +459,7 @@ def phir_from_clexpr_arg(
             ):
                 logging.exception("Register variable not aligned with any register")
             return reg_name
-    if not isinstance(expr_arg, ClExpr):
-        msg = f"Invalid expression argument: {expr_arg}"
-        raise TypeError(msg)
+    assert isinstance(expr_arg, ClExpr)  # noqa: S101
 
     cop = get_cop_from_op(expr_arg.op)
     if isinstance(cop, int):
