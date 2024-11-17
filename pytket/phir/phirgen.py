@@ -197,7 +197,7 @@ def convert_gate(op: tk.Op, cmd: tk.Command) -> JsonDict | None:
         if op.type == tk.OpType.Phase:
             # ignore global phase
             return {"mop": "Skip"}
-        logging.exception("Gate %s unsupported by PHIR", op.get_name())
+        logger.exception("Gate %s unsupported by PHIR", op.get_name())
         raise
 
     angles = (op.params, "pi") if op.params else None
@@ -430,7 +430,7 @@ def get_cop_from_op(op: ClOp) -> str | int:  # noqa: PLR0912
         case ClOp.RegPow:
             cop = "**"
         case _:
-            logging.exception("Classical operation %s unsupported by PHIR", str(op))
+            logger.exception("Classical operation %s unsupported by PHIR", str(op))
             raise NotImplementedError(op)
     return cop
 
@@ -452,12 +452,12 @@ def phir_from_clexpr_arg(
             bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
             reg_size = len(bits_in_reg)
             if reg_size == 0:
-                logging.exception("Register variable with no bits")
+                logger.exception("Register variable with no bits")
             reg_name = bits_in_reg[0].reg_name
             if any(bit.reg_name != reg_name for bit in bits_in_reg) or any(
                 bit.index[0] != i for i, bit in enumerate(bits_in_reg)
             ):
-                logging.exception("Register variable not aligned with any register")
+                logger.exception("Register variable not aligned with any register")
             return reg_name
     assert isinstance(expr_arg, ClExpr)  # noqa: S101
 
