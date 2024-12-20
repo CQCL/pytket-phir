@@ -78,7 +78,7 @@ def test_qasm_wasm_unsupported_reg_len() -> None:
 
     with pytest.raises(
         QASMUnsupportedError,
-        match="limited to at most 32-bit|try setting the `maxwidth` parameter",
+        match=r"limited to at most 32-bit|try setting the `maxwidth` parameter",
     ):
         qasm_to_phir(qasm, QtmMachine.H1, wasm_bytes=wasm_bytes)
 
