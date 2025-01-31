@@ -34,11 +34,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "projectq==0.8.0",
-  "pydata_sphinx_theme==0.16.1",
+  "networkx<3",
+  "pre-commit==4.1.0",
+  "pydata-sphinx-theme>=0.16.1",
   "pytest==8.3.4",
-  "quantum-pecos>=0.6.0.dev2",
-  "sphinx==8.1.3",
+  "sphinx>=8.1.3",
 ]
 
 [project.scripts]
@@ -48,6 +48,9 @@ phirc = "pytket.phir.cli:main"
 Changelog = "https://github.com/CQCL/pytket-phir/blob/main/CHANGELOG.md"
 Documentation = "https://cqcl.github.io/pytket-phir/"
 Repository = "https://github.com/CQCL/pytket-phir.git"
+
+[project.optional-dependencies]
+phirc = ["projectq>=0.8.0", "quantum-pecos>=0.6.0.dev2"]
 
 [tool.setuptools.packages.find]
 where = ["."]

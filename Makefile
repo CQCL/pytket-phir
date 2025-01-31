@@ -6,6 +6,9 @@ install:
 dev:
 	uv pip install -e .
 
+dev-all:
+	uv pip install -e .[phirc]
+
 tests:
 	uv run python tests/e2e_test.py
 	uv run pytest -s -x -vv tests/test*.py
