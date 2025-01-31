@@ -48,21 +48,12 @@ options:
 Clone the repository and run:
 
 ```sh
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip setuptools
-pip install -r requirements.txt
-pre-commit install
-```
-
-Then, install the project using:
-
-```sh
-pip install -e .
+uv sync
+uv run pre-commit install
 ```
 
 See `Makefile` for other useful commands.
 
 ## Testing
 
-Issue `pytest` from the root directory.
+Issue `make tests` from the root directory.
