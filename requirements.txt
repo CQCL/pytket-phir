@@ -6,7 +6,7 @@ pre-commit==4.1.0
 pydata_sphinx_theme==0.16.1
 pytest==8.3.4
 pytket==1.39.0
-ruff==0.9.3
+ruff==0.9.4
 setuptools_scm==8.1.0
 wasmtime==29.0.0
 wheel==0.45.1
