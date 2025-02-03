@@ -38,6 +38,7 @@ jobs:
       run: |
         uv run pytest
     - name: Sphinx documentation build
+      if: ${{ matrix.os != 'windows-latest' }}
       run: |
         make docs
     - name: Deploy to GitHub Pages
