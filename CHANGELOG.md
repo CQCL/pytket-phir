@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2025-02-04
+
+* Constrain to pytket 1.x. in https://github.com/CQCL/pytket-phir/pull/281
+* ci: check deps monthly, not weekly in https://github.com/CQCL/pytket-phir/pull/282
+* build: migrate to uv by in https://github.com/CQCL/pytket-phir/pull/284
+
+## [0.9.1] - 2024-11-05
+
+### Added
+
+* feat: allow Python 3.13, also require newer wasmtime, phir in https://github.com/CQCL/pytket-phir/pull/255
+
 ## [0.9.0] - 2024-11-04
 
 ### Fixed
@@ -238,6 +250,8 @@ First release.
 [0.8.0]: https://github.com/CQCL/pytket-phir/compare/v0.7.3...v0.8.0
 [0.8.1]: https://github.com/CQCL/pytket-phir/compare/v0.8.0...v0.8.1
 [0.9.0]: https://github.com/CQCL/pytket-phir/compare/v0.8.1...v0.9.0
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.9.0...HEAD
+[0.9.1]: https://github.com/CQCL/pytket-phir/compare/v0.9.0...v0.9.1
+[0.9.2]: https://github.com/CQCL/pytket-phir/compare/v0.9.1...v0.9.2
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.9.2...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
