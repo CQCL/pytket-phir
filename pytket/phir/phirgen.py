@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-JsonDict: TypeAlias = dict[str, Any]
+JsonDict: TypeAlias = dict[str, Any]  # type: ignore[explicit-any]
 PHIR_HEADER: JsonDict = {
     "format": "PHIR/JSON",
     "version": "0.1.0",

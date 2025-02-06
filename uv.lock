@@ -1003,7 +1003,7 @@ wheels = [
 
 [[package]]
 name = "pytket-phir"
-version = "0.9.2.dev28+gc6dfeef.d20250131"
+version = "0.9.3.dev0+g679f9d9.d20250206"
 source = { editable = "." }
 dependencies = [
     { name = "phir" },
