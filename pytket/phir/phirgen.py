@@ -430,7 +430,7 @@ def get_cop_from_op(op: ClOp) -> str | int:  # noqa: PLR0912
         case ClOp.RegPow:
             cop = "**"
         case _:
-            logger.exception("Classical operation %s unsupported by PHIR", str(op))
+            logger.error("Classical operation %s unsupported by PHIR", str(op))
             raise NotImplementedError(op)
     return cop
 
@@ -452,12 +452,12 @@ def phir_from_clexpr_arg(
             bits_in_reg = [bits[i] for i in reg_posn[expr_arg.index]]
             reg_size = len(bits_in_reg)
             if reg_size == 0:
-                logger.exception("Register variable with no bits")
+                logger.error("Register variable with no bits")
             reg_name = bits_in_reg[0].reg_name
             if any(bit.reg_name != reg_name for bit in bits_in_reg) or any(
                 bit.index[0] != i for i, bit in enumerate(bits_in_reg)
             ):
-                logger.exception("Register variable not aligned with any register")
+                logger.error("Register variable not aligned with any register")
             return reg_name
     assert isinstance(expr_arg, ClExpr)  # noqa: S101
 
