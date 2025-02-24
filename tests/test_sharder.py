@@ -348,7 +348,7 @@ class TestSharder:
         assert shards[1].depends_upon == {shards[0].ID}
 
         # shard 2
-        assert shards[2].primary_command.op.type == OpType.ClassicalExpBox
+        assert shards[2].primary_command.op.type == OpType.ClExpr
         assert len(shards[2].sub_commands.items()) == 0
         assert not shards[2].qubits_used
         assert shards[2].bits_written == {
@@ -374,7 +374,7 @@ class TestSharder:
         assert shards[2].depends_upon == {shards[0].ID, shards[1].ID}
 
         # shard 2
-        assert shards[3].primary_command.op.type == OpType.ClassicalExpBox
+        assert shards[3].primary_command.op.type == OpType.ClExpr
         assert len(shards[3].sub_commands.items()) == 0
         assert not shards[3].qubits_used
         assert shards[3].bits_written == {
