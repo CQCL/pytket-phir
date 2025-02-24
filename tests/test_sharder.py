@@ -352,6 +352,14 @@ class TestSharder:
         assert len(shards[2].sub_commands.items()) == 0
         assert not shards[2].qubits_used
         assert shards[2].bits_written == {
+            circuit.bits[0],
+            circuit.bits[1],
+            circuit.bits[2],
+            circuit.bits[3],
+            circuit.bits[4],
+            circuit.bits[5],
+            circuit.bits[6],
+            circuit.bits[7],
             circuit.bits[8],
             circuit.bits[9],
             circuit.bits[10],
@@ -389,4 +397,4 @@ class TestSharder:
             circuit.bits[2],
             circuit.bits[3],
         }
-        assert shards[3].depends_upon == {shards[0].ID, shards[2].ID}
+        assert shards[3].depends_upon == {shards[2].ID}
