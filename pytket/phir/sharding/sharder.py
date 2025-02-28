@@ -20,7 +20,6 @@ SHARD_TRIGGER_OP_TYPES = [
     OpType.Reset,
     OpType.Barrier,
     OpType.SetBits,
-    OpType.ClassicalExpBox,  # some classical operations are rolled up into a box
     OpType.ClExpr,
     OpType.RangePredicate,
     OpType.ExplicitPredicate,

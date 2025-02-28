@@ -10,9 +10,8 @@
 
 import json
 
-import pytest
-
 from pytket.circuit import Bit, Circuit
+from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
 from pytket.phir.api import pytket_to_phir
 from pytket.phir.phirgen import WORDSIZE
@@ -106,13 +105,14 @@ def test_pytket_classical_only() -> None:
     }
 
 
-def test_classicalexpbox() -> None:
+def test_clexpr() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/86 ."""
     circ = Circuit()
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 3)
-    circ.add_classicalexpbox_register(a + b, c.to_list())
+    wexpr, args = wired_clexpr_from_logic_exp(a + b, c.to_list())
+    circ.add_clexpr(wexpr, args)
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][4] == {
@@ -128,7 +128,8 @@ def test_nested_arith() -> None:
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 3)
-    circ.add_classicalexpbox_register(a + b // c, c.to_list())
+    wexpr, args = wired_clexpr_from_logic_exp(a + b // c, c.to_list())
+    circ.add_clexpr(wexpr, args)
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][4] == {
@@ -142,7 +143,8 @@ def test_arith_with_int() -> None:
     """From https://github.com/CQCL/pytket-phir/issues/88 ."""
     circ = Circuit()
     a = circ.add_c_register("a", 2)
-    circ.add_classicalexpbox_register(a << 1, a.to_list())
+    wexpr, args = wired_clexpr_from_logic_exp(a << 1, a.to_list())
+    circ.add_clexpr(wexpr, args)
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][2] == {
@@ -158,8 +160,8 @@ def test_bitwise_ops() -> None:
     a = circ.add_c_register("a", 2)
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 1)
-    expr = a[0] ^ b[0]
-    circ.add_classicalexpbox_bit(expr, [c[0]])
+    wexpr, args = wired_clexpr_from_logic_exp(a[0] ^ b[0], [c[0]])
+    circ.add_clexpr(wexpr, args)
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][4] == {
@@ -192,7 +194,8 @@ def test_nested_bitwise_op() -> None:
     circ = Circuit()
     a = circ.add_c_register("a", 4)
     b = circ.add_c_register("b", 1)
-    circ.add_classicalexpbox_bit(a[0] ^ a[1] ^ a[2] ^ a[3], [b[0]])
+    wexpr, args = wired_clexpr_from_logic_exp(a[0] ^ a[1] ^ a[2] ^ a[3], [b[0]])
+    circ.add_clexpr(wexpr, args)
 
     phir = json.loads(pytket_to_phir(circ))
     assert phir["ops"][3] == {
@@ -504,10 +507,9 @@ def test_unused_classical_registers() -> None:
     }
 
 
-@pytest.mark.parametrize("use_clexpr", [False, True])
-def test_classical_0(*, use_clexpr: bool) -> None:
-    """Test handling of ClassicalExpBox/ClExprOp."""
-    circ = get_qasm_as_circuit(QasmFile.classical0, use_clexpr=use_clexpr)
+def test_classical_0() -> None:
+    """Test handling of ClExprOp."""
+    circ = get_qasm_as_circuit(QasmFile.classical0)
     phir = json.loads(pytket_to_phir(circ))
     ops = phir["ops"]
     assert {
@@ -576,10 +578,9 @@ def test_classical_0(*, use_clexpr: bool) -> None:
     } in ops
 
 
-@pytest.mark.parametrize("use_clexpr", [False, True])
-def test_classical_1(*, use_clexpr: bool) -> None:
-    """Test handling of ClassicalExpBox/ClExprOp."""
-    circ = get_qasm_as_circuit(QasmFile.classical1, use_clexpr=use_clexpr)
+def test_classical_1() -> None:
+    """Test handling of ClExprOp."""
+    circ = get_qasm_as_circuit(QasmFile.classical1)
     phir = json.loads(pytket_to_phir(circ))
     ops = phir["ops"]
     assert {

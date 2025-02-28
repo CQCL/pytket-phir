@@ -33,7 +33,6 @@ from pytket.circuit.logic_exp import (
     BitWiseOp,
     Constant,
     LogicExp,
-    RegLogicExp,
     RegWiseOp,
 )
 from pytket.unit_id import Bit as tkBit
@@ -508,16 +507,6 @@ def convert_subcmd(op: tk.Op, cmd: tk.Command) -> JsonDict | None:  # noqa: PLR0
                     "args": [arg_to_bit(qbit) for qbit in cmd.qubits],
                 }
 
-        case tk.ClassicalExpBox():
-            exp = op.get_exp()
-            match exp:
-                case BitLogicExp():
-                    rhs = [classical_op(exp, bitwise=True)]
-                    out = assign_cop([arg_to_bit(cmd.bits[0])], rhs)
-                case RegLogicExp():
-                    rhs = [classical_op(exp)]
-                    out = assign_cop([cmd.bits[0].reg_name], rhs)
-
         case tk.ClExprOp():
             wexpr: WiredClExpr = op.expr
             expr: ClExpr = wexpr.expr
@@ -641,14 +630,6 @@ def make_comment_text(cmd: tk.Command, op: tk.Op) -> str:
 
         case tk.BarrierOp():
             comment = op.data + " " + str(cmd.args[0]) + ";" if op.data else str(cmd)
-
-        case tk.ClassicalExpBox():
-            exp = op.get_exp()
-            match exp:
-                case BitLogicExp():
-                    comment = str(cmd.bits[0]) + " = " + str(op.get_exp())
-                case RegLogicExp():
-                    comment = str(cmd.bits[0].reg_name) + " = " + str(op.get_exp())
 
         case tk.ClExprOp():
             comment = (
