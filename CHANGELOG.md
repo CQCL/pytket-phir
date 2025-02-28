@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-02-28
+
+* Update to pytket 2 by @cqc-alec in https://github.com/CQCL/pytket-phir/pull/289
+* chore: mypy 15 requires `explicit-any` ignore by @qartik in https://github.com/CQCL/pytket-phir/pull/287
+* ci: run pru monthly, update ruff, impl fixes by @qartik in https://github.com/CQCL/pytket-phir/pull/288
+
 ## [0.9.2] - 2025-02-04
 
 * Constrain to pytket 1.x. in https://github.com/CQCL/pytket-phir/pull/281
@@ -252,6 +258,7 @@ First release.
 [0.9.0]: https://github.com/CQCL/pytket-phir/compare/v0.8.1...v0.9.0
 [0.9.1]: https://github.com/CQCL/pytket-phir/compare/v0.9.0...v0.9.1
 [0.9.2]: https://github.com/CQCL/pytket-phir/compare/v0.9.1...v0.9.2
-[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.9.2...HEAD
+[0.10.0]: https://github.com/CQCL/pytket-phir/compare/v0.9.2...v0.10.0
+[unreleased]: https://github.com/CQCL/pytket-phir/compare/v0.10.0...HEAD
 
 <!-- markdownlint-configure-file {"MD024": {"siblings_only" : true}, "MD034": false} -->
