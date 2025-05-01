@@ -62,8 +62,8 @@ def test_pytket_classical_only() -> None:
         [Bit("b", 2), Bit("a", 1)], [Bit("a", 0), Bit("b", 0)], condition=Bit("b", 1)
     )
     c.add_c_copybits(
-        [Bit("a", 0), Bit("a", 1)],  # type: ignore[list-item] # overloaded function
-        [Bit("b", 0), Bit("b", 1)],  # type: ignore[list-item] # overloaded function
+        [Bit("a", 0), Bit("a", 1)],
+        [Bit("b", 0), Bit("b", 1)],
         condition_bits=[Bit("b", 1), Bit("b", 2)],
         condition_value=2,
     )
