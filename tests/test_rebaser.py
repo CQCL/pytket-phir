@@ -9,6 +9,7 @@
 import logging
 
 from pytket.circuit import Circuit, OpType
+
 from pytket.phir.qtm_machine import QtmMachine
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 

@@ -13,10 +13,11 @@ import json
 from pytket.circuit import Bit, Circuit
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
 from pytket.circuit.logic_exp import BitWiseOp, create_bit_logic_exp
-from pytket.phir.api import pytket_to_phir
-from pytket.phir.phirgen import WORDSIZE
 from pytket.qasm.qasm import circuit_from_qasm_str
 from pytket.unit_id import BitRegister
+
+from pytket.phir.api import pytket_to_phir
+from pytket.phir.phirgen import WORDSIZE
 
 from .test_utils import QasmFile, get_qasm_as_circuit
 

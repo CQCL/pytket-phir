@@ -7,6 +7,7 @@
 ##############################################################################
 
 from pytket.circuit import Conditional, Op, OpType
+
 from pytket.phir.sharding.sharder import Sharder
 
 from .test_utils import QasmFile, get_qasm_as_circuit
@@ -117,7 +118,7 @@ class TestSharder:
 
         # shard 1: reset q;
         assert shards[1].primary_command.op.type == OpType.Reset
-        assert len(shards[1].sub_commands.items()) == 0
+        assert not shards[1].sub_commands.items()
         assert shards[1].qubits_used == {circuit.qubits[0]}
         assert shards[1].depends_upon == {shards[0].ID}
         assert not shards[1].bits_written
@@ -155,7 +156,7 @@ class TestSharder:
 
         # shard 0: [], c[3] = 1
         assert shards[0].primary_command.op.type == OpType.SetBits
-        assert len(shards[0].sub_commands.items()) == 0
+        assert not shards[0].sub_commands.items()
         assert not shards[0].qubits_used
         assert shards[0].bits_written == {circuit.bits[3]}
         assert shards[0].bits_read == {circuit.bits[3]}  # bits written are always read
@@ -179,7 +180,7 @@ class TestSharder:
 
         # shard 2: [] CX q[0], q[1];
         assert shards[2].primary_command.op.type == OpType.CX
-        assert len(shards[2].sub_commands.items()) == 0
+        assert not shards[2].sub_commands.items()
         assert shards[2].qubits_used == {circuit.qubits[0], circuit.qubits[1]}
         assert not shards[2].bits_written
         assert not shards[2].bits_read
@@ -187,7 +188,7 @@ class TestSharder:
 
         # shard 3: measure q[0]->c[0];
         assert shards[3].primary_command.op.type == OpType.Measure
-        assert len(shards[3].sub_commands.items()) == 0
+        assert not shards[3].sub_commands.items()
         assert shards[3].qubits_used == {circuit.qubits[0]}
         assert shards[3].bits_written == {circuit.bits[0]}
         assert shards[3].bits_read == {circuit.bits[0]}
@@ -217,7 +218,7 @@ class TestSharder:
 
         # shard 5: [] CX q[2], q[3];
         assert shards[5].primary_command.op.type == OpType.CX
-        assert len(shards[5].sub_commands.items()) == 0
+        assert not shards[5].sub_commands.items()
         assert shards[5].qubits_used == {circuit.qubits[2], circuit.qubits[3]}
         assert not shards[5].bits_written
         assert not shards[5].bits_read
@@ -225,7 +226,7 @@ class TestSharder:
 
         # shard 6: measure q[2]->c[2];
         assert shards[6].primary_command.op.type == OpType.Measure
-        assert len(shards[6].sub_commands.items()) == 0
+        assert not shards[6].sub_commands.items()
         assert shards[6].qubits_used == {circuit.qubits[2]}
         assert shards[6].bits_written == {circuit.bits[2]}
         assert shards[6].bits_read == {circuit.bits[2]}
@@ -309,7 +310,7 @@ class TestSharder:
 
         # shard 0
         assert shards[0].primary_command.op.type == OpType.SetBits
-        assert len(shards[0].sub_commands.items()) == 0
+        assert not shards[0].sub_commands.items()
         assert not shards[0].qubits_used
         assert shards[0].bits_written == {
             circuit.bits[0],
@@ -327,7 +328,7 @@ class TestSharder:
 
         # shard 1
         assert shards[1].primary_command.op.type == OpType.CopyBits
-        assert len(shards[1].sub_commands.items()) == 0
+        assert not shards[1].sub_commands.items()
         assert not shards[1].qubits_used
         assert shards[1].bits_written == {
             circuit.bits[4],
@@ -349,7 +350,7 @@ class TestSharder:
 
         # shard 2
         assert shards[2].primary_command.op.type == OpType.ClExpr
-        assert len(shards[2].sub_commands.items()) == 0
+        assert not shards[2].sub_commands.items()
         assert not shards[2].qubits_used
         assert shards[2].bits_written == {
             circuit.bits[0],
@@ -383,7 +384,7 @@ class TestSharder:
 
         # shard 2
         assert shards[3].primary_command.op.type == OpType.ClExpr
-        assert len(shards[3].sub_commands.items()) == 0
+        assert not shards[3].sub_commands.items()
         assert not shards[3].qubits_used
         assert shards[3].bits_written == {
             circuit.bits[0],

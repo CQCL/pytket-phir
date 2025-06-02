@@ -11,6 +11,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from pytket.qasm.qasm import circuit_from_qasm
 from wasmtime import wat2wasm
 
 from pytket.phir.phirgen import WORDSIZE
@@ -19,10 +20,10 @@ from pytket.phir.place_and_route import place_and_route
 from pytket.phir.qtm_machine import QTM_MACHINES_MAP, QtmMachine
 from pytket.phir.rebasing.rebaser import rebase_to_qtm_machine
 from pytket.phir.sharding.sharder import Sharder
-from pytket.qasm.qasm import circuit_from_qasm
 
 if TYPE_CHECKING:
     from pytket.circuit import Circuit
+
     from pytket.phir.phirgen import JsonDict
 
 
@@ -93,6 +94,10 @@ def get_phir_json(qasmfile: QasmFile, *, rebase: bool) -> "JsonDict":
 def get_wat_as_wasm_bytes(wat_file: WatFile) -> bytes:
     """Gets a given wat file, converted to WASM bytes by wasmtime."""
     this_dir = Path(Path(__file__).resolve()).parent
-    return wat2wasm(
-        Path(f"{this_dir}/data/wasm/{wat_file.name}.wat").read_text(encoding="utf-8")
+    return bytes(
+        wat2wasm(
+            Path(f"{this_dir}/data/wasm/{wat_file.name}.wat").read_text(
+                encoding="utf-8"
+            )
+        )
     )

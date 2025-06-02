@@ -14,12 +14,12 @@ import json
 import logging
 
 import pytest
-
 from pytket.circuit import Circuit, Qubit
-from pytket.phir.api import pytket_to_phir, qasm_to_phir
-from pytket.phir.qtm_machine import QtmMachine
 from pytket.qasm.qasm import QASMUnsupportedError
 from pytket.wasm.wasm import WasmModuleHandler
+
+from pytket.phir.api import pytket_to_phir, qasm_to_phir
+from pytket.phir.qtm_machine import QtmMachine
 
 from .test_utils import WatFile, get_wat_as_wasm_bytes
 

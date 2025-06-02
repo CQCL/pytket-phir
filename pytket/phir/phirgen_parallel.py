@@ -14,6 +14,7 @@ from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 import pytket.circuit as tk
+
 from phir.model import PHIRModel
 
 from .phirgen import PHIR_HEADER, append_cmd, arg_to_bit, get_decls, tket_gate_to_phir

@@ -23,9 +23,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import assert_never
 
-import pytket
 import pytket.circuit as tk
-from phir.model import PHIRModel
 from pytket.circuit import ClBitVar, ClExpr, ClOp, ClRegVar
 from pytket.circuit.clexpr import has_reg_output
 from pytket.circuit.logic_exp import (
@@ -37,6 +35,9 @@ from pytket.circuit.logic_exp import (
 )
 from pytket.unit_id import Bit as tkBit
 from pytket.unit_id import BitRegister, QubitRegister
+
+import pytket
+from phir.model import PHIRModel
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

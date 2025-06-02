@@ -15,12 +15,12 @@ from importlib.metadata import version
 
 from pecos.engines.hybrid_engine import HybridEngine
 from pecos.foreign_objects.wasmtime import WasmtimeObj
-
-from pytket.phir.phirgen import WORDSIZE
 from pytket.qasm.qasm import (
     circuit_from_qasm,
     circuit_from_qasm_wasm,
 )
+
+from pytket.phir.phirgen import WORDSIZE
 
 from .api import pytket_to_phir
 from .qtm_machine import QtmMachine

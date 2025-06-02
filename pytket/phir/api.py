@@ -12,10 +12,10 @@ import logging
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
+from pytket.qasm.qasm import circuit_from_qasm_str, circuit_from_qasm_wasm
 from rich import print  # noqa: A004
 
 from phir.model import PHIRModel
-from pytket.qasm.qasm import circuit_from_qasm_str, circuit_from_qasm_wasm
 
 from .phirgen import WORDSIZE, genphir
 from .phirgen_parallel import genphir_parallel

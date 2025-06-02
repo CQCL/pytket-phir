@@ -9,6 +9,7 @@
 from typing import TYPE_CHECKING
 
 from pytket.passes import AutoRebase, DecomposeBoxes
+
 from pytket.phir.qtm_machine import QTM_DEFAULT_GATESET, QTM_MACHINES_MAP, QtmMachine
 
 if TYPE_CHECKING:
