@@ -81,6 +81,6 @@ def main() -> None:
             HybridEngine(qsim="state-vector").run(
                 program=phir,
                 shots=10,
-                foreign_object=wasm_pecos_obj if args.wasm_file else None,  # type: ignore[arg-type]
+                foreign_object=wasm_pecos_obj if args.wasm_file else None,
             )
         )
