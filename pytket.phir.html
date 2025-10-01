@@ -1,0 +1,952 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pytket.phir package &#8212; pytket-phir 0.10 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=ac14934e"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pytket.phir';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pytket.phir.rebasing package" href="pytket.phir.rebasing.html" />
+    <link rel="prev" title="pytket.phir" href="modules.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pytket-phir 0.10 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    pytket.phir
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    pytket.phir
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">pytket.phir package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.rebasing.html">pytket.phir.rebasing package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html">pytket.phir.sharding package</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">pytket.phir</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pytket.phir package</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pytket-phir-package">
+<h1>pytket.phir package<a class="headerlink" href="#pytket-phir-package" title="Link to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pytket.phir.rebasing.html">pytket.phir.rebasing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.rebasing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.rebasing.html#module-pytket.phir.rebasing.rebaser">pytket.phir.rebasing.rebaser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pytket.phir.rebasing.html#pytket.phir.rebasing.rebaser.rebase_to_qtm_machine"><code class="docutils literal notranslate"><span class="pre">rebase_to_qtm_machine()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.rebasing.html#module-pytket.phir.rebasing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pytket.phir.sharding.html">pytket.phir.sharding package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html#module-pytket.phir.sharding.shard">pytket.phir.sharding.shard module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard"><code class="docutils literal notranslate"><span class="pre">Shard</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.ID"><code class="docutils literal notranslate"><span class="pre">Shard.ID</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.bits_read"><code class="docutils literal notranslate"><span class="pre">Shard.bits_read</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.bits_written"><code class="docutils literal notranslate"><span class="pre">Shard.bits_written</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.depends_upon"><code class="docutils literal notranslate"><span class="pre">Shard.depends_upon</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.pretty_print"><code class="docutils literal notranslate"><span class="pre">Shard.pretty_print()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.primary_command"><code class="docutils literal notranslate"><span class="pre">Shard.primary_command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.qubits_used"><code class="docutils literal notranslate"><span class="pre">Shard.qubits_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard.sub_commands"><code class="docutils literal notranslate"><span class="pre">Shard.sub_commands</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html#module-pytket.phir.sharding.sharder">pytket.phir.sharding.sharder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.sharder.Sharder"><code class="docutils literal notranslate"><span class="pre">Sharder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.sharder.Sharder.shard"><code class="docutils literal notranslate"><span class="pre">Sharder.shard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.sharder.Sharder.should_op_create_shard"><code class="docutils literal notranslate"><span class="pre">Sharder.should_op_create_shard()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html#module-pytket.phir.sharding.shards2ops">pytket.phir.sharding.shards2ops module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shards2ops.get_qid"><code class="docutils literal notranslate"><span class="pre">get_qid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shards2ops.parse_shards_naive"><code class="docutils literal notranslate"><span class="pre">parse_shards_naive()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pytket.phir.sharding.html#module-pytket.phir.sharding">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-pytket.phir.api">
+<span id="pytket-phir-api-module"></span><h2>pytket.phir.api module<a class="headerlink" href="#module-pytket.phir.api" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.api.pytket_to_phir">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.api.</span></span><span class="sig-name descname"><span class="pre">pytket_to_phir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qtm_machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.qtm_machine.QtmMachine" title="pytket.phir.qtm_machine.QtmMachine"><span class="pre">QtmMachine</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.api.pytket_to_phir" title="Link to this definition">#</a></dt>
+<dd><p>Converts a pytket circuit into its PHIR representation.</p>
+<p>This can optionally include rebasing against a Quantinuum machine architecture,
+and control of the TKET optimization level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit</strong> – Circuit object to be converted</p></li>
+<li><p><strong>qtm_machine</strong> – (Optional) Quantinuum machine architecture to rebase against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PHIR JSON as a str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.api.qasm_to_phir">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.api.</span></span><span class="sig-name descname"><span class="pre">qasm_to_phir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qasm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qtm_machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.qtm_machine.QtmMachine" title="pytket.phir.qtm_machine.QtmMachine"><span class="pre">QtmMachine</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wasm_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.api.qasm_to_phir" title="Link to this definition">#</a></dt>
+<dd><p>Converts a QASM circuit string into its PHIR representation.</p>
+<p>This can optionally include rebasing against a Quantinuum machine architecture,
+and control of the TKET optimization level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qasm</strong> – QASM input to be converted</p></li>
+<li><p><strong>qtm_machine</strong> – (Optional) Quantinuum machine architecture to rebase against</p></li>
+<li><p><strong>wasm_bytes</strong> – (Optional) WASM as bytes to include as part of circuit</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.cli">
+<span id="pytket-phir-cli-module"></span><h2>pytket.phir.cli module<a class="headerlink" href="#module-pytket.phir.cli" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.cli.main">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.cli.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.cli.main" title="Link to this definition">#</a></dt>
+<dd><p>pytket-phir compiler CLI.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.machine">
+<span id="pytket-phir-machine-module"></span><h2>pytket.phir.machine module<a class="headerlink" href="#module-pytket.phir.machine" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytket.phir.machine.Machine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.machine.</span></span><span class="sig-name descname"><span class="pre">Machine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gateset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">OpType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.machine.MachineTimings" title="pytket.phir.machine.MachineTimings"><span class="pre">MachineTimings</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.machine.Machine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A machine info class for testing.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pytket.phir.machine.MachineTimings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.machine.</span></span><span class="sig-name descname"><span class="pre">MachineTimings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tq_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sq_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qb_swap_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_prep_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.machine.MachineTimings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Gate times for a machine.</p>
+<p>tq_time: time for a two qubit gate
+sq_time: time for a single qubit gate
+qb_swap_time: time it takes to swap to qubits
+meas_prep_time: time to arrange qubits for measurement</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pytket.phir.machine.MachineTimings.meas_prep_time">
+<span class="sig-name descname"><span class="pre">meas_prep_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pytket.phir.machine.MachineTimings.meas_prep_time" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pytket.phir.machine.MachineTimings.qb_swap_time">
+<span class="sig-name descname"><span class="pre">qb_swap_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pytket.phir.machine.MachineTimings.qb_swap_time" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pytket.phir.machine.MachineTimings.sq_time">
+<span class="sig-name descname"><span class="pre">sq_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pytket.phir.machine.MachineTimings.sq_time" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pytket.phir.machine.MachineTimings.tq_time">
+<span class="sig-name descname"><span class="pre">tq_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pytket.phir.machine.MachineTimings.tq_time" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.phirgen">
+<span id="pytket-phir-phirgen-module"></span><h2>pytket.phir.phirgen module<a class="headerlink" href="#module-pytket.phir.phirgen" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.append_cmd">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">append_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.append_cmd" title="Link to this definition">#</a></dt>
+<dd><p>Convert a pytket command to a PHIR command and append to <cite>ops</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> – pytket command obtained from pytket-phir</p></li>
+<li><p><strong>ops</strong> – the list of ops to append to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.arg_to_bit">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">arg_to_bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UnitID</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.arg_to_bit" title="Link to this definition">#</a></dt>
+<dd><p>Convert tket arg to Bit.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.assign_cop">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">assign_cop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Var</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">JsonDict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Bit</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.assign_cop" title="Link to this definition">#</a></dt>
+<dd><p>PHIR for classical assign operation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.classical_op">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">classical_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LogicExp</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitwise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.classical_op" title="Link to this definition">#</a></dt>
+<dd><p>PHIR for classical register operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.convert_classicalevalop">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">convert_classicalevalop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClassicalEvalOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.convert_classicalevalop" title="Link to this definition">#</a></dt>
+<dd><p>Return PHIR dict for a pytket ClassicalEvalOp.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.convert_gate">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">convert_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.convert_gate" title="Link to this definition">#</a></dt>
+<dd><p>Return PHIR dict for a tket gate op.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.convert_subcmd">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">convert_subcmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.convert_subcmd" title="Link to this definition">#</a></dt>
+<dd><p>Return PHIR dict given a tket op and its arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.cop_from_op_name">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">cop_from_op_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.cop_from_op_name" title="Link to this definition">#</a></dt>
+<dd><p>Get PHIR classical op name from pytket op name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.create_wasm_op">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">create_wasm_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wasm_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WASMOp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.create_wasm_op" title="Link to this definition">#</a></dt>
+<dd><p>Creates a PHIR operation for a WASM command.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.dedupe_bits_to_registers">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">dedupe_bits_to_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">UnitID</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.dedupe_bits_to_registers" title="Link to this definition">#</a></dt>
+<dd><p>Dedupes a list of bits to their registers, keeping order intact.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.extract_wasm_args_and_returns">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">extract_wasm_args_and_returns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WASMOp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.extract_wasm_args_and_returns" title="Link to this definition">#</a></dt>
+<dd><p>Extract the wasm args and return values as whole register names.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.genphir">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">genphir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Ordering</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ShardLayer</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Cost</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Circuit</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.genphir" title="Link to this definition">#</a></dt>
+<dd><p>Convert a list of shards to the equivalent PHIR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inp</strong> – list of shards</p></li>
+<li><p><strong>circuit</strong> – corresponding tket Circuit</p></li>
+<li><p><strong>machine_ops</strong> – whether to include machine ops</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.get_cop_from_op">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">get_cop_from_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClOp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.get_cop_from_op" title="Link to this definition">#</a></dt>
+<dd><p>Get PHIR classical op name from ClOp.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.get_decls">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">get_decls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qregs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">QubitRegister</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cregs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BitRegister</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.get_decls" title="Link to this definition">#</a></dt>
+<dd><p>Get PHIR declarations for qubits and classical variables.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.make_comment_text">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">make_comment_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Op</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.phirgen.make_comment_text" title="Link to this definition">#</a></dt>
+<dd><p>Converts a command + op to the PHIR comment spec.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.multi_bit_condition">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">multi_bit_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">UnitID</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.multi_bit_condition" title="Link to this definition">#</a></dt>
+<dd><p>Construct bitwise condition.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen.phir_from_clexpr_arg">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen.</span></span><span class="sig-name descname"><span class="pre">phir_from_clexpr_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr_arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ClBitVar</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ClRegVar</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ClExpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_posn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_posn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Bit</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen.phir_from_clexpr_arg" title="Link to this definition">#</a></dt>
+<dd><p>Return PHIR dict for a ClExpr.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.phirgen_parallel">
+<span id="pytket-phir-phirgen-parallel-module"></span><h2>pytket.phir.phirgen_parallel module<a class="headerlink" href="#module-pytket.phir.phirgen_parallel" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.adjust_phir_transport_time">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">adjust_phir_transport_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">JsonDict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.machine.Machine" title="pytket.phir.machine.Machine"><span class="pre">Machine</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.adjust_phir_transport_time" title="Link to this definition">#</a></dt>
+<dd><p>Analyze the generated phir and adjust the transport time.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.consolidate_sub_commands">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">consolidate_sub_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard" title="pytket.phir.sharding.shard.Shard"><span class="pre">Shard</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard" title="pytket.phir.sharding.shard.Shard"><span class="pre">Shard</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.consolidate_sub_commands" title="Link to this definition">#</a></dt>
+<dd><p>Group all the sub_commands into the first shard in the group.</p>
+<p>This allows maximum parallelization of sub-commands across shards.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.exec_order_preserved">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">exec_order_preserved</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_exec_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_last_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.exec_order_preserved" title="Link to this definition">#</a></dt>
+<dd><p>Determine whether order is preserved when adding qubits to groups.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.format_and_add_primary_commands">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">format_and_add_primary_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard" title="pytket.phir.sharding.shard.Shard"><span class="pre">Shard</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">JsonDict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.format_and_add_primary_commands" title="Link to this definition">#</a></dt>
+<dd><p>Create properly formatted PHIR for parallel primary commands.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.genphir_parallel">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">genphir_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Ordering</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ShardLayer</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Cost</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.machine.Machine" title="pytket.phir.machine.Machine"><span class="pre">Machine</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.genphir_parallel" title="Link to this definition">#</a></dt>
+<dd><p>Convert a list of shards to the equivalent PHIR with parallel gating.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inp</strong> – list of shards</p></li>
+<li><p><strong>circuit</strong> – corresponding tket Circuit</p></li>
+<li><p><strong>machine</strong> – a QTM machine on which to simulate the circuit</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.get_transport_time_for_gate">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">get_transport_time_for_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.machine.Machine" title="pytket.phir.machine.Machine"><span class="pre">Machine</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.get_transport_time_for_gate" title="Link to this definition">#</a></dt>
+<dd><p>Return the transport time on the machine for the given gate type.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.groups2qops">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">groups2qops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Command</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">JsonDict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.groups2qops" title="Link to this definition">#</a></dt>
+<dd><p>Convert the groups of parallel ops to properly formatted PHIR.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.process_shards">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">process_shards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shard_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ShardLayer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_parallel_tq_gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_parallel_sq_gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard" title="pytket.phir.sharding.shard.Shard"><span class="pre">Shard</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.process_shards" title="Link to this definition">#</a></dt>
+<dd><p>Break up the shard layer into parallelizable groups.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.phirgen_parallel.process_sub_commands">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.phirgen_parallel.</span></span><span class="sig-name descname"><span class="pre">process_sub_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">UnitID</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Command</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_parallel_sq_gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Command</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.phirgen_parallel.process_sub_commands" title="Link to this definition">#</a></dt>
+<dd><p>Create parallelizable groups of sub-commands.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.place_and_route">
+<span id="pytket-phir-place-and-route-module"></span><h2>pytket.phir.place_and_route module<a class="headerlink" href="#module-pytket.phir.place_and_route" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.place_and_route.place_and_route">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.place_and_route.</span></span><span class="sig-name descname"><span class="pre">place_and_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shards</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pytket.phir.sharding.html#pytket.phir.sharding.shard.Shard" title="pytket.phir.sharding.shard.Shard"><span class="pre">Shard</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pytket.phir.machine.Machine" title="pytket.phir.machine.Machine"><span class="pre">Machine</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Ordering</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ShardLayer</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Cost</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.place_and_route.place_and_route" title="Link to this definition">#</a></dt>
+<dd><p>Get all the routing info needed for PHIR generation.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.placement">
+<span id="pytket-phir-placement-module"></span><h2>pytket.phir.placement module<a class="headerlink" href="#module-pytket.phir.placement" title="Link to this heading">#</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytket.phir.placement.GateOpportunitiesError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">GateOpportunitiesError</span></span><a class="headerlink" href="#pytket.phir.placement.GateOpportunitiesError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when gating zones cannot accommodate all operations.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytket.phir.placement.InvalidParallelOpsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">InvalidParallelOpsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.placement.InvalidParallelOpsError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when a layer tries to gate the same qubit more than once in parallel.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytket.phir.placement.PlacementCheckError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">PlacementCheckError</span></span><a class="headerlink" href="#pytket.phir.placement.PlacementCheckError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when placement check fails.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.placement.nearest">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">nearest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#pytket.phir.placement.nearest" title="Link to this definition">#</a></dt>
+<dd><p>Return the nearest available zone to the given zone.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.placement.optimized_place">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">optimized_place</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.placement.optimized_place" title="Link to this definition">#</a></dt>
+<dd><p>Place the qubits in the right order.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.placement.place">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">place</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.placement.place" title="Link to this definition">#</a></dt>
+<dd><p>Place the qubits in the right order.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.placement.place_tq_ops">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">place_tq_ops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tq_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placed_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tq_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sq_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.placement.place_tq_ops" title="Link to this definition">#</a></dt>
+<dd><p>A helper function to place the TQ operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.placement.placement_check">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.placement.</span></span><span class="sig-name descname"><span class="pre">placement_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sq_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#pytket.phir.placement.placement_check" title="Link to this definition">#</a></dt>
+<dd><p>Ensure that the qubits end up in the right gating zones.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.qtm_machine">
+<span id="pytket-phir-qtm-machine-module"></span><h2>pytket.phir.qtm_machine module<a class="headerlink" href="#module-pytket.phir.qtm_machine" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pytket.phir.qtm_machine.QtmMachine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.qtm_machine.</span></span><span class="sig-name descname"><span class="pre">QtmMachine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.qtm_machine.QtmMachine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Available machine architectures.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pytket.phir.qtm_machine.QtmMachine.H1">
+<span class="sig-name descname"><span class="pre">H1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'H1'</span></em><a class="headerlink" href="#pytket.phir.qtm_machine.QtmMachine.H1" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir.routing">
+<span id="pytket-phir-routing-module"></span><h2>pytket.phir.routing module<a class="headerlink" href="#module-pytket.phir.routing" title="Link to this heading">#</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytket.phir.routing.PermutationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.routing.</span></span><span class="sig-name descname"><span class="pre">PermutationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.routing.PermutationError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error raised by inverse() util function.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pytket.phir.routing.TransportError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pytket.phir.routing.</span></span><span class="sig-name descname"><span class="pre">TransportError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pytket.phir.routing.TransportError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error raised by inverse() util function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.routing.inverse">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.routing.</span></span><span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pytket.phir.routing.inverse" title="Link to this definition">#</a></dt>
+<dd><p>Inverse of a permutation list.</p>
+<p>If a[i] = x, then inverse(a)[x] = i.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pytket.phir.routing.transport_cost">
+<span class="sig-prename descclassname"><span class="pre">pytket.phir.routing.</span></span><span class="sig-name descname"><span class="pre">transport_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swap_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#pytket.phir.routing.transport_cost" title="Link to this definition">#</a></dt>
+<dd><p>Cost of transport from init to goal.</p>
+<p>This is based on the number of parallel swaps performed by Odd-Even
+Transposition Sort, which is the maximum distance that any qubit travels.</p>
+</dd></dl>
+
+</section>
+<section id="module-pytket.phir">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pytket.phir" title="Link to this heading">#</a></h2>
+<p>Init file for pytket-phir.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="modules.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pytket.phir</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pytket.phir.rebasing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pytket.phir.rebasing package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.api">pytket.phir.api module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.api.pytket_to_phir"><code class="docutils literal notranslate"><span class="pre">pytket_to_phir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.api.qasm_to_phir"><code class="docutils literal notranslate"><span class="pre">qasm_to_phir()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.cli">pytket.phir.cli module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.cli.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.machine">pytket.phir.machine module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.Machine"><code class="docutils literal notranslate"><span class="pre">Machine</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.MachineTimings"><code class="docutils literal notranslate"><span class="pre">MachineTimings</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.MachineTimings.meas_prep_time"><code class="docutils literal notranslate"><span class="pre">MachineTimings.meas_prep_time</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.MachineTimings.qb_swap_time"><code class="docutils literal notranslate"><span class="pre">MachineTimings.qb_swap_time</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.MachineTimings.sq_time"><code class="docutils literal notranslate"><span class="pre">MachineTimings.sq_time</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.machine.MachineTimings.tq_time"><code class="docutils literal notranslate"><span class="pre">MachineTimings.tq_time</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.phirgen">pytket.phir.phirgen module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.append_cmd"><code class="docutils literal notranslate"><span class="pre">append_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.arg_to_bit"><code class="docutils literal notranslate"><span class="pre">arg_to_bit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.assign_cop"><code class="docutils literal notranslate"><span class="pre">assign_cop()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.classical_op"><code class="docutils literal notranslate"><span class="pre">classical_op()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.convert_classicalevalop"><code class="docutils literal notranslate"><span class="pre">convert_classicalevalop()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.convert_gate"><code class="docutils literal notranslate"><span class="pre">convert_gate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.convert_subcmd"><code class="docutils literal notranslate"><span class="pre">convert_subcmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.cop_from_op_name"><code class="docutils literal notranslate"><span class="pre">cop_from_op_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.create_wasm_op"><code class="docutils literal notranslate"><span class="pre">create_wasm_op()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.dedupe_bits_to_registers"><code class="docutils literal notranslate"><span class="pre">dedupe_bits_to_registers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.extract_wasm_args_and_returns"><code class="docutils literal notranslate"><span class="pre">extract_wasm_args_and_returns()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.genphir"><code class="docutils literal notranslate"><span class="pre">genphir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.get_cop_from_op"><code class="docutils literal notranslate"><span class="pre">get_cop_from_op()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.get_decls"><code class="docutils literal notranslate"><span class="pre">get_decls()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.make_comment_text"><code class="docutils literal notranslate"><span class="pre">make_comment_text()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.multi_bit_condition"><code class="docutils literal notranslate"><span class="pre">multi_bit_condition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen.phir_from_clexpr_arg"><code class="docutils literal notranslate"><span class="pre">phir_from_clexpr_arg()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.phirgen_parallel">pytket.phir.phirgen_parallel module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.adjust_phir_transport_time"><code class="docutils literal notranslate"><span class="pre">adjust_phir_transport_time()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.consolidate_sub_commands"><code class="docutils literal notranslate"><span class="pre">consolidate_sub_commands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.exec_order_preserved"><code class="docutils literal notranslate"><span class="pre">exec_order_preserved()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.format_and_add_primary_commands"><code class="docutils literal notranslate"><span class="pre">format_and_add_primary_commands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.genphir_parallel"><code class="docutils literal notranslate"><span class="pre">genphir_parallel()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.get_transport_time_for_gate"><code class="docutils literal notranslate"><span class="pre">get_transport_time_for_gate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.groups2qops"><code class="docutils literal notranslate"><span class="pre">groups2qops()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.process_shards"><code class="docutils literal notranslate"><span class="pre">process_shards()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.phirgen_parallel.process_sub_commands"><code class="docutils literal notranslate"><span class="pre">process_sub_commands()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.place_and_route">pytket.phir.place_and_route module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.place_and_route.place_and_route"><code class="docutils literal notranslate"><span class="pre">place_and_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.placement">pytket.phir.placement module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.GateOpportunitiesError"><code class="docutils literal notranslate"><span class="pre">GateOpportunitiesError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.InvalidParallelOpsError"><code class="docutils literal notranslate"><span class="pre">InvalidParallelOpsError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.PlacementCheckError"><code class="docutils literal notranslate"><span class="pre">PlacementCheckError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.nearest"><code class="docutils literal notranslate"><span class="pre">nearest()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.optimized_place"><code class="docutils literal notranslate"><span class="pre">optimized_place()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.place"><code class="docutils literal notranslate"><span class="pre">place()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.place_tq_ops"><code class="docutils literal notranslate"><span class="pre">place_tq_ops()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.placement.placement_check"><code class="docutils literal notranslate"><span class="pre">placement_check()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.qtm_machine">pytket.phir.qtm_machine module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.qtm_machine.QtmMachine"><code class="docutils literal notranslate"><span class="pre">QtmMachine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.qtm_machine.QtmMachine.H1"><code class="docutils literal notranslate"><span class="pre">QtmMachine.H1</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir.routing">pytket.phir.routing module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.routing.PermutationError"><code class="docutils literal notranslate"><span class="pre">PermutationError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.routing.TransportError"><code class="docutils literal notranslate"><span class="pre">TransportError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.routing.inverse"><code class="docutils literal notranslate"><span class="pre">inverse()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytket.phir.routing.transport_cost"><code class="docutils literal notranslate"><span class="pre">transport_cost()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pytket.phir">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pytket.phir.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023-2025, Quantinuum LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
