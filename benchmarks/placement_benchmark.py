@@ -6,7 +6,7 @@
 #
 ##############################################################################
 
-# ruff: file-ignore[INP001, T201]
+# ruff: file-ignore[implicit-namespace-package, print]
 
 """Benchmark the optimized placement hot path on a synthetic full layer."""
 
