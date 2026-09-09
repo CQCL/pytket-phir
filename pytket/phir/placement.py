@@ -54,34 +54,34 @@ def placement_check(
             q1, q2 = op[0], op[1]
             # check that the q1 is next to q2 and they are in the right zone
             zone = (inv[q1] in tq_options) | (inv[q2] in tq_options)
-            neighbor = (state.index(q2) == state.index(q1) + 1) | (
-                state.index(q1) == state.index(q2) + 1
-            )
+            neighbor = (inv[q2] == inv[q1] + 1) | (inv[q1] == inv[q2] + 1)
             placement_valid = zone & neighbor
 
         else:  # sq operation
             q = op[0]
-            zone = state.index(q) in sq_options
+            zone = inv[q] in sq_options
             placement_valid = zone
 
     return placement_valid
 
 
-def nearest(zone: int, options: set[int]) -> int:
-    """Return the nearest available zone to the given zone."""
-    lst = sorted(options)
-    ind = bisect.bisect_left(lst, zone)
+def _nearest_sorted(zone: int, sorted_options: list[int]) -> int:
+    """Return the nearest available zone from sorted options."""
+    ind = bisect.bisect_left(sorted_options, zone)
 
     if ind == 0:
-        nearest_zone = lst[0]
-    elif ind == len(lst):
-        nearest_zone = lst[-1]
-    else:
-        lft = lst[ind - 1]
-        rgt = lst[ind]
-        nearest_zone = lft if rgt - zone > zone - lft else rgt
+        return sorted_options[0]
+    if ind == len(sorted_options):
+        return sorted_options[-1]
 
-    return nearest_zone
+    lft = sorted_options[ind - 1]
+    rgt = sorted_options[ind]
+    return lft if rgt - zone > zone - lft else rgt
+
+
+def nearest(zone: int, options: set[int]) -> int:
+    """Return the nearest available zone to the given zone."""
+    return _nearest_sorted(zone, sorted(options))
 
 
 def place_tq_ops(
@@ -229,6 +229,8 @@ def optimized_place(
             order[zone] = order[zone + 1]
             order[zone + 1] = swapped
 
+    sorted_sq_zones = sorted(sq_zones)
+
     # place the sq ops
     for op in sq_ops:
         q1 = op[0]
@@ -236,19 +238,17 @@ def optimized_place(
         if q1 in placed_qubits:
             raise InvalidParallelOpsError(q1)
 
-        prev_index = prev_state.index(q1)
-        nearest_sq_zone = nearest(prev_index, sq_zones)
+        nearest_sq_zone = _nearest_sorted(prev_state_inv[q1], sorted_sq_zones)
         order[nearest_sq_zone] = q1
-        sq_zones.discard(nearest_sq_zone)
+        sorted_sq_zones.remove(nearest_sq_zone)
         placed_qubits.add(q1)
 
     # fill in the rest of the slots in the order with the inactive qubits
     for i in range(num_qubits):
         if i not in placed_qubits:
-            prev_index = prev_state.index(i)
-            nearest_sq_zone = nearest(prev_index, sq_zones)
+            nearest_sq_zone = _nearest_sorted(prev_state_inv[i], sorted_sq_zones)
             order[nearest_sq_zone] = i
-            sq_zones.discard(nearest_sq_zone)
+            sorted_sq_zones.remove(nearest_sq_zone)
 
     if placement_check(ops, tq_options, sq_options, order):
         return order
