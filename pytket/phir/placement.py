@@ -202,6 +202,18 @@ def place(  # ruff: ignore[too-many-branches]
     raise PlacementCheckError
 
 
+def _validate_tq_op_ids(tq_ops: list[list[int]], inv: list[int]) -> None:
+    """Validate every TQ operand against the inverse-permutation array.
+
+    Unoccupied TQ zones are left as the ``-1`` sentinel in ``order``, so
+    qubit ids must be checked here (against the user-supplied ops) rather
+    than by indexing ``inv`` with whatever ends up in ``order`` later.
+    """
+    for tq_op in tq_ops:
+        _position(inv, tq_op[0])
+        _position(inv, tq_op[1])
+
+
 def optimized_place(
     ops: list[list[int]],
     tq_options: set[int],
@@ -236,10 +248,13 @@ def optimized_place(
     if len(sq_ops) > len(sq_zones) - 2 * len(tq_ops):
         # Because SQ zones are offsets of TQ zones, each tq op covers 2 sq zones
         raise GateOpportunitiesError
+
+    prev_state_inv = inverse(prev_state)
+    _validate_tq_op_ids(tq_ops, prev_state_inv)
+
     # place the tq ops
     order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
     # run a check to avoid unnecessary swaps
-    prev_state_inv = inverse(prev_state)
     for zone in tq_options:
         # enforce the relative ordering of qubits to prevent uneseccasry swaps
         # if the first qubit of a TQ gate was to the right of the second in prev_state

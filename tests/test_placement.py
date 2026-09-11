@@ -293,6 +293,9 @@ def test_optimized_place() -> None:
     assert result == expected_larger
     assert placement_check(ops, tq_options, sq_options, result)
 
+
+def test_optimized_place_error_paths() -> None:
+    """Test optimized_place error paths, including invalid qubit ids."""
     # error paths still raised the same way
     ops = [[0, 1], [2]]
     tq_options = {0}
@@ -321,7 +324,19 @@ def test_optimized_place() -> None:
     with pytest.raises(InvalidQubitIdError):
         optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
 
+    # out-of-range TQ-op qubit ids must also be rejected before the
+    # ordering/swap-check pass, not raise a raw IndexError when an
+    # unvalidated id reaches prev_state_inv[...] there
+    ops = [[4, 0]]
+    tq_options = {1}
+    sq_options = set(range(4))
+    trap_size = 4
+    prev_state = [0, 1, 2, 3]
+    with pytest.raises(InvalidQubitIdError):
+        optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
+
 
 test_placement_check()
 test_place()
 test_optimized_place()
+test_optimized_place_error_paths()
