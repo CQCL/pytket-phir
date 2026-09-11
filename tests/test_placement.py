@@ -332,9 +332,3 @@ def test_optimized_place_error_paths() -> None:
     ):
         with pytest.raises(InvalidQubitIdError):
             optimized_place(invalid_ops, tq_options, sq_options, trap_size, prev_state)
-
-
-test_placement_check()
-test_place()
-test_optimized_place()
-test_optimized_place_error_paths()
