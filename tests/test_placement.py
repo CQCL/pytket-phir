@@ -72,15 +72,17 @@ def test_placement_check() -> None:
     # out-of-range/negative qubit ids must be rejected, not silently
     # aliased via Python's negative-index wraparound (regression for
     # inv[q]/prev_state_inv[q] lookups replacing state.index(q))
-    ops = [[-1], [0]]
     state = [0, 1, 2, 3]
-    with pytest.raises(InvalidQubitIdError):
-        placement_check(ops, m.tq_options, m.sq_options, state)
-
-    ops = [[4], [0]]
-    state = [0, 1, 2, 3]
-    with pytest.raises(InvalidQubitIdError):
-        placement_check(ops, m.tq_options, m.sq_options, state)
+    for invalid_ops in (
+        [[-1], [0]],
+        [[4], [0]],
+        [[-1, 0]],
+        [[0, -1]],
+        [[4, 0]],
+        [[0, 4]],
+    ):
+        with pytest.raises(InvalidQubitIdError):
+            placement_check(invalid_ops, m.tq_options, m.sq_options, state)
 
 
 def test_place() -> None:
@@ -313,27 +315,23 @@ def test_optimized_place_error_paths() -> None:
     with pytest.raises(InvalidParallelOpsError):
         optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
 
-    # out-of-range/negative sq-op qubit ids must be rejected, not silently
-    # aliased via Python's negative-index wraparound (regression for
-    # prev_state_inv[q1] lookup replacing prev_state.index(q1))
-    ops = [[-1]]
-    tq_options = set()
-    sq_options = {0, 1, 2, 3}
-    trap_size = 4
-    prev_state = [0, 1, 2, 3]
-    with pytest.raises(InvalidQubitIdError):
-        optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
-
-    # out-of-range TQ-op qubit ids must also be rejected before the
-    # ordering/swap-check pass, not raise a raw IndexError when an
-    # unvalidated id reaches prev_state_inv[...] there
-    ops = [[4, 0]]
+    # out-of-range/negative sq-op and tq-op qubit ids must be rejected, not
+    # silently aliased via Python's negative-index wraparound or raise raw
+    # IndexError in placement passes
     tq_options = {1}
     sq_options = set(range(4))
     trap_size = 4
     prev_state = [0, 1, 2, 3]
-    with pytest.raises(InvalidQubitIdError):
-        optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
+    for invalid_ops in (
+        [[-1]],
+        [[4]],
+        [[-1, 0]],
+        [[0, -1]],
+        [[4, 0]],
+        [[0, 4]],
+    ):
+        with pytest.raises(InvalidQubitIdError):
+            optimized_place(invalid_ops, tq_options, sq_options, trap_size, prev_state)
 
 
 test_placement_check()
