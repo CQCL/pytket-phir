@@ -33,6 +33,27 @@ class PlacementCheckError(Exception):
         super().__init__("Placement Check Failed")
 
 
+class InvalidQubitIdError(ValueError):
+    """Raised when an operation references a qubit id outside the placement."""
+
+    def __init__(self, q: int) -> None:
+        super().__init__(f"{q} is not a valid qubit id for this placement")
+
+
+def _position(inv: list[int], q: int) -> int:
+    """Return the position of qubit ``q`` using a precomputed inverse array.
+
+    Equivalent to ``state.index(q)`` (where ``inv = inverse(state)``), but
+    ``O(1)`` instead of ``O(n)``. ``inv`` is only valid for indices in
+    ``[0, len(inv))``; unlike plain ``inv[q]``, this rejects negative or
+    out-of-range ``q`` explicitly instead of silently aliasing into the
+    array via Python's negative-index wraparound.
+    """
+    if not 0 <= q < len(inv):
+        raise InvalidQubitIdError(q)
+    return inv[q]
+
+
 def placement_check(
     ops: list[list[int]],
     tq_options: set[int],
@@ -53,13 +74,14 @@ def placement_check(
         if len(op) == 2:  # tq operation   # ruff: ignore[magic-value-comparison]
             q1, q2 = op[0], op[1]
             # check that the q1 is next to q2 and they are in the right zone
-            zone = (inv[q1] in tq_options) | (inv[q2] in tq_options)
-            neighbor = (inv[q2] == inv[q1] + 1) | (inv[q1] == inv[q2] + 1)
+            pos1, pos2 = _position(inv, q1), _position(inv, q2)
+            zone = (pos1 in tq_options) | (pos2 in tq_options)
+            neighbor = (pos2 == pos1 + 1) | (pos1 == pos2 + 1)
             placement_valid = zone & neighbor
 
         else:  # sq operation
             q = op[0]
-            zone = inv[q] in sq_options
+            zone = _position(inv, q) in sq_options
             placement_valid = zone
 
     return placement_valid
@@ -180,6 +202,18 @@ def place(  # ruff: ignore[too-many-branches]
     raise PlacementCheckError
 
 
+def _validate_tq_op_ids(tq_ops: list[list[int]], inv: list[int]) -> None:
+    """Validate every TQ operand against the inverse-permutation array.
+
+    Unoccupied TQ zones are left as the ``-1`` sentinel in ``order``, so
+    qubit ids must be checked here (against the user-supplied ops) rather
+    than by indexing ``inv`` with whatever ends up in ``order`` later.
+    """
+    for tq_op in tq_ops:
+        _position(inv, tq_op[0])
+        _position(inv, tq_op[1])
+
+
 def optimized_place(
     ops: list[list[int]],
     tq_options: set[int],
@@ -214,10 +248,13 @@ def optimized_place(
     if len(sq_ops) > len(sq_zones) - 2 * len(tq_ops):
         # Because SQ zones are offsets of TQ zones, each tq op covers 2 sq zones
         raise GateOpportunitiesError
+
+    prev_state_inv = inverse(prev_state)
+    _validate_tq_op_ids(tq_ops, prev_state_inv)
+
     # place the tq ops
     order = place_tq_ops(tq_ops_sorted, placed_qubits, order, tq_zones, sq_zones)
     # run a check to avoid unnecessary swaps
-    prev_state_inv = inverse(prev_state)
     for zone in tq_options:
         # enforce the relative ordering of qubits to prevent uneseccasry swaps
         # if the first qubit of a TQ gate was to the right of the second in prev_state
@@ -238,7 +275,9 @@ def optimized_place(
         if q1 in placed_qubits:
             raise InvalidParallelOpsError(q1)
 
-        nearest_sq_zone = _nearest_sorted(prev_state_inv[q1], sorted_sq_zones)
+        nearest_sq_zone = _nearest_sorted(
+            _position(prev_state_inv, q1), sorted_sq_zones
+        )
         order[nearest_sq_zone] = q1
         sorted_sq_zones.remove(nearest_sq_zone)
         placed_qubits.add(q1)
