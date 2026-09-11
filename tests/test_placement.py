@@ -14,6 +14,7 @@ from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
+    InvalidQubitIdError,
     optimized_place,
     place,
     placement_check,
@@ -67,6 +68,19 @@ def test_placement_check() -> None:
     ops = [[1, 2], [3], [4]]
     state = [4, 1, 2, 3, 0, 5]
     assert not placement_check(ops, m2.tq_options, m2.sq_options, state)
+
+    # out-of-range/negative qubit ids must be rejected, not silently
+    # aliased via Python's negative-index wraparound (regression for
+    # inv[q]/prev_state_inv[q] lookups replacing state.index(q))
+    ops = [[-1], [0]]
+    state = [0, 1, 2, 3]
+    with pytest.raises(InvalidQubitIdError):
+        placement_check(ops, m.tq_options, m.sq_options, state)
+
+    ops = [[4], [0]]
+    state = [0, 1, 2, 3]
+    with pytest.raises(InvalidQubitIdError):
+        placement_check(ops, m.tq_options, m.sq_options, state)
 
 
 def test_place() -> None:
@@ -294,6 +308,17 @@ def test_optimized_place() -> None:
     trap_size = 4
     prev_state = [0, 1, 2, 3]
     with pytest.raises(InvalidParallelOpsError):
+        optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
+
+    # out-of-range/negative sq-op qubit ids must be rejected, not silently
+    # aliased via Python's negative-index wraparound (regression for
+    # prev_state_inv[q1] lookup replacing prev_state.index(q1))
+    ops = [[-1]]
+    tq_options = set()
+    sq_options = {0, 1, 2, 3}
+    trap_size = 4
+    prev_state = [0, 1, 2, 3]
+    with pytest.raises(InvalidQubitIdError):
         optimized_place(ops, tq_options, sq_options, trap_size, prev_state)
 
 
