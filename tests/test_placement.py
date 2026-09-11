@@ -14,6 +14,7 @@ from pytket.phir.machine import Machine, MachineTimings
 from pytket.phir.placement import (
     GateOpportunitiesError,
     InvalidParallelOpsError,
+    optimized_place,
     place,
     placement_check,
 )
@@ -162,6 +163,26 @@ def test_place() -> None:
     trap_size = 2
     with pytest.raises(InvalidParallelOpsError):
         place(ops, tq_options, sq_options, trap_size)
+
+
+def test_optimized_place_preserves_previous_order_for_unplaced_qubits() -> None:
+    """Test optimized placement of gates and inactive qubits."""
+    ops = [[0, 5], [2]]
+    tq_options = {1}
+    sq_options = set(range(6))
+    prev_state = [5, 4, 3, 2, 1, 0]
+
+    order = optimized_place(ops, tq_options, sq_options, 6, prev_state)
+
+    assert order == [3, 5, 0, 2, 1, 4]
+    assert placement_check(ops, tq_options, sq_options, order)
+
+
+def test_optimized_place_handles_only_inactive_qubits() -> None:
+    """Test optimized placement without operations."""
+    prev_state = [3, 2, 1, 0]
+
+    assert optimized_place([], set(), set(range(4)), 4, prev_state) == prev_state
 
 
 test_placement_check()
